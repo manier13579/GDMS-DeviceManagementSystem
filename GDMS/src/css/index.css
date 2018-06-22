@@ -4,14 +4,17 @@ body{
   font-family:Helvetica Neue,Helvetica,PingFang SC,微软雅黑,Tahoma,Arial,sans-serif;
   background-color:#F2F2F2;
   overflow:hidden;
+  
 }
+
 .left-wrap{
-  float:left;
+  position:absolute;
   height:100%;
   background-color:#24262F;
 }
 .right-wrap{
-  float:left;
+  position:absolute;
+  left:190px;
 }
 .bing-title{
   color:#ddd !important;
@@ -23,6 +26,12 @@ body{
   display:block;
   padding: 0 15;
   font-size:15px;
+  cursor:pointer;
+}
+.layui-icon-spread-left{
+  display:block;
+  padding: 0 15;
+  font-size:16px;
   cursor:pointer;
 }
 .layui-icon-refresh-3{
@@ -46,6 +55,13 @@ body{
   font-size:18px;
   cursor:pointer;
 }
+.layui-icon-screen-restore{
+  display:block;
+  padding: 0 15;
+  font-size:16px;
+  cursor:pointer;
+}
+
 .layui-icon-note{
   display:block;
   padding: 0 15;

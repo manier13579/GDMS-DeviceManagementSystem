@@ -5,6 +5,8 @@
   padding: 0 ;
   border-bottom: none;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+  min-width:750px;
+  z-index:9999;
 }
 .top-wrap .layui-nav .layui-this::after, .layui-nav-bar, .layui-nav-tree .layui-nav-itemed::after {
   top: 0 ;
@@ -34,6 +36,7 @@
   border-left:1px solid #eee;
   border-right:1px solid #eee;
   cursor: text;
+  border-radius:0;
 }
 .top-wrap .layui-nav-child {
   top: 55px;
@@ -50,4 +53,17 @@
 }
 .left-wrap  .layui-nav{
   background-color: transparent;
+}
+
+.layui-body{
+  left:190px;
+  padding-top:65px;
+  min-width:560px;
+}
+.layui-card-body{
+  display: flex; 
+  justify-content: center; 
+  flex-direction: column; 
+  text-align: center; 
+  min-height: 200px;
 }
