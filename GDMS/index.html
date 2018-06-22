@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>设备管理系统 - GDMS</title>
+  <meta http-equiv="content-type" content="text/html" charset="UTF-8">
+  <script type="text/javascript" src="src/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="src/js/layui/layui.js"></script>
+  <script type="text/javascript" src="src/js/common.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="src/js//layui/css/layui.css">
+  <link rel="stylesheet" type="text/css" href="src/css/bingAdmin.css">
+  <link rel="stylesheet" type="text/css" href="src/css/index.css">
+</head>
+<body>
+  <div class="layui-row top-wrap">
+    <ul class="layui-nav" lay-filter="">
+      <li class="layui-nav-item bing-title">设备管理系统</li>
+      <li class="layui-nav-item" style="margin-left:15px;"><i class="layui-icon layui-icon-shrink-right"></i></li>
+      <li class="layui-nav-item"><i class="layui-icon layui-icon-refresh-3"></i></li>
+      <li class="layui-nav-item">
+        <input placeholder="Search..." autocomplete="off" class="layui-input layui-input-search" type="text">
+      </li>
+      
+      <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-more-vertical"></i></li>
+      <li class="layui-nav-item bing-right">
+        <a href="javascript:;">用户名<i class="layui-icon layui-icon-triangle-d"></i></a>
+        <dl class="layui-nav-child"> <!-- 二级菜单 -->
+          <dd><a>基本资料</a></dd>
+          <dd><a>修改密码</a></dd>
+          <hr>
+          <dd style="text-align: center"><a>退出</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-screen-full"></i></li>
+      <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-note"></i></li>
+    </ul>
+  </div>
+  <div class="layui-row">
+    <div class="left-wrap">
+      <ul class="layui-nav layui-nav-tree" lay-filter="">
+        <li class="layui-nav-item">
+          <a href="javascript:;">主页</a>
+          <dl class="layui-nav-child">
+            <dd class="layui-this"><a href="">控制台</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">设备管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="">设备列表</a></dd>
+            <dd><a href="">位置列表</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">设备图表</a>
+          <dl class="layui-nav-child">
+            <dd><a href="">老旧率图</a></dd>
+            <dd><a href="">备件比例</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">设备监控</a>
+          <dl class="layui-nav-child">
+            <dd><a href="">设备监控</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">系统管理</a>
+          <dl class="layui-nav-child">
+            <dd><a href="">语言管理</a></dd>
+            <dd><a href="">用户管理</a></dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+    <div class="right-wrap">
+      3
+    </div>
+  
+  
+  </div>
+
+</body>
+</html>
+<script type="text/javascript">
+//注意：导航 依赖 element 模块，否则无法进行功能性操作
+layui.use('element', function(){
+  var element = layui.element;
+  
+  //…
+});
+</script>

@@ -1,0 +1,53 @@
+.top-wrap .layui-nav-bar {
+  top: 0px !important;
+}
+.top-wrap .layui-nav{
+  padding: 0 ;
+  border-bottom: none;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+}
+.top-wrap .layui-nav .layui-this::after, .layui-nav-bar, .layui-nav-tree .layui-nav-itemed::after {
+  top: 0 ;
+  height: 2px;
+  background-color: #333;
+}
+.top-wrap .layui-nav{
+  background-color:#fff;
+}
+.top-wrap .layui-nav .layui-nav-item{
+  line-height:50px;
+}
+.top-wrap .layui-nav .layui-nav-item,
+.top-wrap .layui-nav .layui-nav-item a{
+  color:#555;
+}
+.top-wrap .layui-nav .layui-nav-item a:hover{
+  color:#555;
+}
+
+.layui-input-search {
+  width:200px;
+  display: inline-block;
+  vertical-align: middle;
+  height: 35px;
+  border: none;
+  border-left:1px solid #eee;
+  border-right:1px solid #eee;
+  cursor: text;
+}
+.top-wrap .layui-nav-child {
+  top: 55px;
+}
+.top-wrap .layui-nav-child  a{
+  cursor:pointer;
+}
+
+.left-wrap .layui-nav-tree {
+  width: 190px;
+}
+.left-wrap .layui-nav-item a{
+  font-size: 12px;
+}
+.left-wrap  .layui-nav{
+  background-color: transparent;
+}
