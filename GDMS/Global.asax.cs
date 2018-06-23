@@ -24,6 +24,7 @@ namespace GDMS
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             if (Context.Request.FilePath == "/") Context.RewritePath("index.html");
+            if (Context.Request.FilePath == "/account") Context.RewritePath("src/account.html");
         }
         //开启session功能
         public override void Init()

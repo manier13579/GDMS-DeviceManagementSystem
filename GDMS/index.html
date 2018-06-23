@@ -12,7 +12,7 @@
 </head>
 <body>
   <!--顶部导航条-->
-  <div class="layui-row top-wrap">
+  <div class="top-wrap">
     <ul class="layui-nav" lay-filter="">
       <li class="layui-nav-item bing-title">设备管理系统</li>
       <li class="layui-nav-item" style="margin-left:15px;"><i class="layui-icon layui-icon-shrink-right bing-shrink"></i></li>
@@ -35,123 +35,152 @@
       <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-note"></i></li>
     </ul>
   </div>
-  <div class="layui-row">
+  <!--左侧导航条-->
+  <div class="left-wrap">
+    <ul class="layui-nav layui-nav-tree" lay-filter="">
+      <!--默认展开(layui-nav-itemed)-->
+      <li class="layui-nav-item layui-nav-itemed">
+        <a href="javascript:;">
+          <span class="bing-shrink-show layui-icon layui-icon-home"></span>
+          <span>主页</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd class="layui-this"><a>控制台</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <span class="bing-shrink-show layui-icon layui-icon-app"></span>
+          <span>设备管理</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a>设备列表</a></dd>
+          <dd><a>位置列表</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <span class="bing-shrink-show layui-icon layui-icon-chart"></span>
+          <span>设备图表</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a>老旧率图</a></dd>
+          <dd><a>备件比例</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <span class="bing-shrink-show layui-icon layui-icon-console"></span>
+          <span>设备监控</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a>设备监控</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item">
+        <a href="javascript:;">
+          <span class="bing-shrink-show layui-icon layui-icon-layouts"></span>
+          <span>系统管理</span>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a>语言管理</a></dd>
+          <dd><a>用户管理</a></dd>
+        </dl>
+      </li>
+    </ul>
+  </div>
   
-    <!--左侧导航条-->
-    <div class="left-wrap">
-      <ul class="layui-nav layui-nav-tree" lay-filter="">
-        <!--默认展开(layui-nav-itemed)-->
-        <li class="layui-nav-item layui-nav-itemed">
-          <div class="bing-shrink-show"></div>
-          <a href="javascript:;">主页</a>
-          <dl class="layui-nav-child">
-            <dd class="layui-this"><a href="">控制台</a></dd>
-          </dl>
-        </li>
-        <li class="layui-nav-item">
-          <a href="javascript:;">设备管理</a>
-          <dl class="layui-nav-child">
-            <dd><a href="">设备列表</a></dd>
-            <dd><a href="">位置列表</a></dd>
-          </dl>
-        </li>
-        <li class="layui-nav-item">
-          <a href="javascript:;">设备图表</a>
-          <dl class="layui-nav-child">
-            <dd><a href="">老旧率图</a></dd>
-            <dd><a href="">备件比例</a></dd>
-          </dl>
-        </li>
-        <li class="layui-nav-item">
-          <a href="javascript:;">设备监控</a>
-          <dl class="layui-nav-child">
-            <dd><a href="">设备监控</a></dd>
-          </dl>
-        </li>
-        <li class="layui-nav-item">
-          <a href="javascript:;">系统管理</a>
-          <dl class="layui-nav-child">
-            <dd><a href="">语言管理</a></dd>
-            <dd><a href="">用户管理</a></dd>
-          </dl>
-        </li>
-      </ul>
-    </div>
-    
-    <!--右侧内容容器-->
-    <div class="layui-body">
-    
-      <div class="layui-fluid">
-        <div class="layui-row layui-col-space10">
-          <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
-            <!-- 填充内容 -->
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+  <!--右侧内容容器-->
+  <div class="layui-body">
+  
+    <div class="layui-fluid">
+      <div class="layui-row layui-col-space10">
+        <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
+          <!-- 填充内容 -->
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
-          <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
-            <div class="layui-card">
-              <div class="layui-card-header"></div>
-              <div class="layui-card-body"></div>
-            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
+          <div class="layui-card">
+            <div class="layui-card-header"></div>
+            <div class="layui-card-body"></div>
           </div>
         </div>
       </div>
-
     </div>
-  
-  
-  </div>
+      
 
+  </div>
+  
+  
 </body>
 </html>
 <script type="text/javascript">
 //导航依赖 element 模块，否则无法进行功能性操作
-layui.use('element', function(){
+layui.use(['element','layer'], function(){
   var element = layui.element;
 });
 
+//左侧按钮分类点击事件
+$('.left-wrap').find('.layui-nav-item').click(function(){
+  if($('.bing-shrink').hasClass('layui-icon-spread-left')){
+    $('.bing-shrink').click();
+  }
+  $(this).siblings().removeClass('layui-nav-itemed');
+});
+
+//收缩按钮事件
 $('.bing-shrink').click(function(){
   if($(this).hasClass('layui-icon-shrink-right')){
-    $('.layui-nav-tree').animate({width:"50px"},200);
-    $('.layui-body').animate({left:"50px"},200);
-    $('.layui-nav-itemed').removeClass('layui-nav-itemed').css('background-color','rgba(0,0,0,.3)');
+    $('.bing-title').html('<span class="layui-icon layui-icon-component"></span>').animate({width:"55px"},200);
+    $('.layui-nav-tree').animate({width:"55px"},200);
+    $('.layui-body').animate({left:"55px"},200);
+    $('.left-wrap').find('.layui-nav-item').find('span').hide()
+    $('.left-wrap').find('.layui-nav-item').find('.bing-shrink-show').show();
+    $('.left-wrap').find('.layui-nav-itemed').removeClass('layui-nav-itemed').css('background-color','rgba(0,0,0,.3)').find('a').css('color','#fff');
     $(this).addClass('layui-icon-spread-left').removeClass('layui-icon-shrink-right');
   }else{
-    $('.layui-nav-tree').animate({width:"190px"},200);
+    $('.bing-title').animate({width:"190px"},200,function() {
+      $(this).html('设备管理系统');
+    });
+    $('.left-wrap').find('.layui-nav-item').css('background-color','').find('a').css('color','');
+    $('.layui-nav-tree').animate({width:"190px"},200,function() {
+      $('.left-wrap').find('.layui-nav-item').find('span').show()
+    });
     $('.layui-body').animate({left:"190px"},200);
-    $('.layui-this').parents('.layui-nav-item').addClass('layui-nav-itemed');
+    $('.left-wrap').find('.layui-this').parents('.layui-nav-item').addClass('layui-nav-itemed');
     $(this).addClass('layui-icon-shrink-right').removeClass('layui-icon-spread-left');
   }
 });
@@ -165,6 +194,27 @@ $('.bing-screen').click(function(){
     exitFullscreen();
     $(this).addClass('layui-icon-screen-full').removeClass('layui-icon-screen-restore');
   }
+});
+
+//便签功能
+$('.layui-icon-note').click(function(){
+  if($('.note-input').length == 0){
+    var width = $(window).width();
+    layer.open({
+      type: 1,
+      skin: 'layer-note', //加上边框
+      offset:['50px',(width-495)],
+      title:'便签',
+      shade:0,
+      resize:false,
+      anim:1,
+      content: '<textarea class="note-input">'+localStorage.note+'</textarea> '
+    });
+    $('.note-input').bind('input',function(){
+      localStorage.note = $(this).val();
+    });
+  }
+
 });
 
 </script>

@@ -221,3 +221,4 @@ D:\Server\c#\web\GDMS\GDMS\bin\zh-Hans\System.Web.WebPages.Deployment.resources.
 D:\Server\c#\web\GDMS\GDMS\bin\zh-Hans\System.Web.WebPages.Razor.resources.dll
 D:\Server\c#\web\GDMS\GDMS\obj\Debug\GDMS.csproj.CopyComplete
 F:\c#\web\GDMS\GDMS\bin\Oracle.DataAccess.dll
+D:\Server\c#\web\GDMS\GDMS\bin\Oracle.DataAccess.dll

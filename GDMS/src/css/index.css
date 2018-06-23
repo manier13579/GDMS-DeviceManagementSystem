@@ -4,11 +4,11 @@ body{
   font-family:Helvetica Neue,Helvetica,PingFang SC,微软雅黑,Tahoma,Arial,sans-serif;
   background-color:#F2F2F2;
   overflow:hidden;
-  
+  height:100%;
 }
 
 .left-wrap{
-  position:absolute;
+  position:fixed;
   height:100%;
   background-color:#24262F;
 }
@@ -22,52 +22,7 @@ body{
   width:190px;
   text-align:center;
 }
-.layui-icon-shrink-right{
-  display:block;
-  padding: 0 15;
-  font-size:15px;
-  cursor:pointer;
-}
-.layui-icon-spread-left{
-  display:block;
-  padding: 0 15;
-  font-size:16px;
-  cursor:pointer;
-}
-.layui-icon-refresh-3{
-  display:block;
-  padding: 0 15;
-  font-size:16px;
-  cursor:pointer;
-}
-.layui-icon-more-vertical{
-  display:block;
-  padding: 0 15;
-  font-size:16px;
-  cursor:pointer;
-}
-.layui-icon-triangle-d{
-  margin-left:5px;
-}
-.layui-icon-screen-full{
-  display:block;
-  padding: 0 15;
-  font-size:18px;
-  cursor:pointer;
-}
-.layui-icon-screen-restore{
-  display:block;
-  padding: 0 15;
-  font-size:16px;
-  cursor:pointer;
-}
 
-.layui-icon-note{
-  display:block;
-  padding: 0 15;
-  font-size:16px;
-  cursor:pointer;
-}
 .bing-left{
   float:left;
 }
