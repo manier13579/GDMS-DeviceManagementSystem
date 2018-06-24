@@ -28,7 +28,7 @@
           <dd><a>基本资料</a></dd>
           <dd><a>修改密码</a></dd>
           <hr>
-          <dd style="text-align: center"><a>退出</a></dd>
+          <dd style="text-align: center"><a class="bing-logout">退出</a></dd>
         </dl>
       </li>
       <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-screen-full bing-screen"></i></li>
@@ -214,8 +214,15 @@ $('.layui-icon-note').click(function(){
       localStorage.note = $(this).val();
     });
   }
-
 });
+
+//退出登录
+$('.bing-logout').click(function(){
+  
+
+  location.href = 'account';
+});
+
 
 </script>
 
