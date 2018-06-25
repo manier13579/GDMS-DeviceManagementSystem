@@ -23,10 +23,13 @@
       
       <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-more-vertical"></i></li>
       <li class="layui-nav-item bing-right">
-        <a href="javascript:;">用户名<i class="layui-icon layui-icon-triangle-d"></i></a>
+        <a href="javascript:;">
+          <span class="bing-username"></span>
+          <i class="layui-icon layui-icon-triangle-d"></i> 
+        </a>
         <dl class="layui-nav-child"> <!-- 二级菜单 -->
-          <dd><a>基本资料</a></dd>
-          <dd><a>修改密码</a></dd>
+          <dd style="text-align: center"><a>基本资料</a></dd>
+          <dd style="text-align: center"><a>修改密码</a></dd>
           <hr>
           <dd style="text-align: center"><a class="bing-logout">退出</a></dd>
         </dl>
@@ -200,6 +203,9 @@ $('.bing-screen').click(function(){
 $('.layui-icon-note').click(function(){
   if($('.note-input').length == 0){
     var width = $(window).width();
+    if(localStorage.note==undefined){
+      localStorage.note = '';
+    }
     layer.open({
       type: 1,
       skin: 'layer-note', //加上边框
@@ -219,11 +225,10 @@ $('.layui-icon-note').click(function(){
 //退出登录
 $('.bing-logout').click(function(){
   
-
   location.href = 'account';
 });
 
-
+$('.bing-username').text(sessionStorage.username);
 </script>
 
 

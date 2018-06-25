@@ -10,28 +10,189 @@
   <link rel="stylesheet" type="text/css" href="src/css/account.css">
 </head>
 <body>
-  <div class="login-wrap1">
-  
-    <div class="login-wrap2">
-      <div class="login-top">
-        <div class="title">设备管理系统</div>
-        <div class="title2">Global Device Management System</div>
-      </div>
 
-      <div class="login-bottom">
-      
-      
+<div class="info">
+  <span>提示：仁和生产系统科的小伙伴可以直接登录，用户名与密码都是工号</span>
+</div>
+
+<div class="wrap">
+	<div class="layui-row">
+		<div class="title"><span lang="设备管理系统">设备管理系统</span></div>
+		<div class="title2">Global Device Management System</div>
+    <div class="switch-wrap">
+      <div class="switch-button-wrap">
+        <span class="switch-button" id="signup"><span lang="注册">注册</span></span>
+        <span class="switch-button active" id="signin">登录</span>
+        <span class="switch-button-bottom"></span>
       </div>
     </div>
+	</div>
+	<div class="layui-row tab-signin">
+    <div class="group-inputs">
+      <div class="account input-wrapper">
+        <input name="username" placeholder="账号 ID" type="text">
+      </div>
+      <div class="verification input-wrapper">
+        <input name="password" placeholder="密码 PASS" type="password">
+      </div>
+    </div>
+    <div class="signin-button"><span lang="登录">登录</span></div>
+    
+    
+	</div>
   
+	<div class="layui-row tab-signup">
+    <div class="group-inputs">
+      <div class="account input-wrapper">
+        <input name="username" placeholder="账号 ID" type="text">
+      </div>
+      <div class="verification input-wrapper">
+        <input name="password" placeholder="密码 PASS" type="password">
+      </div>
+      <div class="verification input-wrapper">
+        <input name="password2" placeholder="确认密码 CONFIRM PASS" type="password">
+      </div>
+    </div>
+    <div class="signup-button">暂未开放</div>
+	</div>
+  
+  
+  <div class="layui-row">
+    <div class="lang">
+      <div class="lang-title">Language</div>
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <select name="lang" lay-verify="required" lay-filter="lang">
+              <option value="CN">中文</option>
+              <option value="EN">English</option>
+            </select>
+        </div>
+      </form>
+    </div>
   </div>
+  <div class="layui-row footer">
+    <hr class="layui-bg-gray">
+    <div class="footer-line">© 2018 MES1 Team License</div>
+  </div>
+</div>
   
   
 </body>
 </html>
 <script type="text/javascript">
 
+layui.use('form', function(){
+  var form = layui.form;
+  
+  form.on('select(lang)', function(data){
+    lang = data.value;
+    initLang('account',lang);
+  });
+
+  function initLang(pageName,lang){
+    ajax=$.ajax({
+      url:"api/Lang",
+      type: 'post',
+      async:true,
+      data: {pageName,lang},
+      success:function(res){
+        for(var i in res.data){
+          $('span[lang="'+i+'"]').html(res.data[i]);
+        }
+       
+      }
+    });
+  }
+  var langNow = 'CN';
+  initLang('account',langNow);
+  $('select[name="lang"]').val(langNow);
+  form.render();
+});
+
+//全局回车事件
+$(function(){
+	document.onkeydown = function(e){
+		password = $('#password').val();
+		//判断按回车且密码输入框有值时才触发登录事件。
+		if(e.keyCode==13&password!=""){
+			login();
+		}
+	}
+});   
+
+$('.signin-button').click(function(){
+  login();
+});
+
+//登录函数
+function login(){
+  lang = $('select[name="lang"]').val();
+  username = $('input[name="username"]').val();
+  password = $('input[name="password"]').val();
+  if(username==''){
+    layer.tips('请填写账号', 'input[name="username"]',{
+      tipsMore: true,
+      tips: [2, '#888']
+    });
+  }
+  if(password==''){
+    layer.tips('请填写密码', 'input[name="password"]',{
+      tipsMore: true,
+      tips: [2, '#888']
+    });
+  }
+  if(username!=''&&password!=''){
+    ajax = $.ajax({
+      url:"api/Login",
+      async:false,
+      type: 'post',
+      data: {username,password},
+      success:function(res){
+        if(res.code==0){
+          sessionStorage.access_token = res.data.access_token;
+          sessionStorage.userid = res.data.userid;
+          sessionStorage.username = res.data.username;
+          sessionStorage.role = res.data.role;
+          location.href = rootpath+"/";
+        }else if(res.code==1){
+          layer.msg(res.msg, {
+            icon: 3,
+            time: 1500 //1.5秒关闭
+          }, function(){
+            $('input[name="username"]').val('');
+            $('input[name="password"]').val('');
+          });   
+        }
+      }
+    });
+  }
+
+}
+
+$('.switch-button').click(function(){
+  var self = $(this);
+  if(self.hasClass('active')){
+  }else{
+    $('.switch-button').removeClass('active');
+    self.addClass('active');
+    if($('.switch-button-bottom').css('left')=='77px'){
+      $('.switch-button-bottom').css('left','0px');
+    }else{
+      $('.switch-button-bottom').css('left','77px');
+    }
+    if(self.attr('id')=='signin'){
+      $('.tab-signin').show();
+      $('.tab-signup').hide();
+    }else{
+      $('.tab-signin').hide();
+      $('.tab-signup').show();
+    }
+    
+  }
+
+  
+});
+
 
 </script>
-
 

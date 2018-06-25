@@ -58,8 +58,10 @@
 
 .layui-body{
   left:190px;
-  padding-top:65px;
   min-width:560px;
+  top:50px;
+  padding-top:15px;
+  margin-bottom:15px;
 }
 .layui-card-body{
   display: flex; 

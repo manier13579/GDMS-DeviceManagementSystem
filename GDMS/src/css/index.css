@@ -12,10 +12,7 @@ body{
   height:100%;
   background-color:#24262F;
 }
-.right-wrap{
-  position:absolute;
-  left:190px;
-}
+
 .bing-title{
   color:#ddd !important;
   background-color:#3A3D49;
