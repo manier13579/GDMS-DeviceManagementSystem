@@ -22,7 +22,7 @@
     <div class="switch-wrap">
       <div class="switch-button-wrap">
         <span class="switch-button" id="signup"><span lang="注册">注册</span></span>
-        <span class="switch-button active" id="signin">登录</span>
+        <span class="switch-button active" id="signin"><span lang="登录">登录</span></span>
         <span class="switch-button-bottom"></span>
       </div>
     </div>
@@ -30,10 +30,10 @@
 	<div class="layui-row tab-signin">
     <div class="group-inputs">
       <div class="account input-wrapper">
-        <input name="username" placeholder="账号 ID" type="text">
+        <input name="username" placeholder="账号" type="text">
       </div>
       <div class="verification input-wrapper">
-        <input name="password" placeholder="密码 PASS" type="password">
+        <input name="password" placeholder="密码" type="password">
       </div>
     </div>
     <div class="signin-button"><span lang="登录">登录</span></div>
@@ -44,16 +44,16 @@
 	<div class="layui-row tab-signup">
     <div class="group-inputs">
       <div class="account input-wrapper">
-        <input name="username" placeholder="账号 ID" type="text">
+        <input name="username" placeholder="账号" type="text">
       </div>
       <div class="verification input-wrapper">
-        <input name="password" placeholder="密码 PASS" type="password">
+        <input name="password" placeholder="密码" type="password">
       </div>
       <div class="verification input-wrapper">
         <input name="password2" placeholder="确认密码 CONFIRM PASS" type="password">
       </div>
     </div>
-    <div class="signup-button">暂未开放</div>
+    <div class="signup-button"><span lang="暂未开放">暂未开放</span></div>
 	</div>
   
   
@@ -99,7 +99,19 @@ layui.use('form', function(){
         for(var i in res.data){
           $('span[lang="'+i+'"]').html(res.data[i]);
         }
+        $('input[name="username"]').attr('placeholder',res.data['账号']) ;
+        $('input[name="password"]').attr('placeholder',res.data['密码']) ;
+        $('input[name="password2"]').attr('placeholder',res.data['确认密码']) ;
        
+      },
+      error:function (e) {
+        layer.msg(e.responseJSON.ExceptionMessage, {
+          icon: 3,
+          time: 1500 //1.5秒关闭
+        }, function(){
+          $('input[name="username"]').val('');
+          $('input[name="password"]').val('');
+        });
       }
     });
   }
@@ -156,13 +168,30 @@ function login(){
           location.href = rootpath+"/";
         }else if(res.code==1){
           layer.msg(res.msg, {
-            icon: 3,
+            icon: 2,
             time: 1500 //1.5秒关闭
           }, function(){
             $('input[name="username"]').val('');
             $('input[name="password"]').val('');
           });   
+        }else{
+          layer.msg(res, {
+            icon: 3,
+            time: 1500 //1.5秒关闭
+          }, function(){
+            $('input[name="username"]').val('');
+            $('input[name="password"]').val('');
+          });
         }
+      },
+      error:function (e) {
+        layer.msg(e.responseJSON.ExceptionMessage, {
+          icon: 3,
+          time: 1500 //1.5秒关闭
+        }, function(){
+          $('input[name="username"]').val('');
+          $('input[name="password"]').val('');
+        });
       }
     });
   }

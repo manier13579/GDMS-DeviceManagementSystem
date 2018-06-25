@@ -2,7 +2,7 @@ body{
   margin:0;
   padding:0;
   font-family:Helvetica Neue,Helvetica,PingFang SC,微软雅黑,Tahoma,Arial,sans-serif;
-  background-color:#F2F2F2;
+  background-color:#333;
   overflow:hidden;
   display:flex;
   width:100%;
@@ -18,15 +18,38 @@ body{
 }
 .title{
   text-align:center;
-  font-size:30px;
-  color:#0F88EB;
-  letter-spacing:5px;
+  font: 600 2.5em/1 "Oswald", sans-serif;
+  letter-spacing: 0;
+  padding: .25em 0 .325em;
+  display: block;
+  margin: 0 auto;
+  text-shadow: 0 0 80px rgba(255, 255, 255, 0.5);
+  /* Clip Background Image */
+  background: url(../images/text_fill.png) repeat-y;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Animate Background Image */
+  -webkit-text-fill-color: transparent;
+  -webkit-animation: aitf 80s linear infinite;
+  /* Activate hardware acceleration for smoother animations */
+  -webkit-transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
 }
+/* Animate Background Image */
+@-webkit-keyframes aitf {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
 .title2{
   text-align:center;
   font-size:16px;
   margin: 25px 0 20px;
-  color:#888;
+  color:#aaa;
 }
 .switch-wrap{
   margin-bottom: 18px;
@@ -36,7 +59,7 @@ body{
   display:inline-block;
   position: relative;
   font-size:18px;
-  color:#888;
+  color:#aaa;
 }
 .switch-button-wrap .active{
   color:#0f88eb !important;
@@ -50,7 +73,7 @@ body{
   cursor:pointer;
 }
 .switch-button:hover{
-  color:#555;
+  color:#eee;
 }
 .switch-button-bottom{
   left: 77px;
@@ -66,8 +89,7 @@ body{
 }
 /*登录表单*/
 .group-inputs{
-  padding: 1px 0;
-  border: 1px solid #d5d5d5;
+  border: 1px solid #888;
   border-radius: 3px;
 }
 .group-inputs input{
@@ -75,11 +97,11 @@ body{
   padding: 1em .8em;
   width: 100%;
   line-height: 19px;
-  color: #555;
-  background: #fff;
+  color: #333;
+  background: #eee;
 }
 .group-inputs .verification{
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid #ccc;
 }
 .signin-button{
   background: #0f88eb;
@@ -118,10 +140,12 @@ body{
 .lang-title{
   text-align:center;
   padding:10px 0px;
-  color:#888;
+  color:#ccc;
   font-size:15px;
 }
-
+.layui-input, .layui-select, .layui-textarea {
+  background-color: #ddd;
+}
 
 .footer{
   margin-top:40px;
