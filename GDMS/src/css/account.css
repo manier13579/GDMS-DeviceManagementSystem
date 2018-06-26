@@ -88,10 +88,8 @@ body{
   
 }
 /*登录表单*/
-.group-inputs{
-  border: 1px solid #888;
-  border-radius: 3px;
-}
+
+
 .group-inputs input{
   border: 0;
   padding: 1em .8em;
@@ -99,6 +97,19 @@ body{
   line-height: 19px;
   color: #333;
   background: #eee;
+  border: 1px solid #eee;
+}
+.group-inputs input:focus{
+  outline: 0;
+  border: 1px solid #0f88eb;
+}
+.input-top{
+  border-top-left-radius:3px;
+  border-top-right-radius:3px;
+}
+.input-bottom{
+  border-bottom-left-radius:3px;
+  border-bottom-right-radius:3px;
 }
 .group-inputs .verification{
   border-top: 1px solid #ccc;

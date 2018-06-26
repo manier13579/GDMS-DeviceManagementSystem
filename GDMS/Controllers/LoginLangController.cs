@@ -11,8 +11,7 @@ using System.Data;
 
 namespace GDMS.Controllers
 {
-    [RequestAuthorize]
-    public class LangController : ApiController
+    public class LoginLangController : ApiController
     {
         //POST对象
         public class LangAjax

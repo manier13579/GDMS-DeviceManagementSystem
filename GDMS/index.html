@@ -5,7 +5,10 @@
   <script type="text/javascript" src="src/js/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="src/js/layui/layui.js"></script>
   <script type="text/javascript" src="src/js/common.js"></script>
-  
+  <script>
+    //如果没有session强制跳转到登录页面
+    if(!sessionStorage.access_token){location.href = 'account';}
+  </script>
   <link rel="stylesheet" type="text/css" href="src/js//layui/css/layui.css">
   <link rel="stylesheet" type="text/css" href="src/css/bingAdmin.css">
   <link rel="stylesheet" type="text/css" href="src/css/index.css">
@@ -14,7 +17,10 @@
   <!--顶部导航条-->
   <div class="top-wrap">
     <ul class="layui-nav" lay-filter="">
-      <li class="layui-nav-item bing-title">设备管理系统</li>
+      <li class="layui-nav-item bing-title">
+        <span class="layui-icon layui-icon-component" style="display:none;"></span>
+        <span class="title-text" lang="设备管理系统"></span>
+      </li>
       <li class="layui-nav-item" style="margin-left:15px;"><i class="layui-icon layui-icon-shrink-right bing-shrink"></i></li>
       <li class="layui-nav-item"><i class="layui-icon layui-icon-refresh-3"></i></li>
       <li class="layui-nav-item">
@@ -36,35 +42,44 @@
       </li>
       <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-screen-full bing-screen"></i></li>
       <li class="layui-nav-item bing-right"><i class="layui-icon layui-icon-note"></i></li>
+      <li class="layui-nav-item bing-right">
+        <a href="javascript:;">Language
+          <i class="layui-icon layui-icon-triangle-d"></i> 
+        </a>
+        <dl class="layui-nav-child"> <!-- 二级菜单 -->
+          <dd style="text-align: center" class="langBtn" lang="CN"><a>中文</a></dd>
+          <dd style="text-align: center" class="langBtn" lang="EN"><a>English</a></dd>
+        </dl>
+      </li>
     </ul>
   </div>
   <!--左侧导航条-->
   <div class="left-wrap">
     <ul class="layui-nav layui-nav-tree" lay-filter="">
       <!--默认展开(layui-nav-itemed)-->
-      <li class="layui-nav-item layui-nav-itemed">
+      <li class="layui-nav-item">
         <a href="javascript:;">
           <span class="bing-shrink-show layui-icon layui-icon-home"></span>
-          <span>主页</span>
+          <span lang="主页"></span>
         </a>
         <dl class="layui-nav-child">
-          <dd class="layui-this"><a>控制台</a></dd>
+          <dd class="viewBtn" view="dashboard"><a><span lang="控制台"></span></a></dd>
         </dl>
       </li>
       <li class="layui-nav-item">
         <a href="javascript:;">
           <span class="bing-shrink-show layui-icon layui-icon-app"></span>
-          <span>设备管理</span>
+          <span lang="设备管理"></span>
         </a>
         <dl class="layui-nav-child">
-          <dd><a>设备列表</a></dd>
+          <dd class="viewBtn" view="deviceList"><a>设备列表</a></dd>
           <dd><a>位置列表</a></dd>
         </dl>
       </li>
       <li class="layui-nav-item">
         <a href="javascript:;">
           <span class="bing-shrink-show layui-icon layui-icon-chart"></span>
-          <span>设备图表</span>
+          <span lang="设备图表"></span>
         </a>
         <dl class="layui-nav-child">
           <dd><a>老旧率图</a></dd>
@@ -74,7 +89,7 @@
       <li class="layui-nav-item">
         <a href="javascript:;">
           <span class="bing-shrink-show layui-icon layui-icon-console"></span>
-          <span>设备监控</span>
+          <span lang="设备监控"></span>
         </a>
         <dl class="layui-nav-child">
           <dd><a>设备监控</a></dd>
@@ -83,7 +98,7 @@
       <li class="layui-nav-item">
         <a href="javascript:;">
           <span class="bing-shrink-show layui-icon layui-icon-layouts"></span>
-          <span>系统管理</span>
+          <span lang="系统管理"></span>
         </a>
         <dl class="layui-nav-child">
           <dd><a>语言管理</a></dd>
@@ -97,50 +112,8 @@
   <div class="layui-body">
   
     <div class="layui-fluid">
-      <div class="layui-row layui-col-space10">
-        <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
-          <!-- 填充内容 -->
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
-        <div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
-          <div class="layui-card">
-            <div class="layui-card-header"></div>
-            <div class="layui-card-body"></div>
-          </div>
-        </div>
+      <div class="layui-row layui-col-space10" id="view">
+        <!-- 视图内容 -->
       </div>
     </div>
       
@@ -151,9 +124,60 @@
 </body>
 </html>
 <script type="text/javascript">
+//初始化页面记录
+if(!sessionStorage.viewNow){
+  sessionStorage.viewNow = 'dashboard';
+  $('dd[view="dashboard"]').addClass('layui-this').parents('.layui-nav-item').addClass('layui-nav-itemed');
+}else{
+  $('dd[view="'+sessionStorage.viewNow+'"]').addClass('layui-this').parents('.layui-nav-item').addClass('layui-nav-itemed');
+}
+$('#view').load('src/view/'+sessionStorage.viewNow+'.html');
+
+
 //导航依赖 element 模块，否则无法进行功能性操作
 layui.use(['element','layer'], function(){
   var element = layui.element;
+  
+  //默认语言变色
+  $('dd[lang="'+localStorage.lang+'"]').addClass('layui-this');
+  $('.langBtn').click(function(){
+    var langNow = $(this).attr('lang');
+    localStorage.lang = langNow;
+    initLang('index',langNow);
+  });
+  
+  function initLang(pageName,lang){
+    var access_token = sessionStorage.access_token;
+    $.ajax({
+      url:"api/Lang",
+      type: 'post',
+      headers:{"Authorization":"Basic "+access_token},
+      async:true,
+      data: {pageName,lang},
+      success:function(res){
+        for(var i in res.data){
+          $('span[lang="'+i+'"]').html(res.data[i]);
+        }
+        $('.layui-input-search').attr('placeholder',res.data['搜索']);
+      },
+      error:function (e) {
+        if(e.status == '401'){
+          Logout();   //退出登录
+        }else{
+          var errMsg = 'Error';
+          if(e.status){errMsg = errMsg +'(' + e.status + ')';}
+          layer.msg(errMsg, {
+            icon: 3,
+            time: 1500 //1.5秒关闭
+          }, function(){
+          });
+        }
+      }
+    });
+  }
+  var langNow = localStorage.lang;
+  initLang('index',langNow);
+  
 });
 
 //左侧按钮分类点击事件
@@ -167,7 +191,7 @@ $('.left-wrap').find('.layui-nav-item').click(function(){
 //收缩按钮事件
 $('.bing-shrink').click(function(){
   if($(this).hasClass('layui-icon-shrink-right')){
-    $('.bing-title').html('<span class="layui-icon layui-icon-component"></span>').animate({width:"55px"},200);
+    $('.bing-title').find('.title-text').hide().end().find('.layui-icon').show().end().animate({width:"55px"},200);
     $('.layui-nav-tree').animate({width:"55px"},200);
     $('.layui-body').animate({left:"55px"},200);
     $('.left-wrap').find('.layui-nav-item').find('span').hide()
@@ -176,7 +200,7 @@ $('.bing-shrink').click(function(){
     $(this).addClass('layui-icon-spread-left').removeClass('layui-icon-shrink-right');
   }else{
     $('.bing-title').animate({width:"190px"},200,function() {
-      $(this).html('设备管理系统');
+      $(this).find('.layui-icon').hide().end().find('.title-text').show();
     });
     $('.left-wrap').find('.layui-nav-item').css('background-color','').find('a').css('color','');
     $('.layui-nav-tree').animate({width:"190px"},200,function() {
@@ -222,13 +246,27 @@ $('.layui-icon-note').click(function(){
   }
 });
 
-//退出登录
-$('.bing-logout').click(function(){
-  
-  location.href = 'account';
+//引用退出控制器
+loadJS('src/controllers/Logout.js',function(){
+  //退出登录
+  $('.bing-logout').click(function(){
+    Logout();
+  });
+
 });
 
+//用户名初始化
 $('.bing-username').text(sessionStorage.username);
+
+//左侧导航按钮点击事件
+$('.viewBtn').click(function(){
+  var view = $(this).attr('view');
+  sessionStorage.viewNow = view;
+  $('#view').load('src/view/'+view+'.html');
+});
+
+
+
 </script>
 
 

@@ -139,8 +139,8 @@ namespace GDMS.Controllers
             var payload = new Dictionary<string, object>
             {
                 {"name", username },
-                {"exp",secondsSinceEpoch+(20) }
-                //{"exp",secondsSinceEpoch+(3600 * 24 * 30) }     //超时时间，单位：秒
+                //{"exp",secondsSinceEpoch+(20) }
+                {"exp",secondsSinceEpoch+(3600 * 24 * 30) }     //超时时间，单位：秒
             };
             var secret = "GQDstcKsx0NHjPOuXOYg5MbeJ1XT0uFiwDVvVBrk";
             

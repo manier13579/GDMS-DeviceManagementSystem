@@ -22,7 +22,8 @@ namespace GDMS.Controllers
                 IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
                 IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder);
                 var json = decoder.Decode(token, secret, verify: true);     //token为之前生成的字符串
-                return json;
+                //return json;
+                return "ok";
             }
             catch (TokenExpiredException)
             {

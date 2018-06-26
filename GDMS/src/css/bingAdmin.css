@@ -18,6 +18,7 @@
 }
 .top-wrap .layui-nav .layui-nav-item{
   line-height:50px;
+  height: 50px;
 }
 .top-wrap .layui-nav .layui-nav-item,
 .top-wrap .layui-nav .layui-nav-item a{
@@ -68,7 +69,7 @@
   justify-content: center; 
   flex-direction: column; 
   text-align: center; 
-  min-height: 200px;
+  padding: 15px 15px 15px 15px;
 }
 .left-wrap .layui-nav-item a span{
   float:left;
@@ -156,4 +157,7 @@
   display: block;
   padding:10px;
   padding:15px;
+}
+.layui-table, .layui-table-view {
+    margin: 0px 0;
 }

@@ -1,3 +1,19 @@
+//动态加载js，成功后执行js方法
+function loadJS(url,success){
+  var domScript = document.createElement('script');
+  domScript.type = "text/javascript";
+  domScript.src = url;
+  success = success || function(){};
+  domScript.onload = domScript.onreadystatechange = function(){
+    if (!this.readyState || 'loaded' === this.readyState || 'complete' === this.readyState){
+      success();
+      this.onload = this.onreadystatechange = null;
+      this.parentNode.removeChild(this);
+    }
+  }
+  document.getElementsByTagName('head')[0].appendChild(domScript);
+}
+
 //js获取项目根路径，如： http://localhost:8083/uimcardprj
 function getRootPath(){
     //获取当前网址，如： http://localhost:8083/uimcardprj/share/meun.jsp
