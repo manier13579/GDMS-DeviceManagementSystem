@@ -96,8 +96,9 @@ body{
   width: 100%;
   line-height: 19px;
   color: #333;
-  background: #eee;
-  border: 1px solid #eee;
+  background-color: #fff;
+  border: 1px solid #fff;
+  opacity:0.9;
 }
 .group-inputs input:focus{
   outline: 0;

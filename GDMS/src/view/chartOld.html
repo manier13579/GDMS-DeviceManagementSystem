@@ -1,0 +1,92 @@
+<script type="text/javascript" src="src/js/echarts.min.js"></script>
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-body">
+      <div id="chart-old" style="min-height:600px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+chartOldShow();
+
+//老旧率情况图方法
+function chartOldShow(){
+  var chartOld = echarts.init(document.getElementById('chart-old'));
+  // 指定图表的配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+          type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    legend: {
+      data:['老旧','过保','在保']
+    },
+
+    yAxis:  {
+      type: 'value'
+    },
+    xAxis: {
+      type: 'category',
+      axisLabel:{
+        interval:0,//横轴信息全部显示
+        rotate:-30
+      },
+      data: ['工控机','17寸显示器','42寸显示器','60寸显示器','32寸显示器','46寸显示器','21寸显示器','序列打印机','式样打印机','即打即撕打印机','固定条码阅读器','无线条码扫描枪','有线条码扫描枪','服务器','触摸屏电脑','瘦客户机','嵌入式工控机']
+    },
+    series: [
+      {
+        name: '老旧',
+        type: 'bar',
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'insideBottom'
+          }
+        },
+        data: [5, 0,5, 2, 3,0, 0, 0, 10,0,0,0,0,0,0,0,0]
+      },
+      {
+        name: '过保',
+        type: 'bar',
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'insideBottom'
+          }
+        },
+        data: [5, 20,0, 20, 36, 10, 10, 20,0, 20, 20, 20, 20, 20, 20, 20, 20]
+      },
+      {
+        name: '在保',
+        type: 'bar',
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'insideBottom'
+          }
+        },
+        data: [5, 20,5, 20, 36, 10, 10, 20, 10, 20, 20, 20, 20, 20, 20, 20, 20]
+      },
+    
+    ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartOld.setOption(option);
+}
+
+
+
+</script>

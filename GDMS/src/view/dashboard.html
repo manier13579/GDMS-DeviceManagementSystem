@@ -1,43 +1,233 @@
+<script type="text/javascript" src="src/js/echarts.min.js"></script>
 <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
   <!-- 填充内容 -->
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">设备状态</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
 <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">库房状态</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
 <div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">用户信息</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
 <div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">设备监控</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
+<div class="layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">系统公告</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
+<div class="layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
+    <div class="layui-card-header">故障情况</div>
     <div class="layui-card-body"></div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm5 layui-col-md6">
+<div class="layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header"></div>
-    <div class="layui-card-body"></div>
+    <div class="layui-card-header">备件情况</div>
+    <div class="layui-card-body">
+      <div id="chart-backup" style="height:300px;"></div>
+    </div>
   </div>
 </div>
+<div class="layui-col-md4">
+  <div class="layui-card">
+    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-body">
+      <div id="chart-old" style="height:300px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+chartOldShow();
+chartBackupShow();
+
+//备件情况图方法
+function chartBackupShow(){
+  var chartBackup = echarts.init(document.getElementById('chart-backup'));
+  // 指定图表的配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: "{a} <br/>{b}: {c} ({d}%)",
+    },
+    legend: {
+      orient: 'vertical',
+      x: 'right',
+      itemWidth: 14,
+      itemHeight: 14,
+      align: 'left',
+      data: ['备件', '在用'],
+      textStyle: {
+        color: '#555'
+      }
+    },
+    series: [
+      {
+        name: '访问来源',
+        type: 'pie',
+        hoverAnimation: false,
+        legendHoverLink: false,
+        radius: ['40%', '42%'],
+        color: ['#9a8169', '#3077b7'],
+        label: {
+          normal: {
+            position: 'inner'
+          }
+        },
+        labelLine: {
+          normal: {
+            show: false
+          },
+        },
+        tooltip: {
+          show: false,
+        },
+        data: [
+          {
+            value: 435,
+            name: ''
+          },
+          {
+            value: 679,
+            name: ''
+          },
+        ]
+      },
+      {
+        name: '统计',
+        type: 'pie',
+        radius: ['42%', '55%'],
+        color: ['#eba954', '#0092ff'],
+        label: {
+          normal: {
+            formatter: '{b}\n{d}%'
+          },
+
+        },
+        data: [
+          {
+            value: 435,
+            name: '备件'
+          },
+          {
+            value: 679,
+            name: '在用'
+          },
+
+        ]
+      }
+    ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartBackup.setOption(option);
+}
+
+
+//老旧率情况图方法
+function chartOldShow(){
+  var chartOld = echarts.init(document.getElementById('chart-old'));
+  // 指定图表的配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: "{a} <br/>{b}: {c} ({d}%)",
+    },
+    legend: {
+      orient: 'vertical',
+      x: 'right',
+      itemWidth: 14,
+      itemHeight: 14,
+      align: 'left',
+      data: ['老旧', '过保', '在保'],
+      textStyle: {
+        color: '#555'
+      }
+    },
+    series: [
+      {
+        name: '访问来源',
+        type: 'pie',
+        hoverAnimation: false,
+        legendHoverLink: false,
+        radius: ['40%', '42%'],
+        color: ['#915872', '#9a8169', '#3077b7'],
+        label: {
+          normal: {
+            position: 'inner'
+          }
+        },
+        labelLine: {
+          normal: {
+            show: false
+          },
+        },
+        tooltip: {
+          show: false,
+        },
+        data: [
+          {
+            value: 435,
+            name: ''
+          },
+          {
+            value: 679,
+            name: ''
+          },
+          {
+            value: 848,
+            name: ''
+          },
+        ]
+      },
+      {
+        name: '统计',
+        type: 'pie',
+        radius: ['42%', '55%'],
+        color: ['#d74e67', '#eba954', '#0092ff'],
+        label: {
+          normal: {
+            formatter: '{b}\n{d}%'
+          },
+
+        },
+        data: [
+          {
+            value: 435,
+            name: '老旧'
+          },
+          {
+            value: 679,
+            name: '过保'
+          },
+          {
+            value: 848,
+            name: '在保'
+          }
+
+        ]
+      }
+    ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartOld.setOption(option);
+}
+
+
+
+</script>

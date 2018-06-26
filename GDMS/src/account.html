@@ -137,8 +137,14 @@ $(function(){
 	}
 });   
 
+//登录按钮点击事件
 $('.signin-button').click(function(){
   login();
+});
+
+//输入框点击事件
+$('.group-inputs input').click(function(){
+  $(this).css('background-color','#fff');
 });
 
 //登录函数
@@ -147,16 +153,10 @@ function login(){
   username = $('input[name="username"]').val();
   password = $('input[name="password"]').val();
   if(username==''){
-    layer.tips('请填写账号', 'input[name="username"]',{
-      tipsMore: true,
-      tips: [2, '#888']
-    });
+    $('.tab-signin input[name="username"]').css('background-color','#FF9999');
   }
   if(password==''){
-    layer.tips('请填写密码', 'input[name="password"]',{
-      tipsMore: true,
-      tips: [2, '#888']
-    });
+    $('.tab-signin input[name="password"]').css('background-color','#FF9999');
   }
   if(username!=''&&password!=''){
     ajax = $.ajax({

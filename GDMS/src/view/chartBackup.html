@@ -1,0 +1,81 @@
+<script type="text/javascript" src="src/js/echarts.min.js"></script>
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-body">
+      <div id="chart-backup" style="min-height:600px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+chartBackupShow();
+
+//备件情况图方法
+function chartBackupShow(){
+  var chartBackup = echarts.init(document.getElementById('chart-backup'));
+  // 指定图表的配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+          type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    legend: {
+      data:['备件','在用']
+    },
+
+    yAxis:  {
+      type: 'value'
+
+    },
+    xAxis: {
+      type: 'category',
+      axisLabel:{
+        interval:0,//横轴信息全部显示
+        rotate:-30
+      },
+      data: ['工控机','显示器','打印机','固定条码阅读器','无线条码扫描枪','有线条码扫描枪','服务器','触摸屏电脑','瘦客户机','嵌入式工控机']
+    },
+    series: [
+      {
+        name: '备件',
+        type: 'bar',
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'insideBottom'
+          }
+        },
+        data: [5, 0,5, 2, 3,0, 0, 0, 10,0]
+      },
+      {
+        name: '在用',
+        type: 'bar',
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'insideBottom'
+          }
+        },
+        data: [5, 20,0, 20, 36, 10, 10, 20,0, 20]
+      }
+    ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartBackup.setOption(option);
+}
+
+
+
+
+</script>
