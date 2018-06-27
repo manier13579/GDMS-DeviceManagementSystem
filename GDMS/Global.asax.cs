@@ -23,15 +23,8 @@ namespace GDMS
         //把首页设置为重定向后的index.html地址
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            if (Context.Request.FilePath == "/")
-            {
-                Context.RewritePath("index.html");
-            }
-
-            if (Context.Request.FilePath == "/account")
-            {
-                Context.RewritePath("src/account.html");
-            }
+            if (Context.Request.FilePath == "/"){Context.RewritePath("index.html");}
+            if (Context.Request.FilePath == "/account"){Context.RewritePath("src/account.html");}
         }
         //开启session功能
         public override void Init()
