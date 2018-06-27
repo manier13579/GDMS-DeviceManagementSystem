@@ -1,4 +1,6 @@
 <script type="text/javascript" src="src/js/echarts.min.js"></script>
+<link rel="stylesheet" type="text/css" href="src/css/view/dashboard.css">
+
 <div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
   <!-- 填充内容 -->
   <div class="layui-card">
@@ -21,19 +23,63 @@
 <div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
   <div class="layui-card">
     <div class="layui-card-header">设备监控</div>
-    <div class="layui-card-body"></div>
+    <div class="layui-card-body bing-monitoring">
+      <div class="layui-progress" lay-showpercent="yes">
+        <h3>平均CPU使用率</h3>
+        <div class="layui-progress-bar" lay-percent="58%" style="width: 58%;"><span class="layui-progress-text">58%</span></div>
+      </div>
+      <div class="layui-progress" lay-showpercent="yes">
+        <h3>平均内存占用率</h3>
+        <div class="layui-progress-bar layui-bg-red" lay-percent="90%" style="width: 90%;"><span class="layui-progress-text">90%</span></div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="layui-col-md4">
   <div class="layui-card">
     <div class="layui-card-header">系统公告</div>
-    <div class="layui-card-body"></div>
+    <div class="layui-card-body bing-notice">
+      <ul class="layui-timeline">
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">系统极速开发中</h3>
+            <p>我们有 “<em>自谓颇挺出，立登要路津</em>” 的宏伟抱负，已经独立开发完成的作品有：</p>
+            <ul>
+              <li>通讯录系统 (PHP + MySQL/Oracle)</li>
+              <li>数据库日检查程序 (Python + ExcelVBA)</li>
+              <li>新MES系统 (PHP + MySQL)</li>
+              <li>旧通讯录系统 (PHP + MySQL)</li>
+            </ul>
+          </div>
+        </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">系统立项</h3>
+            <p>
+              系统正式立项，使用C#、Oracle开发。
+              <br>架构：张鹏、王炳哲
+              <br>码农：王炳哲
+            </p>
+          </div>
+        </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <div class="layui-timeline-title">过去</div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 <div class="layui-col-md4">
   <div class="layui-card">
     <div class="layui-card-header">故障情况</div>
-    <div class="layui-card-body"></div>
+    <div class="layui-card-body">
+      <div id="chart-fault" style="height:300px;"></div>
+    </div>
   </div>
 </div>
 <div class="layui-col-md4">
@@ -56,6 +102,87 @@
 <script>
 chartOldShow();
 chartBackupShow();
+chartFaultShow();
+
+//故障情况图方法
+function chartFaultShow(){
+  var chartFault = echarts.init(document.getElementById('chart-fault'));
+  // 指定图表的配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: "{a} <br/>{b}: {c} ({d}%)",
+    },
+    legend: {
+      orient: 'vertical',
+      x: 'right',
+      itemWidth: 14,
+      itemHeight: 14,
+      align: 'left',
+      data: ['故障', '正常'],
+      textStyle: {
+        color: '#555'
+      }
+    },
+    series: [
+      {
+        type: 'pie',
+        hoverAnimation: false,
+        legendHoverLink: false,
+        radius: ['40%', '42%'],
+        color: ['#915872', '#3077b7'],
+        label: {
+          normal: {
+            position: 'inner'
+          }
+        },
+        labelLine: {
+          normal: {
+            show: false
+          },
+        },
+        tooltip: {
+          show: false,
+        },
+        data: [
+          {
+            value: 4,
+            name: ''
+          },
+          {
+            value: 679,
+            name: ''
+          },
+        ]
+      },
+      {
+        name: '统计',
+        type: 'pie',
+        radius: ['42%', '55%'],
+        color: ['#d74e67', '#0092ff'],
+        label: {
+          normal: {
+            formatter: '{b}\n{d}%'
+          },
+
+        },
+        data: [
+          {
+            value: 4,
+            name: '故障'
+          },
+          {
+            value: 679,
+            name: '正常'
+          },
+
+        ]
+      }
+    ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartFault.setOption(option);
+}
 
 //备件情况图方法
 function chartBackupShow(){
@@ -79,7 +206,6 @@ function chartBackupShow(){
     },
     series: [
       {
-        name: '访问来源',
         type: 'pie',
         hoverAnimation: false,
         legendHoverLink: false,

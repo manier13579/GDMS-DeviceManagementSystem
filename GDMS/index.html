@@ -124,6 +124,12 @@
 </body>
 </html>
 <script type="text/javascript">
+$('.layui-icon-refresh-3').click(function(){
+  var view = sessionStorage.viewNow;
+  $('#view').load('src/view/'+view+'.html');
+});
+
+
 //初始化页面记录
 if(!sessionStorage.viewNow){
   sessionStorage.viewNow = 'dashboard';

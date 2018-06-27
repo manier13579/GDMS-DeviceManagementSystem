@@ -65,10 +65,7 @@
   margin-bottom:15px;
 }
 .layui-card-body{
-  display: flex; 
-  justify-content: center; 
-  flex-direction: column; 
-  text-align: center; 
+  display: relative; 
   padding: 15px 15px 15px 15px;
 }
 .left-wrap .layui-nav-item a span{
@@ -160,4 +157,7 @@
 }
 .layui-table, .layui-table-view {
     margin: 0px 0;
+}
+.layui-timeline-title{
+  font-size:14px !important;
 }
