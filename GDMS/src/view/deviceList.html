@@ -1,10 +1,24 @@
 <div class="layui-col-md12">
   <div class="layui-card">
-    <div class="layui-card-body">111</div>
+    <div class="layui-card-body">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <select name="city" lay-verify="city">
+              <option value="">请选择一个城市</option>
+              <option value="010">北京</option>
+              <option value="021">上海</option>
+              <option value="0571">杭州</option>
+            </select>  
+          </div>   
+        </div> 
+      </form>
+    </div>
   </div>
 </div>
 <div class="layui-col-md12">
   <div class="layui-card">
+    <div id="a1"></div>
     <div class="layui-card-body">
       <table id="table1" lay-filter="table1"></table>
     </div>
@@ -12,29 +26,37 @@
 </div>
 
 <script>
-layui.use('table', function(){
+
+layui.use(['table','form'], function(){
   var table = layui.table;
-  
-  var systemId = 1;
+  var form = layui.form;
+  form.render();
+  var access_token = sessionStorage.access_token;
+  var userId = sessionStorage.userid;
   table1 = table.render({
     elem:'#table1',
     height: 528, //容器高度
     url: 'api/Device',
-    where: {systemId},
+    where: {userId},
+    headers:{"Authorization":"Basic "+access_token},
     even:true,
+    height:'full-200',
     size:'sm',
     method: 'post',
     id:'table1',
-    page: false, //是否开启分页
+    page: true, //是否开启分页
     cols:  [[ //标题栏
-      {field: 'GUID',width:1,title:''},
-      {field: 'XING_MING',title:'<span lang="姓名"></span>',width:90, sort: true,align:'center',style:"text-align:center;font-size:13px;",templet: '#template2'},
-      {field: 'GONG_SI', title: '<span lang="公司"></span>', width:200, sort: true,align:'center',style:"text-align:center;font-size:13px;"},
-      {field: 'SHOU_JI', title: '<span lang="手机"></span>', width:110,align:'center',style:"text-align:center;font-size:13px;"},
-      {field: 'ZUO_JI', title: '<span lang="座机"></span>', width:110, sort: true,align:'center',style:"text-align:center;font-size:13px;"},
-      {field: 'YOU_XIANG', title: '<span lang="邮箱"></span>', width:220,align:'center',style:"text-align:left;font-size:13px;"},
-      {field: 'BEI_ZHU', title: '<span lang="备注"></span>',align:'center', sort: true,style:"text-align:left;font-size:13px;"},
-      {field: 'QUAN_XIAN', title: '<span lang="权限"></span>',width:95,fixed:'right',align:'center',style:"text-align:center;font-size:13px;",templet: '#template1'},
+      {type:'checkbox', fixed: 'left',width:30},
+      {field: 'TYPE_NAME',title:'类型', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      {field: 'STYLE_NAME', title: '式样', fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
+      {field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+      {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+      {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+      {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+      {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
     ]],
     done: function(res, curr, count){
       table1Data = res.data;
@@ -42,7 +64,17 @@ layui.use('table', function(){
     }
   }); 
   
+  //监听单元格事件
+  table.on('tool(table1)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'devMore'){
+      console.log(data);
+    }
+  });
+  
 });
+
+
 
 
 </script>

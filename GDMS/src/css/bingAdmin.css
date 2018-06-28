@@ -1,3 +1,8 @@
+.clearfix{
+  content: '';
+  display: block;
+  clear: both; 
+}
 .top-wrap .layui-nav-bar {
   top: 0px !important;
 }
@@ -160,4 +165,13 @@
 }
 .layui-timeline-title{
   font-size:14px !important;
+}
+.layui-table-cell{
+  padding:0 5px;
+}
+.layui-table-cell .layui-form-checkbox[lay-skin="primary"], .layui-table-cell .layui-form-radio[lay-skin="primary"] {
+  top: 1px;
+}
+.layui-form-item {
+  margin-bottom: 0px;
 }
