@@ -6,7 +6,7 @@
 <div class="layui-col-md12">
   <div class="layui-card">
     <div class="layui-card-body">
-      <table id="list" lay-filter="test"></table>
+      <table id="table1" lay-filter="table1"></table>
     </div>
   </div>
 </div>
@@ -15,24 +15,32 @@
 layui.use('table', function(){
   var table = layui.table;
   
-  //第一个实例
-  table.render({
-    elem: '#list'
-    ,height: 315
-    ,url: '/demo/table/user/' //数据接口
-    ,page: true //开启分页
-    ,cols: [[ //表头
-      {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
-      ,{field: 'username', title: '用户名', width:80}
-      ,{field: 'sex', title: '性别', width:80, sort: true}
-      ,{field: 'city', title: '城市', width:80} 
-      ,{field: 'sign', title: '签名', width: 177}
-      ,{field: 'experience', title: '积分', width: 80, sort: true}
-      ,{field: 'score', title: '评分', width: 80, sort: true}
-      ,{field: 'classify', title: '职业', width: 80}
-      ,{field: 'wealth', title: '财富', width: 135, sort: true}
-    ]]
-  });
+  var systemId = 1;
+  table1 = table.render({
+    elem:'#table1',
+    height: 528, //容器高度
+    url: 'api/Device',
+    where: {systemId},
+    even:true,
+    size:'sm',
+    method: 'post',
+    id:'table1',
+    page: false, //是否开启分页
+    cols:  [[ //标题栏
+      {field: 'GUID',width:1,title:''},
+      {field: 'XING_MING',title:'<span lang="姓名"></span>',width:90, sort: true,align:'center',style:"text-align:center;font-size:13px;",templet: '#template2'},
+      {field: 'GONG_SI', title: '<span lang="公司"></span>', width:200, sort: true,align:'center',style:"text-align:center;font-size:13px;"},
+      {field: 'SHOU_JI', title: '<span lang="手机"></span>', width:110,align:'center',style:"text-align:center;font-size:13px;"},
+      {field: 'ZUO_JI', title: '<span lang="座机"></span>', width:110, sort: true,align:'center',style:"text-align:center;font-size:13px;"},
+      {field: 'YOU_XIANG', title: '<span lang="邮箱"></span>', width:220,align:'center',style:"text-align:left;font-size:13px;"},
+      {field: 'BEI_ZHU', title: '<span lang="备注"></span>',align:'center', sort: true,style:"text-align:left;font-size:13px;"},
+      {field: 'QUAN_XIAN', title: '<span lang="权限"></span>',width:95,fixed:'right',align:'center',style:"text-align:center;font-size:13px;",templet: '#template1'},
+    ]],
+    done: function(res, curr, count){
+      table1Data = res.data;
+      
+    }
+  }); 
   
 });
 
