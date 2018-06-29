@@ -175,3 +175,22 @@
 .layui-form-item {
   margin-bottom: 0px;
 }
+.layui-form-item .layui-input-inline {
+  width: 160px;
+}
+.layui-select-title{
+  font-size:12px;
+}
+.layui-anim-upbit{
+  font-size:12px;
+}
+.layui-input, .layui-select, .layui-textarea {
+  height: 30px;
+}
+.layui-form-select dl dd, .layui-form-select dl dt {
+  line-height: 25px;
+}
+.layui-card-header {
+  height: 37px;
+  line-height: 37px;
+}

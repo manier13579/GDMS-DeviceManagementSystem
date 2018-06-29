@@ -68,7 +68,7 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_SYSTEM H ON G.SYSTEM_ID = H.ID
                 WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "')";
 
-            if (deviceAjax.systemId) {
+            if (Integer deviceAjax.systemId) {
 
             }
             var ds = db.QueryT(sql);
