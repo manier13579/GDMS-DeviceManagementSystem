@@ -63,8 +63,8 @@
   <div class="layui-card">
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
-      <button class="layui-btn layui-btn-sm">查询</button>
-      <button class="layui-btn layui-btn-sm">查询</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
     </div>
   </div>
 </div>
@@ -78,21 +78,21 @@
 </div>
 
 <script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
 
 layui.use(['table','form'], function(){
   var table = layui.table;
   var form = layui.form;
   form.render();
-  var access_token = sessionStorage.access_token;
-  var userId = sessionStorage.userid;
   table1 = table.render({
     elem:'#table1',
     height: 528, //容器高度
-    url: 'api/Device',
+    url: 'actionApi/Device/list',
     where: {userId},
     headers:{"Authorization":"Basic "+access_token},
     even:true,
-    height:'full-200',
+    height:'full-230',
     size:'sm',
     method: 'post',
     id:'table1',
@@ -101,12 +101,12 @@ layui.use(['table','form'], function(){
       {type:'checkbox', fixed: 'left',width:30},
       {field: 'TYPE_NAME',title:'类型', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       {field: 'STYLE_NAME', title: '式样', fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
+      {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       {field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
       {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-      {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+      {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
       {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
       {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
     ]],
@@ -127,6 +127,14 @@ layui.use(['table','form'], function(){
 });
 
 
-
+$.ajax({
+  url: 'actionApi/Device/select',
+  type:'post',
+  data:{userId},
+  headers:{"Authorization":"Basic "+access_token},
+  success:function(res){
+    console.log(res);
+  }
+});
 
 </script>

@@ -15,10 +15,12 @@ namespace GDMS.Controllers
     [RequestAuthorize]
     public class DeviceController : ApiController
     {
-        //POST对象
+
+        //POST对象 (通过POST只能获取1个对象，因此POST多个数据需要使用类)
         public class DeviceAjax
         {
             public string userId { get; set; }
+            public int devId { get; set; }
             public int systemId { get; set; }
             public int siteId { get; set; }
             public int typeId { get; set; }
@@ -34,8 +36,9 @@ namespace GDMS.Controllers
             public object data { get; set; }
         }
 
-        //通过POST只能获取1个对象，因此POST多个数据需要使用类
-        public HttpResponseMessage Device([FromBody] DeviceAjax deviceAjax)
+        //获取设备列表
+        [ActionName("list")]
+        public HttpResponseMessage DeviceList([FromBody] DeviceAjax deviceAjax)
         {
             Db db = new Db();
             string sql = @"
@@ -68,11 +71,8 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_SYSTEM H ON G.SYSTEM_ID = H.ID
                 WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "')";
 
-            if (Integer deviceAjax.systemId) {
-
-            }
+            
             var ds = db.QueryT(sql);
-            int i = 0;
             Response res = new Response();
             ArrayList data = new ArrayList();
             foreach (DataRow col in ds.Rows)
@@ -111,5 +111,69 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
+
+        //获取select
+        [ActionName("select")]
+        public HttpResponseMessage DeviceSelect([FromBody] DeviceAjax deviceAjax)
+        {
+            Db db = new Db();
+            string sql1 = @"
+                SELECT
+                A.SYSTEM_ID AS SYSTEM_ID,
+                B.NAME AS SYSTEM_NAME
+                FROM
+                GDMS_USER_SYSTEM A
+                LEFT JOIN GDMS_SYSTEM B ON A.SYSTEM_ID = B.ID
+                WHERE A.USER_ID = '" + deviceAjax.userId + "'";
+
+
+            var ds = db.QueryT(sql1);
+            Response res = new Response();
+            ArrayList systemData = new ArrayList();
+            Dictionary<string, object> systemDataDict = new Dictionary<string, object>();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (DataRow col in ds.Rows)
+            {
+                //Dictionary<string, string> dict = new Dictionary<string, string>();
+                dict.Add(col["SYSTEM_ID"].ToString(), col["SYSTEM_NAME"].ToString());
+
+                //systemData.Add(dict);
+            }
+            systemDataDict.Add("SYSTEM", dict);
+
+            res.code = 0;
+            res.msg = "";
+            res.data = systemDataDict;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //删除设备
+        [ActionName("del")]
+        public HttpResponseMessage DeviceDel([FromBody] DeviceAjax deviceAjax)
+        {
+            Db db = new Db();
+            string sql = @"";
+
+            var ds = db.QueryT(sql);
+            Response res = new Response();
+
+            res.code = 0;
+            res.msg = "";
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
     }
 }

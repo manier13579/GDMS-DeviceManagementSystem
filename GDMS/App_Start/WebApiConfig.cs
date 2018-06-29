@@ -22,7 +22,7 @@ namespace GDMS
 
             config.Routes.MapHttpRoute(
                 name: "ActionApi",
-                routeTemplate: "api/{controller}/{action}/{id}",
+                routeTemplate: "actionApi/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
         }
