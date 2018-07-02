@@ -20,13 +20,13 @@ namespace GDMS.Controllers
         public class DeviceAjax
         {
             public string userId { get; set; }
-            public int devId { get; set; }
-            public int systemId { get; set; }
-            public int siteId { get; set; }
-            public int typeId { get; set; }
-            public int stnId { get; set; }
-            public int styleId { get; set; }
-            public int projectId { get; set; }
+            public string devId { get; set; }
+            public string systemId { get; set; }
+            public string siteId { get; set; }
+            public string typeId { get; set; }
+            public string stnId { get; set; }
+            public string styleId { get; set; }
+            public string projectId { get; set; }
         }
         //返回对象
         private class Response
@@ -41,6 +41,14 @@ namespace GDMS.Controllers
         public HttpResponseMessage DeviceList([FromBody] DeviceAjax deviceAjax)
         {
             Db db = new Db();
+            string where = "";
+            if (deviceAjax.systemId != null) { where = where + " AND G.SYSTEM_ID = '" + deviceAjax.systemId + "'"; }
+            if (deviceAjax.devId != null) { where = where + " AND A.ID = '" + deviceAjax.devId + "'"; }
+            if (deviceAjax.siteId != null) { where = where + " AND B.SITE_ID = '" + deviceAjax.siteId + "'"; }
+            if (deviceAjax.typeId != null) { where = where + " AND D.TYPE_ID = '" + deviceAjax.typeId + "'"; }
+            if (deviceAjax.stnId != null) { where = where + " AND A.STN_ID = '" + deviceAjax.stnId + "'"; }
+            if (deviceAjax.styleId != null) { where = where + " AND A.STYLE_ID = '" + deviceAjax.styleId + "'"; }
+            if (deviceAjax.projectId != null) { where = where + " AND A.PROJECT_ID = '" + deviceAjax.projectId + "'"; }
             string sql = @"
                 SELECT
                 A.COUNT,
@@ -69,7 +77,7 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_SYSTEM F ON B.SITE_ID = F.ID
                 LEFT JOIN GDMS_TYPE G ON D.TYPE_ID = G.ID
                 LEFT JOIN GDMS_SYSTEM H ON G.SYSTEM_ID = H.ID
-                WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "')";
+                WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "') " + where;
 
             
             var ds = db.QueryT(sql);
@@ -256,7 +264,7 @@ namespace GDMS.Controllers
             {
                 if (index == "0" || index == col["SITE_ID"].ToString())
                 {
-                    dict5.Add(col["SIN_ID"].ToString(), col["STN_NAME"].ToString());
+                    dict5.Add(col["STN_ID"].ToString(), col["STN_NAME"].ToString());
                     index = col["SITE_ID"].ToString();
                 }
                 else
@@ -264,12 +272,33 @@ namespace GDMS.Controllers
                     Dictionary<string, string> temp = new Dictionary<string, string>(dict5);
                     StnData.Add(index, temp);
                     dict5.Clear();
-                    dict5.Add(col["SIN_ID"].ToString(), col["STN_NAME"].ToString());
+                    dict5.Add(col["STN_ID"].ToString(), col["STN_NAME"].ToString());
                     index = col["SITE_ID"].ToString();
                 }
             }
             StnData.Add(index, dict5);
-            data.Add("site", StnData);
+            data.Add("stn", StnData);
+
+            //查询项目select
+            string sql6 = @"
+                SELECT DISTINCT
+                A.ID AS PROJECT_ID,
+                A.NAME AS PROJECT_NAME
+                FROM
+                GDMS_PROJECT A
+                LEFT JOIN GDMS_DEV_MAIN B ON A.ID = B.PROJECT_ID
+                LEFT JOIN GDMS_STYLE C ON B.STYLE_ID = C.ID
+                LEFT JOIN GDMS_TYPE D ON C.TYPE_ID = D.ID
+                LEFT JOIN GDMS_USER_SYSTEM E ON D.SYSTEM_ID = E.SYSTEM_ID
+                WHERE E.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.NAME ASC";
+            var ds6 = db.QueryT(sql6);
+            Dictionary<string, string> dict6 = new Dictionary<string, string>();
+            index = "0";
+            foreach (DataRow col in ds6.Rows)
+            {
+                dict6.Add(col["PROJECT_ID"].ToString(), col["PROJECT_NAME"].ToString());
+            }
+            data.Add("project", dict6);
 
             res.code = 0;
             res.msg = "";

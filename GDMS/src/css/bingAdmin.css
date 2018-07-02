@@ -10,7 +10,7 @@
   padding: 0 ;
   border-bottom: none;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
-  min-width:750px;
+  min-width:1050px;
   z-index:9999;
 }
 .top-wrap .layui-nav .layui-this::after, .layui-nav-bar, .layui-nav-tree .layui-nav-itemed::after {
@@ -64,7 +64,7 @@
 
 .layui-body{
   left:190px;
-  min-width:560px;
+  min-width:860px;
   top:50px;
   padding-top:15px;
   margin-bottom:15px;

@@ -4,34 +4,34 @@
       <form class="layui-form" action="">
         <div class="layui-form-item">
           <div class="layui-input-inline">
-            <select name="system" lay-verify="system">
+            <select name="system" lay-verify="system" lay-filter="system">
               <option value="">系统</option>
             </select>  
           </div>   
           <div class="layui-input-inline">
-            <select name="type" lay-verify="type">
+            <select name="type" lay-verify="type" lay-filter="type">
               <option value="">类型</option>
             </select>  
           </div>
           <div class="layui-input-inline">
-            <select name="site" lay-verify="site">
+            <select name="site" lay-verify="site" lay-filter="site">
               <option value="">地点</option>
             </select>  
           </div>
         </div>  
         <div class="layui-form-item" style="padding-top:8px;">
           <div class="layui-input-inline">
-            <select name="project" lay-verify="project">
+            <select name="project" lay-verify="project" lay-filter="project">
               <option value="">项目</option>
             </select>  
           </div> 
           <div class="layui-input-inline">
-            <select name="style" lay-verify="style">
+            <select name="style" lay-verify="style" lay-filter="style">
               <option value="">式样</option>
             </select>  
           </div>   
           <div class="layui-input-inline">
-            <select name="stn" lay-verify="stn">
+            <select name="stn" lay-verify="stn" lay-filter="stn">
               <option value="">位置</option>
             </select>  
           </div>   
@@ -45,6 +45,7 @@
   <div class="layui-card">
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加</button>
       <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
       <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
     </div>
@@ -67,36 +68,48 @@ layui.use(['table','form'], function(){
   var table = layui.table;
   var form = layui.form;
   form.render();
-  table1 = table.render({
-    elem:'#table1',
-    height: 528, //容器高度
-    url: 'actionApi/Device/list',
-    where: {"userId":userId},
-    headers:{"Authorization":"Basic "+access_token},
-    even:true,
-    height:'full-230',
-    size:'sm',
-    method: 'post',
-    id:'table1',
-    page: true, //是否开启分页
-    cols:  [[ //标题栏
-      {type:'checkbox', fixed: 'left',width:30},
-      {field: 'TYPE_NAME',title:'类型', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'STYLE_NAME', title: '式样', fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-      {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-      {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-      {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
-      {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-      {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
-    ]],
-    done: function(res, curr, count){
-      table1Data = res.data;
-      
-    }
-  }); 
+  formShow();
+  
+  function formShow(systemId,typeId,siteId,projectId,styleId,stnId){
+    table1 = table.render({
+      elem:'#table1',
+      height: 528, //容器高度
+      url: 'actionApi/Device/list',
+      where: {
+        "userId":userId,
+        "systemId":systemId,
+        "siteId":siteId,
+        "typeId":typeId,
+        "styleId":styleId,
+        "stnId":stnId,
+        "projectId":projectId
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-230',
+      size:'sm',
+      method: 'post',
+      id:'table1',
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {type:'checkbox', fixed: 'left',width:30},
+        {field: 'TYPE_NAME',title:'类型', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'STYLE_NAME', title: '式样', fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
+        {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        
+      }
+    }); 
+  }
   
   //监听单元格事件
   table.on('tool(table1)', function(obj){
@@ -111,6 +124,8 @@ layui.use(['table','form'], function(){
   $('select[name="site"]').attr('disabled','disabled');
   $('select[name="style"]').attr('disabled','disabled');
   $('select[name="stn"]').attr('disabled','disabled');
+  
+  var selectData;
   //获取select选项
   $.ajax({
     url: 'actionApi/Device/select',
@@ -118,14 +133,95 @@ layui.use(['table','form'], function(){
     data:{"userId":userId},
     headers:{"Authorization":"Basic "+access_token},
     success:function(res){
-      var systemList = res.data.system;
+      selectData = res.data;
+      var systemList = selectData.system;
+      var projectList = selectData.project;
       for(var key in systemList){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      for(var key in projectList){
+        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
       }
       form.render('select');
     }
   });
   
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    var systemId = data.value;
+    //地点select增加选项
+    if(selectData.site[systemId]){
+      $('select[name="site"]').removeAttr('disabled');
+      $('select[name="site"]').html('<option value="">地点</option>');
+      for(var key in selectData.site[systemId]){
+        $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
+      }
+    }else{
+      $('select[name="site"]').attr('disabled','disabled');
+      $('select[name="site"]').html('<option value="">地点</option>');
+      $('select[name="stn"]').attr('disabled','disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+    }
+    //类型select增加选项
+    if(selectData.type[systemId]){
+      $('select[name="type"]').removeAttr('disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      for(var key in selectData.type[systemId]){
+        $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
+      }
+    }else{
+      $('select[name="type"]').attr('disabled','disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      $('select[name="style"]').attr('disabled','disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+    }
+    form.render('select');
+  });
+  
+  //地点select选择事件
+  form.on('select(site)', function(data){
+    var siteId = data.value;
+    //位置select增加选项
+    if(selectData.stn[siteId]){
+      $('select[name="stn"]').removeAttr('disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+      for(var key in selectData.stn[siteId]){
+        $('select[name="stn"]').append('<option value="'+key+'">'+selectData.stn[siteId][key]+'</option>');
+      }
+    }else{
+      $('select[name="stn"]').attr('disabled','disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+    }
+    form.render('select');
+  });
+  
+  //类型select选择事件
+  form.on('select(type)', function(data){
+    var typeId = data.value;
+    //式样select增加选项
+    if(selectData.style[typeId]){
+      $('select[name="style"]').removeAttr('disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+      for(var key in selectData.style[typeId]){
+        $('select[name="style"]').append('<option value="'+key+'">'+selectData.style[typeId][key]+'</option>');
+      }
+    }else{
+      $('select[name="style"]').attr('disabled','disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+    }
+    form.render('select');
+  });
+  
+  form.on('select', function(data){
+    var systemId = $('select[name="system"]').val();
+    var siteId = $('select[name="site"]').val();
+    var typeId = $('select[name="type"]').val();
+    var styleId = $('select[name="style"]').val();
+    var stnId = $('select[name="stn"]').val();
+    var projectId = $('select[name="project"]').val();
+    formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+    
+  });
 });
 
 
