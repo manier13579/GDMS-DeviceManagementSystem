@@ -89,7 +89,7 @@ layui.use(['table','form'], function(){
     elem:'#table1',
     height: 528, //容器高度
     url: 'actionApi/Device/list',
-    where: {userId},
+    where: {"userId":userId},
     headers:{"Authorization":"Basic "+access_token},
     even:true,
     height:'full-230',
@@ -130,7 +130,7 @@ layui.use(['table','form'], function(){
 $.ajax({
   url: 'actionApi/Device/select',
   type:'post',
-  data:{userId},
+  data:{"userId":userId},
   headers:{"Authorization":"Basic "+access_token},
   success:function(res){
     console.log(res);

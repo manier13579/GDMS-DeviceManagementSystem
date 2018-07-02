@@ -159,7 +159,7 @@ layui.use(['element','layer'], function(){
       type: 'post',
       headers:{"Authorization":"Basic "+access_token},
       async:true,
-      data: {pageName,lang},
+      data: {"pageName":pageName,"lang":lang},
       success:function(res){
         for(var i in res.data){
           $('span[lang="'+i+'"]').html(res.data[i]);

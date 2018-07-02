@@ -2,7 +2,7 @@
 <head>
   <title>设备管理系统 - GDMS</title>
   <meta http-equiv="content-type" content="text/html" charset="UTF-8">
-  <script type="text/javascript" src="src/js/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="src/js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="src/js/layui/layui.js"></script>
   <script type="text/javascript" src="src/js/common.js"></script>
   
@@ -16,66 +16,68 @@
 </div>
 
 <div class="wrap">
-	<div class="layui-row">
-		<div class="title"><span lang="设备管理系统">设备管理系统</span></div>
-		<div class="title2">Global Device Management System</div>
-    <div class="switch-wrap">
-      <div class="switch-button-wrap">
-        <span class="switch-button" id="signup"><span lang="注册">注册</span></span>
-        <span class="switch-button active" id="signin"><span lang="登录">登录</span></span>
-        <span class="switch-button-bottom"></span>
-      </div>
-    </div>
-	</div>
-	<div class="layui-row tab-signin">
-    <div class="group-inputs">
-      <div class="account input-wrapper">
-        <input name="username" placeholder="账号" type="text" class="input-top">
-      </div>
-      <div class="verification input-wrapper">
-        <input name="password" placeholder="密码" type="password" class="input-bottom">
-      </div>
-    </div>
-    <div class="signin-button"><span lang="登录">登录</span></div>
-    
-    
-	</div>
-  
-	<div class="layui-row tab-signup">
-    <div class="group-inputs">
-      <div class="account input-wrapper">
-        <input name="username" placeholder="账号" type="text" class="input-top">
-      </div>
-      <div class="verification input-wrapper">
-        <input name="password" placeholder="密码" type="password">
-      </div>
-      <div class="verification input-wrapper">
-        <input name="password2" placeholder="确认密码 CONFIRM PASS" type="password" class="input-bottom">
-      </div>
-    </div>
-    <div class="signup-button"><span lang="暂未开放">暂未开放</span></div>
-	</div>
-  
-  
-  <div class="layui-row">
-    <div class="lang">
-      <div class="lang-title">Language</div>
-      <form class="layui-form" action="">
-        <div class="layui-form-item">
-            <select name="lang" lay-verify="required" lay-filter="lang">
-              <option value="CN">中文</option>
-              <option value="EN">English</option>
-            </select>
+  <div class="subwrap">
+    <div class="content">  
+      <div class="layui-row">
+        <div class="title"><span lang="设备管理系统">设备管理系统</span></div>
+        <div class="title2">Global Device Management System</div>
+        <div class="switch-wrap">
+          <div class="switch-button-wrap">
+            <span class="switch-button" id="signup"><span lang="注册">注册</span></span>
+            <span class="switch-button active" id="signin"><span lang="登录">登录</span></span>
+            <span class="switch-button-bottom"></span>
+          </div>
         </div>
-      </form>
+      </div>
+      <div class="layui-row tab-signin">
+        <div class="group-inputs">
+          <div class="account input-wrapper">
+            <input name="username" placeholder="账号" type="text" class="input-top">
+          </div>
+          <div class="verification input-wrapper">
+            <input name="password" placeholder="密码" type="password" class="input-bottom">
+          </div>
+        </div>
+        <div class="signin-button"><span lang="登录">登录</span></div>
+      </div>
+      
+      <div class="layui-row tab-signup">
+        <div class="group-inputs">
+          <div class="account input-wrapper">
+            <input name="username" placeholder="账号" type="text" class="input-top">
+          </div>
+          <div class="verification input-wrapper">
+            <input name="password" placeholder="密码" type="password">
+          </div>
+          <div class="verification input-wrapper">
+            <input name="password2" placeholder="确认密码 CONFIRM PASS" type="password" class="input-bottom">
+          </div>
+        </div>
+        <div class="signup-button"><span lang="暂未开放">暂未开放</span></div>
+      </div>
+      
+      
+      <div class="layui-row">
+        <div class="lang">
+          <div class="lang-title">Language</div>
+          <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <select name="lang" lay-verify="required" lay-filter="lang">
+                  <option value="CN">中文</option>
+                  <option value="EN">English</option>
+                </select>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="layui-row footer">
+        <hr class="layui-bg-gray">
+        <div class="footer-line">© 2018 MES1 Team License</div>
+      </div>
     </div>
   </div>
-  <div class="layui-row footer">
-    <hr class="layui-bg-gray">
-    <div class="footer-line">© 2018 MES1 Team License</div>
-  </div>
-</div>
-  
+</div>  
+
   
 </body>
 </html>
@@ -97,7 +99,7 @@ layui.use('form', function(){
       url:"api/LoginLang",
       type: 'post',
       async:true,
-      data: {pageName,lang},
+      data: {"pageName":pageName,"lang":lang},
       success:function(res){
         for(var i in res.data){
           $('span[lang="'+i+'"]').html(res.data[i]);
@@ -163,14 +165,14 @@ function login(){
       url:"api/Login",
       async:false,
       type: 'post',
-      data: {username,password},
+      data: {"username":username,"password":password},
       success:function(res){
         if(res.code==0){
           sessionStorage.access_token = res.data.access_token;
           sessionStorage.userid = res.data.userid;
           sessionStorage.username = res.data.username;
           sessionStorage.role = res.data.role;
-          location.href = rootpath+"/";
+          window.location.href = rootpath+"/";
         }else if(res.code==1){
           layer.msg(res.msg, {
             icon: 2,
@@ -221,12 +223,8 @@ $('.switch-button').click(function(){
       $('.tab-signin').hide();
       $('.tab-signup').show();
     }
-    
   }
-
-  
 });
-
 
 </script>
 
