@@ -117,6 +117,10 @@ namespace GDMS.Controllers
         public HttpResponseMessage DeviceSelect([FromBody] DeviceAjax deviceAjax)
         {
             Db db = new Db();
+            Response res = new Response();
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            //查询系统select
             string sql1 = @"
                 SELECT
                 A.SYSTEM_ID AS SYSTEM_ID,
@@ -125,25 +129,151 @@ namespace GDMS.Controllers
                 GDMS_USER_SYSTEM A
                 LEFT JOIN GDMS_SYSTEM B ON A.SYSTEM_ID = B.ID
                 WHERE A.USER_ID = '" + deviceAjax.userId + "'";
-
-
-            var ds = db.QueryT(sql1);
-            Response res = new Response();
-            ArrayList systemData = new ArrayList();
-            Dictionary<string, object> systemDataDict = new Dictionary<string, object>();
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            foreach (DataRow col in ds.Rows)
+            var ds1 = db.QueryT(sql1);
+            Dictionary<string, string> dict1 = new Dictionary<string, string>();
+            foreach (DataRow col in ds1.Rows)
             {
-                //Dictionary<string, string> dict = new Dictionary<string, string>();
-                dict.Add(col["SYSTEM_ID"].ToString(), col["SYSTEM_NAME"].ToString());
-
-                //systemData.Add(dict);
+                dict1.Add(col["SYSTEM_ID"].ToString(), col["SYSTEM_NAME"].ToString());
             }
-            systemDataDict.Add("SYSTEM", dict);
+            data.Add("system", dict1);
+
+            //查询地点select
+            string sql2 = @"
+                SELECT
+                A.SYSTEM_ID AS SYSTEM_ID,
+                A.ID AS SITE_ID,
+                A.NAME AS SITE_NAME
+                FROM
+                GDMS_SITE A
+                LEFT JOIN GDMS_USER_SYSTEM B ON A.SYSTEM_ID = B.SYSTEM_ID
+                WHERE B.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.SYSTEM_ID ASC ";
+            var ds2 = db.QueryT(sql2);
+            Dictionary<string, object> siteData = new Dictionary<string, object>();
+            Dictionary<string, string> dict2 = new Dictionary<string, string>();
+            var index = "0";
+            foreach (DataRow col in ds2.Rows)
+            {
+                if (index == "0" || index == col["SYSTEM_ID"].ToString())
+                {
+                    dict2.Add(col["SITE_ID"].ToString(), col["SITE_NAME"].ToString());
+                    index = col["SYSTEM_ID"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>(dict2);
+                    siteData.Add(index, temp);
+                    dict2.Clear();
+                    dict2.Add(col["SITE_ID"].ToString(), col["SITE_NAME"].ToString());
+                    index = col["SYSTEM_ID"].ToString();
+                }
+            }
+            siteData.Add(index, dict2);
+            data.Add("site", siteData);
+
+            //查询类型select
+            string sql3 = @"
+                SELECT
+                A.SYSTEM_ID AS SYSTEM_ID,
+                A.ID AS TYPE_ID,
+                A.NAME AS TYPE_NAME
+                FROM
+                GDMS_TYPE A
+                LEFT JOIN GDMS_USER_SYSTEM B ON A.SYSTEM_ID = B.SYSTEM_ID
+                WHERE B.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.SYSTEM_ID ASC ";
+            var ds3 = db.QueryT(sql3);
+            Dictionary<string, object> TypeData = new Dictionary<string, object>();
+            Dictionary<string, string> dict3 = new Dictionary<string, string>();
+            index = "0";
+            foreach (DataRow col in ds3.Rows)
+            {
+                if (index == "0" || index == col["SYSTEM_ID"].ToString())
+                {
+                    dict3.Add(col["TYPE_ID"].ToString(), col["TYPE_NAME"].ToString());
+                    index = col["SYSTEM_ID"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>(dict3);
+                    TypeData.Add(index, temp);
+                    dict3.Clear();
+                    dict3.Add(col["TYPE_ID"].ToString(), col["TYPE_NAME"].ToString());
+                    index = col["SYSTEM_ID"].ToString();
+                }
+            }
+            TypeData.Add(index, dict3);
+            data.Add("type", TypeData);
+
+            //查询式样select
+            string sql4 = @"
+                SELECT
+                A.TYPE_ID AS TYPE_ID,
+                A.ID AS STYLE_ID,
+                A.NAME AS STYLE_NAME
+                FROM
+                GDMS_STYLE A
+                LEFT JOIN GDMS_TYPE B ON A.TYPE_ID = B.ID
+                LEFT JOIN GDMS_USER_SYSTEM C ON B.SYSTEM_ID = C.SYSTEM_ID
+                WHERE C.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.TYPE_ID ASC";
+            var ds4 = db.QueryT(sql4);
+            Dictionary<string, object> StyleData = new Dictionary<string, object>();
+            Dictionary<string, string> dict4 = new Dictionary<string, string>();
+            index = "0";
+            foreach (DataRow col in ds4.Rows)
+            {
+                if (index == "0" || index == col["TYPE_ID"].ToString())
+                {
+                    dict4.Add(col["STYLE_ID"].ToString(), col["STYLE_NAME"].ToString());
+                    index = col["TYPE_ID"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>(dict4);
+                    StyleData.Add(index, temp);
+                    dict4.Clear();
+                    dict4.Add(col["STYLE_ID"].ToString(), col["STYLE_NAME"].ToString());
+                    index = col["TYPE_ID"].ToString();
+                }
+            }
+            StyleData.Add(index, dict4);
+            data.Add("style", StyleData);
+
+            //查询位置select
+            string sql5 = @"
+                SELECT
+                A.SITE_ID AS SITE_ID,
+                A.ID AS STN_ID,
+                A.NAME AS STN_NAME
+                FROM
+                GDMS_STN_MAIN A
+                LEFT JOIN GDMS_SITE B ON A.SITE_ID = B.ID
+                LEFT JOIN GDMS_USER_SYSTEM C ON B.SYSTEM_ID = C.SYSTEM_ID
+                WHERE C.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.SITE_ID ASC";
+            var ds5 = db.QueryT(sql5);
+            Dictionary<string, object> StnData = new Dictionary<string, object>();
+            Dictionary<string, string> dict5 = new Dictionary<string, string>();
+            index = "0";
+            foreach (DataRow col in ds5.Rows)
+            {
+                if (index == "0" || index == col["SITE_ID"].ToString())
+                {
+                    dict5.Add(col["SIN_ID"].ToString(), col["STN_NAME"].ToString());
+                    index = col["SITE_ID"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>(dict5);
+                    StnData.Add(index, temp);
+                    dict5.Clear();
+                    dict5.Add(col["SIN_ID"].ToString(), col["STN_NAME"].ToString());
+                    index = col["SITE_ID"].ToString();
+                }
+            }
+            StnData.Add(index, dict5);
+            data.Add("site", StnData);
 
             res.code = 0;
             res.msg = "";
-            res.data = systemDataDict;
+            res.data = data;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
             HttpResponseMessage resJson = new HttpResponseMessage
@@ -174,6 +304,7 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
+
 
     }
 }

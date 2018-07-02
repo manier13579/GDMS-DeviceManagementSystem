@@ -198,6 +198,7 @@
     </Compile>
     <Compile Include="Models\Db.cs" />
     <Compile Include="Models\RequestAuthorizeAttribute.cs" />
+    <Compile Include="Models\ThreadSafeDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

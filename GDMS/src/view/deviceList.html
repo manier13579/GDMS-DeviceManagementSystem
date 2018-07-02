@@ -6,54 +6,36 @@
           <div class="layui-input-inline">
             <select name="system" lay-verify="system">
               <option value="">系统</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div>   
           <div class="layui-input-inline">
-            <select name="city" lay-verify="city">
+            <select name="type" lay-verify="type">
               <option value="">类型</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div>
           <div class="layui-input-inline">
-            <select name="city" lay-verify="city">
+            <select name="site" lay-verify="site">
               <option value="">地点</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div>
         </div>  
         <div class="layui-form-item" style="padding-top:8px;">
           <div class="layui-input-inline">
-            <select name="city" lay-verify="city">
+            <select name="project" lay-verify="project">
               <option value="">项目</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div> 
           <div class="layui-input-inline">
-            <select name="city" lay-verify="city">
+            <select name="style" lay-verify="style">
               <option value="">式样</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div>   
           <div class="layui-input-inline">
-            <select name="city" lay-verify="city">
+            <select name="stn" lay-verify="stn">
               <option value="">位置</option>
-              <option value="1">MES1</option>
-              <option value="2">MES2</option>
-              <option value="3">MES3</option>
             </select>  
           </div>   
-          <button class="layui-btn layui-btn-sm">查询</button>
+          <!-- <div class="layui-btn layui-btn-sm">查询</div> -->
         </div> 
       </form>
     </div>
@@ -124,17 +106,29 @@ layui.use(['table','form'], function(){
     }
   });
   
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  $('select[name="site"]').attr('disabled','disabled');
+  $('select[name="style"]').attr('disabled','disabled');
+  $('select[name="stn"]').attr('disabled','disabled');
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Device/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      var systemList = res.data.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+    }
+  });
+  
 });
 
 
-$.ajax({
-  url: 'actionApi/Device/select',
-  type:'post',
-  data:{"userId":userId},
-  headers:{"Authorization":"Basic "+access_token},
-  success:function(res){
-    console.log(res);
-  }
-});
+
 
 </script>
