@@ -1,0 +1,190 @@
+<div class="layui-col-md9">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="system" lay-filter="system">
+              <option value="">系统</option>
+            </select>  
+          </div>   
+        </div> 
+      </form>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md3">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div id="a1"></div>
+    <div class="layui-card-body">
+      <table id="table1" lay-filter="table1"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['table','form'], function(){
+  var table = layui.table;
+  var form = layui.form;
+  form.render();
+  formShow();
+  
+  function formShow(pageId,keyword){
+    table1 = table.render({
+      elem:'#table1',
+      height: 528, //容器高度
+      url: 'api/LangManage',
+      where: {
+        "keyword":keyword,
+        "pageId":pageId,
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-200',
+      size:'sm',
+      method: 'post',
+      id:'table1',
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {type:'checkbox', fixed: 'left',width:30},
+        {field: 'YE_MIAN_MING',title:'页面', fixed: 'left',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'XU_HAO', title: '关键词', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'YU_ZHONG', title: '语种', fixed: 'left', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'WEN_ZI', title: '文字',  sort: true,align:'center',style:"text-align:left;font-size:12px;"}
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        
+      }
+    }); 
+  }
+  
+  //监听单元格事件
+  table.on('tool(table1)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'devMore'){
+      console.log(data);
+    }
+  });
+  
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  $('select[name="site"]').attr('disabled','disabled');
+  $('select[name="style"]').attr('disabled','disabled');
+  $('select[name="stn"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Device/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      var projectList = selectData.project;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      for(var key in projectList){
+        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
+      }
+      form.render('select');
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    var systemId = data.value;
+    //地点select增加选项
+    if(selectData.site[systemId]){
+      $('select[name="site"]').removeAttr('disabled');
+      $('select[name="site"]').html('<option value="">地点</option>');
+      for(var key in selectData.site[systemId]){
+        $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
+      }
+    }else{
+      $('select[name="site"]').attr('disabled','disabled');
+      $('select[name="site"]').html('<option value="">地点</option>');
+      $('select[name="stn"]').attr('disabled','disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+    }
+    //类型select增加选项
+    if(selectData.type[systemId]){
+      $('select[name="type"]').removeAttr('disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      for(var key in selectData.type[systemId]){
+        $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
+      }
+    }else{
+      $('select[name="type"]').attr('disabled','disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      $('select[name="style"]').attr('disabled','disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+    }
+    form.render('select');
+  });
+  
+  //地点select选择事件
+  form.on('select(site)', function(data){
+    var siteId = data.value;
+    //位置select增加选项
+    if(selectData.stn[siteId]){
+      $('select[name="stn"]').removeAttr('disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+      for(var key in selectData.stn[siteId]){
+        $('select[name="stn"]').append('<option value="'+key+'">'+selectData.stn[siteId][key]+'</option>');
+      }
+    }else{
+      $('select[name="stn"]').attr('disabled','disabled');
+      $('select[name="stn"]').html('<option value="">位置</option>');
+    }
+    form.render('select');
+  });
+  
+  //类型select选择事件
+  form.on('select(type)', function(data){
+    var typeId = data.value;
+    //式样select增加选项
+    if(selectData.style[typeId]){
+      $('select[name="style"]').removeAttr('disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+      for(var key in selectData.style[typeId]){
+        $('select[name="style"]').append('<option value="'+key+'">'+selectData.style[typeId][key]+'</option>');
+      }
+    }else{
+      $('select[name="style"]').attr('disabled','disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+    }
+    form.render('select');
+  });
+  
+  form.on('select', function(data){
+    var systemId = $('select[name="system"]').val();
+    var siteId = $('select[name="site"]').val();
+    var typeId = $('select[name="type"]').val();
+    var styleId = $('select[name="style"]').val();
+    var stnId = $('select[name="stn"]').val();
+    var projectId = $('select[name="project"]').val();
+    formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+    
+  });
+});
+
+
+
+
+</script>

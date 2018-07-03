@@ -149,6 +149,12 @@
   padding: 0 10 0 0;
   font-size:14px !important;
 }
+.layui-icon-template-1{
+  display:block;
+  padding: 0 10 0 0;
+  font-size:14px !important;
+  
+}
 .note-input{
   min-width: 300px;
   min-height: 132px;
