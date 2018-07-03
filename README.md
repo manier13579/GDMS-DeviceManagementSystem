@@ -12,3 +12,9 @@
 
 ****
 * 界面优雅，完全独立开发，高仿layuiAdmin的界面，但由于理念不同，未使用其框架。
+
+#### 登录页预览
+![登录页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo1.png)  
+
+#### 内容页预览
+![内容页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo2.png)  
