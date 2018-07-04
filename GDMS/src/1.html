@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>设备管理系统 - GDMS</title>
+  <meta http-equiv="content-type" content="text/html" charset="UTF-8">
+  <script type="text/javascript" src="jquery-1.12.0.min.js"></script>
+  
+</head>
+<body>
+
+<div class="a">
+<li>
+<img id="1" src="123" width="60">
+1
+<b>删除</b>
+
+</li>
+<li>
+<img id="2" src="123" width="60">
+2
+<b>删除</b>
+
+</li>
+<li>
+<img id="3" src="123" width="60">
+3
+<b>删除</b>
+
+</li>
+</div>
+  
+</body>
+</html>
+<script type="text/javascript">
+$(".a").on("click","b",function(){
+  console.log($(this).parent("li"));
+  console.log($(this).parent("li").index());
+  $(this).parent("li").hide();
+});
+$(".a").append("<li><img id=\"3\" src=\"123\" width=\"60\">3<b>删除</b></li>");
+$(".a").append("<li><img id=\"3\" src=\"123\" width=\"60\">3<b>删除</b></li>");
+$(".a").append("<li><img id=\"3\" src=\"123\" width=\"60\">3<b>删除</b></li>");
+$(".a").append("<li><img id=\"3\" src=\"123\" width=\"60\">3<b>删除</b></li>");
+$(".a").append("<li><img id=\"3\" src=\"123\" width=\"60\">3<b>删除</b></li>");
+</script>
+

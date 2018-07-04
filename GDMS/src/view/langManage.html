@@ -1,4 +1,4 @@
-<div class="layui-col-md9">
+<div class="layui-col-md8">
   <div class="layui-card">
     <div class="layui-card-body">
       <form class="layui-form" action="">
@@ -13,11 +13,11 @@
     </div>
   </div>
 </div>
-<div class="layui-col-md3">
+<div class="layui-col-md4">
   <div class="layui-card">
     <div class="layui-card-body">
-      <button class="layui-btn layui-btn-sm">添加</button>
-      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
+      <button class="layui-btn layui-btn-sm">添加关键词</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">添加语种</button>
       <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
     </div>
   </div>
@@ -64,7 +64,7 @@ layui.use(['table','form'], function(){
         {field: 'YE_MIAN_MING',title:'页面',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'XU_HAO', title: '关键词', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'YU_ZHONG', title: '语种', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'WEN_ZI', title: '文字',  sort: true,align:'center',style:"text-align:left;font-size:12px;"}
+        {field: 'WEN_ZI', title: '文字',  sort: true,align:'center',style:"text-align:left;font-size:12px;",edit:"text"}
       ]],
       done: function(res, curr, count){
         table1Data = res.data;

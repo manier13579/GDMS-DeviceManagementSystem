@@ -1,40 +1,103 @@
 <div class="layui-col-md12">
   <div class="layui-card">
-    <div class="layui-card-body">111</div>
+    <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">编辑</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+    </div>
   </div>
 </div>
 <div class="layui-col-md12">
   <div class="layui-card">
+    <div id="a1"></div>
     <div class="layui-card-body">
-      <table id="list" lay-filter="test"></table>
+      <table id="table1" lay-filter="table1"></table>
     </div>
   </div>
 </div>
 
 <script>
-layui.use('table', function(){
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['table','form'], function(){
   var table = layui.table;
+  var form = layui.form;
+  form.render();
+  formShow();
   
-  //第一个实例
-  table.render({
-    elem: '#list'
-    ,height: 315
-    ,url: '/demo/table/user/' //数据接口
-    ,page: true //开启分页
-    ,cols: [[ //表头
-      {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
-      ,{field: 'username', title: '用户名', width:80}
-      ,{field: 'sex', title: '性别', width:80, sort: true}
-      ,{field: 'city', title: '城市', width:80} 
-      ,{field: 'sign', title: '签名', width: 177}
-      ,{field: 'experience', title: '积分', width: 80, sort: true}
-      ,{field: 'score', title: '评分', width: 80, sort: true}
-      ,{field: 'classify', title: '职业', width: 80}
-      ,{field: 'wealth', title: '财富', width: 135, sort: true}
-    ]]
+  function formShow(pageId,keyword){
+    table1 = table.render({
+      elem:'#table1',
+      height: 528, //容器高度
+      url: 'actionApi/LangManage/list',
+      where: {
+        "keyword":keyword,
+        "pageId":pageId,
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-200',
+      size:'sm',
+      method: 'post',
+      id:'table1',
+      limit:20,
+      limits:[20, 50, 200, 500],
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {type:'checkbox', fixed: 'left',width:30},
+        {field: 'YE_MIAN_MING',title:'页面',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'XU_HAO', title: '关键词', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'YU_ZHONG', title: '语种', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'WEN_ZI', title: '文字',  sort: true,align:'center',style:"text-align:left;font-size:12px;",edit:"text"}
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        
+      }
+    }); 
+  }
+  
+  //监听单元格事件
+  table.on('tool(table1)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'devMore'){
+      console.log(data);
+    }
   });
   
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  $('select[name="site"]').attr('disabled','disabled');
+  $('select[name="style"]').attr('disabled','disabled');
+  $('select[name="stn"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/LangManage/select',
+    type:'post',
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var pageList = selectData;
+      for(var key in pageList){
+        $('select[name="page"]').append('<option value="'+pageList[key]+'">'+pageList[key]+'</option>');
+      }
+      form.render('select');
+    }
+  });
+  
+  //select选择事件
+  form.on('select', function(data){
+    var pageId = $('select[name="page"]').val();
+    var keyword = '';
+    formShow(pageId,keyword);
+    
+  });
 });
+
+
 
 
 </script>
