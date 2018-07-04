@@ -148,32 +148,30 @@ layui.use(['table','form'], function(){
   
   //系统select选择事件
   form.on('select(system)', function(data){
+    $('select[name="site"]').attr('disabled','disabled');
+    $('select[name="site"]').html('<option value="">地点</option>');
+    $('select[name="stn"]').attr('disabled','disabled');
+    $('select[name="stn"]').html('<option value="">位置</option>');
+    $('select[name="type"]').attr('disabled','disabled');
+    $('select[name="type"]').html('<option value="">类型</option>');
+    $('select[name="style"]').attr('disabled','disabled');
+    $('select[name="style"]').html('<option value="">式样</option>');
     var systemId = data.value;
-    //地点select增加选项
+    //如果系统里有地点，地点select增加选项并启用
     if(selectData.site[systemId]){
       $('select[name="site"]').removeAttr('disabled');
       $('select[name="site"]').html('<option value="">地点</option>');
       for(var key in selectData.site[systemId]){
         $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
       }
-    }else{
-      $('select[name="site"]').attr('disabled','disabled');
-      $('select[name="site"]').html('<option value="">地点</option>');
-      $('select[name="stn"]').attr('disabled','disabled');
-      $('select[name="stn"]').html('<option value="">位置</option>');
     }
-    //类型select增加选项
+    //如果系统里有类型，类型select增加选项并启用
     if(selectData.type[systemId]){
       $('select[name="type"]').removeAttr('disabled');
       $('select[name="type"]').html('<option value="">类型</option>');
       for(var key in selectData.type[systemId]){
         $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
       }
-    }else{
-      $('select[name="type"]').attr('disabled','disabled');
-      $('select[name="type"]').html('<option value="">类型</option>');
-      $('select[name="style"]').attr('disabled','disabled');
-      $('select[name="style"]').html('<option value="">式样</option>');
     }
     form.render('select');
   });
