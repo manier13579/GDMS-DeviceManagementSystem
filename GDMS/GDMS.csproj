@@ -237,6 +237,7 @@
     <Content Include="src\css\nav.css" />
     <Content Include="src\css\navigation.css" />
     <Content Include="src\css\view.css" />
+    <Content Include="src\css\view\dashboard.css" />
     <Content Include="src\err\403.html" />
     <Content Include="src\err\404.html" />
     <Content Include="src\err\500.html" />
