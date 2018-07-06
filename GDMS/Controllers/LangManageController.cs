@@ -49,11 +49,13 @@ namespace GDMS.Controllers
             ArrayList data = new ArrayList();
             foreach (DataRow col in ds.Rows)
             {
-                Dictionary<string, string> dict = new Dictionary<string, string>();
-                dict.Add("YE_MIAN_MING", col["YE_MIAN_MING"].ToString());
-                dict.Add("XU_HAO", col["XU_HAO"].ToString());
-                dict.Add("YU_ZHONG", col["YU_ZHONG"].ToString());
-                dict.Add("WEN_ZI", col["WEN_ZI"].ToString());
+                Dictionary<string, string> dict = new Dictionary<string, string>
+                {
+                    { "YE_MIAN_MING", col["YE_MIAN_MING"].ToString() },
+                    { "XU_HAO", col["XU_HAO"].ToString() },
+                    { "YU_ZHONG", col["YU_ZHONG"].ToString() },
+                    { "WEN_ZI", col["WEN_ZI"].ToString() }
+                };
 
                 data.Add(dict);
             }
