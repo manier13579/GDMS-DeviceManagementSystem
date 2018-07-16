@@ -1,0 +1,113 @@
+<div class="layui-col-md9">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="system" lay-filter="system">
+              <option value="">系统</option>
+            </select>
+          </div>
+        </div>  
+      </form>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md3">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div id="a1"></div>
+    <div class="layui-card-body">
+      <table id="table1" lay-filter="table1"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['table','form'], function(){
+  var table = layui.table;
+  var form = layui.form;
+  form.render();
+  formShow();
+  
+  function formShow(systemId,keyword){
+    table1 = table.render({
+      elem:'#table1',
+      height: 528, //容器高度
+      url: 'actionApi/Site/list',
+      where: {
+        "userId":userId,
+        "systemId":systemId,
+        "keyword":keyword
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-200',
+      size:'sm',
+      method: 'post',
+      id:'table1',
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {type:'checkbox', fixed: 'left',width:30},
+        {field: 'NAME',title:'地点', fixed: 'left',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'SITE_ID', title: '地点ID', fixed: 'left', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'PARENT_ID', title: '父地点ID', width:90, fixed: 'left', sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'USER_ID', title: '编辑用户', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'EDIT_DATE', title: '编辑日期', width:130,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
+        {field: 'REMARK', title: '备注',  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        
+      }
+    }); 
+  }
+  
+  //监听单元格事件
+  table.on('tool(table1)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'devMore'){
+      console.log(data);
+    }
+  });
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Site/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+    }
+  });
+  
+  form.on('select', function(data){
+    var systemId = $('select[name="system"]').val();
+    formShow(systemId);
+    
+  });
+});
+
+
+
+
+</script>

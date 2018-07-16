@@ -1,7 +1,29 @@
 <script type="text/javascript" src="src/js/echarts.min.js"></script>
 <div class="layui-col-md12">
   <div class="layui-card">
-    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-body">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="system" lay-filter="system">
+              <option value="">系统</option>
+            </select>
+          </div>
+          <div class="layui-input-inline">
+            <select name="chartType" lay-verify="chartType" lay-filter="chartType">
+              <option value="">图表类型</option>
+              <option value="type">按类型</option>
+              <option value="style">按式样</option>
+              <option value="site">按地点</option>
+            </select>  
+          </div>
+        </div>  
+      </form>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md12">
+  <div class="layui-card">
     <div class="layui-card-body">
       <div id="chart-old" style="min-height:600px;"></div>
     </div>
@@ -9,6 +31,49 @@
 </div>
 
 <script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+layui.use(['form'], function(){
+  var form = layui.form;
+
+  //初始化select
+  $('select[name="chartType"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Stn/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    $('select[name="chartType"]').attr('disabled','disabled');
+    var systemId = data.value;
+    //如果系统里有地点，地点select增加选项并启用
+    if(systemId!=''){
+      $('select[name="chartType"]').removeAttr('disabled');
+    }
+    form.render('select');
+  });
+  
+  form.on('select', function(data){
+    var systemId = $('select[name="system"]').val();
+    
+  });
+});
+
+
 chartOldShow();
 
 //老旧率情况图方法
