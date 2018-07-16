@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -15,31 +16,55 @@ namespace GDMS.Controllers
     public class UserManageController : ApiController
     {
         //POST对象
-        public class LangAjax
+        public class UserAjax
         {
-            public string lang { get; set; }
-            public string pageName { get; set; }
+            public int page { get; set; }
+            public int limit { get; set; }
         }
         //返回对象
         private class Response
         {
             public int code { get; set; }
+            public string count { get; set; }
             public string msg { get; set; }
             public object data { get; set; }
         }
 
-        //通过POST只能获取1个对象，因此POST多个数据需要使用类
-        public HttpResponseMessage Lang([FromBody] LangAjax langajax)
+        //获取用户列表
+        [ActionName("list")]
+        public HttpResponseMessage Lang([FromBody] UserAjax userajax)
         {
             Db db = new Db();
-            string sql = "SELECT XU_HAO, WEN_ZI FROM GDMS_LANG WHERE YE_MIAN_MING = '" + langajax.pageName + "' AND YU_ZHONG = '" + langajax.lang + "' order by XU_HAO";
+            string sqlnp = "SELECT * FROM GDMS_USER order by USER_ID";
+            int limit1 = (userajax.page - 1) * userajax.limit + 1;
+            int limit2 = userajax.page * userajax.limit;
+            string sql = "SELECT * FROM(SELECT p1.*,ROWNUM rn FROM(" + sqlnp + ")p1)WHERE rn BETWEEN " + limit1 + " AND " + limit2;
             var ds = db.QueryT(sql);
-            int i = 0;
             Response res = new Response();
-            Dictionary<string, string> data = new Dictionary<string, string>();
+            ArrayList data = new ArrayList();
             foreach (DataRow col in ds.Rows)
             {
-                data.Add(col["XU_HAO"].ToString(), col["WEN_ZI"].ToString());
+                Dictionary<string, string> dict = new Dictionary<string, string>
+                {
+                    { "USER_ID", col["USER_ID"].ToString() },
+                    { "USER_NAME", col["USER_NAME"].ToString() },
+                    { "USER_TYPE", col["USER_TYPE"].ToString() },
+                    { "FAILED_LOGINS", col["FAILED_LOGINS"].ToString() },
+                    { "LAST_IP", col["LAST_IP"].ToString() },
+                    { "EMAIL", col["EMAIL"].ToString() },
+                    { "LAST_LOGIN", col["LAST_LOGIN"].ToString() },
+                    { "JOIN_DATE", col["JOIN_DATE"].ToString() },
+                };
+
+                data.Add(dict);
+            }
+
+            //获取用户数量
+            string sql2 = "select count(*) as count from GDMS_USER";
+            var ds2 = db.QueryT(sql2);
+            foreach (DataRow col in ds2.Rows)
+            {
+                res.count = col["count"].ToString();
             }
 
             res.code = 0;

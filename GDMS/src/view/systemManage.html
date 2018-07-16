@@ -1,0 +1,121 @@
+<link rel="stylesheet" type="text/css" href="src/css/view/systemManage.css">
+<div class="layui-col-md6">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加系统</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal">编辑系统</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除系统</button>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md6">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <button class="layui-btn layui-btn-sm">添加用户</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger">删除用户</button>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md6">
+  <div class="layui-card">
+    <div class="layui-card-header">系统列表</div>
+    <div class="layui-card-body table1">
+      <table id="table1" lay-filter="table1"></table>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md6">
+  <div class="layui-card">
+    <div class="layui-card-header">系统用户列表</div>
+    <div class="layui-card-body table2">
+      <div class="table2-tishi">请选择系统</div>
+      <table id="table2" lay-filter="table2"></table>
+    </div>
+  </div>
+</div>
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['table','form'], function(){
+  var table = layui.table;
+  var form = layui.form;
+  form.render();
+  formShow();
+  
+  //系统列表显示函数
+  function formShow(){
+    table1 = table.render({
+      elem:'#table1',
+      height: 528, //容器高度
+      url: 'actionApi/systemManage/list',
+      where: {},
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-230',
+      size:'sm',
+      method: 'post',
+      id:'table1',
+      limit:20,
+      limits:[20, 50, 200, 500],
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {field: 'ID',width:1,title:''},
+        {field: 'NAME',title:'系统名',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'USER_ID', title: '注册用户', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'EDIT_DATE', title: '编辑日期', width:140,  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'REMARK', title: '描述', sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        $('.table1 .layui-table td').css('cursor','pointer');
+      }
+    }); 
+  }
+
+  //系统用户列表显示函数
+  function form2Show(systemId){
+    $('.table2-tishi').hide();
+    table2 = table.render({
+      elem:'#table2',
+      height: 528, //容器高度
+      url: 'actionApi/systemManage/userList',
+      where: {
+        systemId:systemId
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      even:true,
+      height:'full-230',
+      size:'sm',
+      method: 'post',
+      id:'table2',
+      limit:20,
+      limits:[20, 50, 200, 500],
+      page: true, //是否开启分页
+      cols:  [[ //标题栏
+        {type:'checkbox', fixed: 'left',width:30},
+        {field: 'USER_ID',title:'用户ID',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'USER_NAME', title: '用户名', sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+      ]],
+      done: function(res, curr, count){
+        table1Data = res.data;
+        
+      }
+    }); 
+  }
+  
+  //监听系统列表行点击事件
+  $(document).on('click', '.table1 .layui-table>tbody>tr', function (){
+    var systemId = $(this).children('td:eq(0)').text();
+    form2Show(systemId);
+    $(this).parents().children().removeClass('row-selected');
+    $(this).addClass('row-selected');
+  })
+  
+
+});
+
+
+
+
+</script>

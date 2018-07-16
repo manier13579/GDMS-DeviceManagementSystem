@@ -1,0 +1,12 @@
+[class*='-ID']{
+  display:none !important;
+}
+.row-selected{
+  background-color:#5FB878 !important;
+  color:#fff !important;
+}
+.table2-tishi{
+  color:#888;
+  text-align:center;
+  width:100%;
+}

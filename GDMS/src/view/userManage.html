@@ -30,11 +30,8 @@ layui.use(['table','form'], function(){
     table1 = table.render({
       elem:'#table1',
       height: 528, //容器高度
-      url: 'actionApi/LangManage/list',
-      where: {
-        "keyword":keyword,
-        "pageId":pageId,
-      },
+      url: 'actionApi/userManage/list',
+      where: {},
       headers:{"Authorization":"Basic "+access_token},
       even:true,
       height:'full-200',
@@ -46,10 +43,14 @@ layui.use(['table','form'], function(){
       page: true, //是否开启分页
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
-        {field: 'YE_MIAN_MING',title:'页面',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'XU_HAO', title: '关键词', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'YU_ZHONG', title: '语种', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'WEN_ZI', title: '文字',  sort: true,align:'center',style:"text-align:left;font-size:12px;",edit:"text"}
+        {field: 'USER_ID',title:'用户ID',width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'USER_NAME', title: '用户名', width:120, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'USER_TYPE', title: '权限', width:80, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'EMAIL', title: '邮箱', width:200,  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'LAST_IP', title: '最后登录IP', width:100,  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'LAST_LOGIN', title: '最后登录日期', width:140,  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'JOIN_DATE', title: '注册日期', width:140,  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'FAILED_LOGINS', title: '登录失败次数',  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       ]],
       done: function(res, curr, count){
         table1Data = res.data;

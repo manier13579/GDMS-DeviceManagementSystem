@@ -187,12 +187,14 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\StnController.cs" />
     <Compile Include="Controllers\LangManageController.cs" />
     <Compile Include="Controllers\LoginLangController.cs" />
     <Compile Include="Controllers\LangController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\TokenController.cs" />
     <Compile Include="Controllers\DeviceController.cs" />
+    <Compile Include="Controllers\SystemManageController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

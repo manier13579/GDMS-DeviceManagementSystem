@@ -27,11 +27,13 @@ namespace GDMS.Controllers
             public string stnId { get; set; }
             public string styleId { get; set; }
             public string projectId { get; set; }
+            public string keyword { get; set; }
         }
         //返回对象
         private class Response
         {
             public int code { get; set; }
+            public string count { get; set; }
             public string msg { get; set; }
             public object data { get; set; }
         }
@@ -49,6 +51,7 @@ namespace GDMS.Controllers
             if (deviceAjax.stnId != null) { where = where + " AND A.STN_ID = '" + deviceAjax.stnId + "'"; }
             if (deviceAjax.styleId != null) { where = where + " AND A.STYLE_ID = '" + deviceAjax.styleId + "'"; }
             if (deviceAjax.projectId != null) { where = where + " AND A.PROJECT_ID = '" + deviceAjax.projectId + "'"; }
+            if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) { where = where + "AND ( A.SN LIKE '" + deviceAjax.keyword + "' or A.REMARK LIKE '" + deviceAjax.keyword + "')"; }
             string sql = @"
                 SELECT
                 A.COUNT,
@@ -85,27 +88,48 @@ namespace GDMS.Controllers
             ArrayList data = new ArrayList();
             foreach (DataRow col in ds.Rows)
             {
-                Dictionary<string, string> dict = new Dictionary<string, string>();
-                dict.Add("TYPE_NAME", col["TYPE_NAME"].ToString());
-                dict.Add("STN_NAME", col["STN_NAME"].ToString());
-                dict.Add("SITE_NAME", col["SITE_NAME"].ToString());
-                dict.Add("STYLE_NAME", col["STYLE_NAME"].ToString());
-                dict.Add("PROJECT_NAME", col["PROJECT_NAME"].ToString());
+                Dictionary<string, string> dict = new Dictionary<string, string>
+                {
+                    { "TYPE_NAME", col["TYPE_NAME"].ToString() },
+                    { "STN_NAME", col["STN_NAME"].ToString() },
+                    { "SITE_NAME", col["SITE_NAME"].ToString() },
+                    { "STYLE_NAME", col["STYLE_NAME"].ToString() },
+                    { "PROJECT_NAME", col["PROJECT_NAME"].ToString() },
 
-                dict.Add("COUNT", col["COUNT"].ToString());
-                dict.Add("SN", col["SN"].ToString());
-                dict.Add("DELIVERY_DATE", col["DELIVERY_DATE"].ToString());
-                dict.Add("STATUS", col["STATUS"].ToString());
-                dict.Add("REMARK", col["REMARK"].ToString());
-                
-                dict.Add("DEV_ID", col["DEV_ID"].ToString());
-                dict.Add("STN_ID", col["STN_ID"].ToString());
-                dict.Add("SITE_ID", col["SITE_ID"].ToString());
-                dict.Add("STYLE_ID", col["STYLE_ID"].ToString());
-                dict.Add("PROJECT_ID", col["PROJECT_ID"].ToString());
-                dict.Add("TYPE_ID", col["TYPE_ID"].ToString());
+                    { "COUNT", col["COUNT"].ToString() },
+                    { "SN", col["SN"].ToString() },
+                    { "DELIVERY_DATE", col["DELIVERY_DATE"].ToString() },
+                    { "STATUS", col["STATUS"].ToString() },
+                    { "REMARK", col["REMARK"].ToString() },
+
+                    { "DEV_ID", col["DEV_ID"].ToString() },
+                    { "STN_ID", col["STN_ID"].ToString() },
+                    { "SITE_ID", col["SITE_ID"].ToString() },
+                    { "STYLE_ID", col["STYLE_ID"].ToString() },
+                    { "PROJECT_ID", col["PROJECT_ID"].ToString() },
+                    { "TYPE_ID", col["TYPE_ID"].ToString() }
+                };
 
                 data.Add(dict);
+            }
+
+            string sql2 = @"
+                SELECT
+                COUNT(*) AS COUNT
+                FROM
+                GDMS_DEV_MAIN A
+                INNER JOIN GDMS_STN_MAIN B ON A.STN_ID = B.ID
+                LEFT JOIN GDMS_SITE C ON B.SITE_ID = C.ID
+                LEFT JOIN GDMS_STYLE D ON A.STYLE_ID = D.ID
+                LEFT JOIN GDMS_PROJECT E ON A.PROJECT_ID = E.ID
+                LEFT JOIN GDMS_SYSTEM F ON B.SITE_ID = F.ID
+                LEFT JOIN GDMS_TYPE G ON D.TYPE_ID = G.ID
+                LEFT JOIN GDMS_SYSTEM H ON G.SYSTEM_ID = H.ID
+                WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "') " + where;
+            var ds2 = db.QueryT(sql2);
+            foreach (DataRow col in ds2.Rows)
+            {
+                res.count = col["count"].ToString();
             }
 
             res.code = 0;

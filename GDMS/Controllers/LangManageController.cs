@@ -68,7 +68,7 @@ namespace GDMS.Controllers
             }
 
             res.code = 0;
-            res.msg = sql;
+            res.msg = "";
             res.data = data;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
