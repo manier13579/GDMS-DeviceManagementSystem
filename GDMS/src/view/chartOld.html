@@ -1,21 +1,28 @@
 <script type="text/javascript" src="src/js/echarts.min.js"></script>
+<script type="text/javascript" src="src/js/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="src/js/jquery-ui/jquery-ui.min.css">
+
 <div class="layui-col-md12">
   <div class="layui-card">
     <div class="layui-card-body">
       <form class="layui-form" action="">
         <div class="layui-form-item">
           <div class="layui-input-inline">
-            <select name="system" lay-verify="system" lay-filter="system">
-              <option value="">系统</option>
-            </select>
+            <select name="system" lay-verify="system" lay-filter="system"></select>
           </div>
           <div class="layui-input-inline">
             <select name="chartType" lay-verify="chartType" lay-filter="chartType">
-              <option value="">图表类型</option>
               <option value="type">按类型</option>
-              <option value="style">按式样</option>
               <option value="site">按地点</option>
+              <option value="style">按式样</option>
+              
             </select>  
+          </div>
+          <div class="layui-input-inline">
+            <label class="layui-form-label">老旧基准</label>
+            <div class="layui-input-block">
+              <input type="text" id="spinner" name="year" autocomplete="off" value="5">
+            </div>
           </div>
         </div>  
       </form>
@@ -33,12 +40,18 @@
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
+var spinner = $( "#spinner" ).spinner({
+  min: 0,
+  max: 20,
+  step: 1,
+  spin: function( event, ui ) {
+    getChartData(ui.value);
+  }
+});
+
 layui.use(['form'], function(){
   var form = layui.form;
 
-  //初始化select
-  $('select[name="chartType"]').attr('disabled','disabled');
-  
   var selectData;
   //获取select选项
   $.ajax({
@@ -53,32 +66,57 @@ layui.use(['form'], function(){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
       }
       form.render('select');
+
+      var oldBenchmark = spinner.val();
+      getChartData(oldBenchmark);  //获取图表数据
+      
     }
-  });
-  
-  //系统select选择事件
-  form.on('select(system)', function(data){
-    $('select[name="chartType"]').attr('disabled','disabled');
-    var systemId = data.value;
-    //如果系统里有地点，地点select增加选项并启用
-    if(systemId!=''){
-      $('select[name="chartType"]').removeAttr('disabled');
-    }
-    form.render('select');
   });
   
   form.on('select', function(data){
-    var systemId = $('select[name="system"]').val();
-    
+    var oldBenchmark = spinner.val();
+    getChartData(oldBenchmark);
   });
 });
 
+//获取图表数据函数
+function getChartData(oldBenchmark){
+  var systemId = $('select[name="system"]').val();  //获取系统ID
+  var chartType = $('select[name="chartType"]').val();  //获取图表类型
+    //获取老旧基准
+  $.ajax({
+    url: 'actionApi/OldChart/'+chartType,
+    type:'post',
+    data:{
+      "systemId":systemId,
+      "oldBenchmark":oldBenchmark,
+    },
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      if(res.code==0){
+        var xData = [];
+        var oldData = [];
+        var overData = [];
+        var underData = [];
+        for(i in res.data){
+          xData.push(res.data[i].TYPE_NAME);
+          oldData.push(res.data[i].OLD_COUNT);
+          overData.push(res.data[i].SERVICE_COUNT);
+          underData.push(res.data[i].OK_COUNT);
+        }
+        chartOldShow(xData,oldData,overData,underData);
+      }
 
-chartOldShow();
+    }
+  });
+}
 
-//老旧率情况图方法
-function chartOldShow(){
+
+//老旧率情况图显示函数
+function chartOldShow(xData,oldData,overData,underData){
   var chartOld = echarts.init(document.getElementById('chart-old'));
+  var rotate = 0;
+  if(xData.count>=10){rotate = -30}   //如果数据类别过多，文字倾斜30度
   // 指定图表的配置项和数据
   var option = {
     tooltip: {
@@ -104,46 +142,49 @@ function chartOldShow(){
       type: 'category',
       axisLabel:{
         interval:0,//横轴信息全部显示
-        rotate:-30
+        rotate:rotate
       },
-      data: ['工控机','17寸显示器','42寸显示器','60寸显示器','32寸显示器','46寸显示器','21寸显示器','序列打印机','式样打印机','即打即撕打印机','固定条码阅读器','无线条码扫描枪','有线条码扫描枪','服务器','触摸屏电脑','瘦客户机','嵌入式工控机']
+      data: xData
     },
     series: [
       {
         name: '老旧',
         type: 'bar',
+        barMaxWidth:45,   //最大宽度
         stack: '总量',
         label: {
           normal: {
             show: true,
-            position: 'insideBottom'
+            position: 'inside'
           }
         },
-        data: [5, 0,5, 2, 3,0, 0, 0, 10,0,0,0,0,0,0,0,0]
+        data: oldData
       },
       {
         name: '过保',
         type: 'bar',
+        barMaxWidth:45,   //最大宽度
         stack: '总量',
         label: {
           normal: {
             show: true,
-            position: 'insideBottom'
+            position: 'inside'
           }
         },
-        data: [5, 20,0, 20, 36, 10, 10, 20,0, 20, 20, 20, 20, 20, 20, 20, 20]
+        data: overData
       },
       {
         name: '在保',
         type: 'bar',
+        barMaxWidth:45,   //最大宽度
         stack: '总量',
         label: {
           normal: {
             show: true,
-            position: 'insideBottom'
-          }
+            position: 'inside'
+          },
         },
-        data: [5, 20,5, 20, 36, 10, 10, 20, 10, 20, 20, 20, 20, 20, 20, 20, 20]
+        data: underData
       },
     
     ]

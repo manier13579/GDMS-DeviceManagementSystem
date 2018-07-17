@@ -106,7 +106,6 @@ F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.csproj.CoreCompileInputs.cache
 F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.csproj.CopyComplete
 F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.dll
 F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.pdb
-F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.csprojAssemblyReference.cache
 F:\c#\web\GDMS\GDMS\bin\JWT.dll
 F:\c#\web\GDMS\GDMS\bin\JWT.xml
 D:\Server\c#\web\GDMS\GDMS\obj\Debug\GDMS.csprojAssemblyReference.cache
@@ -222,3 +221,4 @@ D:\Server\c#\web\GDMS\GDMS\bin\zh-Hans\System.Web.WebPages.Razor.resources.dll
 D:\Server\c#\web\GDMS\GDMS\obj\Debug\GDMS.csproj.CopyComplete
 F:\c#\web\GDMS\GDMS\bin\Oracle.DataAccess.dll
 D:\Server\c#\web\GDMS\GDMS\bin\Oracle.DataAccess.dll
+F:\c#\web\GDMS\GDMS\obj\Debug\GDMS.csprojAssemblyReference.cache
