@@ -88,6 +88,11 @@ namespace GDMS.Controllers
             ArrayList data = new ArrayList();
             foreach (DataRow col in ds.Rows)
             {
+                var status = "";
+                if (col["STATUS"].ToString() == "0") { status = "备件"; }
+                else if (col["STATUS"].ToString() == "1") { status = "在用"; }
+                else if (col["STATUS"].ToString() == "2") { status = "故障"; }
+                else if (col["STATUS"].ToString() == "3") { status = "维修"; }
                 Dictionary<string, string> dict = new Dictionary<string, string>
                 {
                     { "TYPE_NAME", col["TYPE_NAME"].ToString() },
@@ -99,7 +104,7 @@ namespace GDMS.Controllers
                     { "COUNT", col["COUNT"].ToString() },
                     { "SN", col["SN"].ToString() },
                     { "DELIVERY_DATE", col["DELIVERY_DATE"].ToString() },
-                    { "STATUS", col["STATUS"].ToString() },
+                    { "STATUS", status },
                     { "REMARK", col["REMARK"].ToString() },
 
                     { "DEV_ID", col["DEV_ID"].ToString() },

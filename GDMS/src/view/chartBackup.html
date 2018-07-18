@@ -1,7 +1,27 @@
 <script type="text/javascript" src="src/js/echarts.min.js"></script>
 <div class="layui-col-md12">
   <div class="layui-card">
-    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-body">
+      <form class="layui-form" action="">
+        <div class="layui-form-item">
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="system" lay-filter="system"></select>
+          </div>
+          <div class="layui-input-inline">
+            <select name="chartType" lay-verify="chartType" lay-filter="chartType">
+              <option value="type">按类型</option>
+              <option value="site" disabled>按地点(开发中)</option>
+              <option value="style" disabled>按式样(开发中)</option>
+              
+            </select>  
+          </div>
+        </div>  
+      </form>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md12">
+  <div class="layui-card">
     <div class="layui-card-body">
       <div id="chart-backup" style="min-height:600px;"></div>
     </div>
@@ -9,11 +29,83 @@
 </div>
 
 <script>
-chartBackupShow();
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['form'], function(){
+  var form = layui.form;
+
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Stn/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+
+      getChartData();  //获取图表数据
+      
+    }
+  });
+  
+  form.on('select', function(data){
+    getChartData();
+  });
+});
+
+
+//获取图表数据函数
+function getChartData(){
+  var systemId = $('select[name="system"]').val();  //获取系统ID
+  var chartType = $('select[name="chartType"]').val();  //获取图表类型
+    //获取老旧基准
+  $.ajax({
+    url: 'actionApi/BackupChart/'+chartType,
+    type:'post',
+    data:{
+      "systemId":systemId,
+    },
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      if(res.code==0){
+        var xData = [];
+        var backupData = [];
+        var useData = [];
+        var errData = [];
+        var fixData = [];
+        for(i in res.data){
+          xData.push(res.data[i].TYPE_NAME);
+          backupData.push(res.data[i].BAK_COUNT);
+          useData.push(res.data[i].USE_COUNT);
+          errData.push(res.data[i].ERR_COUNT);
+          fixData.push(res.data[i].FIX_COUNT);
+        }
+        //var xData = ['工控机','显示器','打印机','固定条码阅读器','无线条码扫描枪','有线条码扫描枪','服务器','触摸屏电脑','瘦客户机','嵌入式工控机'];
+        //var backupData = [5, 0,5, 2, 3,0, 0, 0, 10,0];
+        //var useData = [5, 20,0, 20, 36, 10, 10, 20,0, 20];
+        //var errData = [5, 0,5, 2, 3,0, 0, 0, 10,0];
+        //var fixData = [1, 0,1, 2, 1,0, 0, 0, 1,0];
+        chartBackupShow(xData,fixData,errData,backupData,useData);
+      }
+
+    }
+  });
+}
+
+
 
 //备件情况图方法
-function chartBackupShow(){
+function chartBackupShow(xData,fixData,errData,backupData,useData){
   var chartBackup = echarts.init(document.getElementById('chart-backup'));
+  var rotate = 0;
+  if(xData.length>=10){rotate = -30}   //如果数据类别过多，文字倾斜30度
   // 指定图表的配置项和数据
   var option = {
     tooltip: {
@@ -22,6 +114,7 @@ function chartBackupShow(){
           type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
       }
     },
+    color: ['#d48265','#c23531','#2f4554', '#61a0a8', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
     grid: {
       left: '3%',
       right: '4%',
@@ -29,7 +122,7 @@ function chartBackupShow(){
       containLabel: true
     },
     legend: {
-      data:['备件','在用']
+      data:['维修','故障','备件','在用']
     },
 
     yAxis:  {
@@ -40,14 +133,41 @@ function chartBackupShow(){
       type: 'category',
       axisLabel:{
         interval:0,//横轴信息全部显示
-        rotate:-30
+        rotate:rotate
       },
-      data: ['工控机','显示器','打印机','固定条码阅读器','无线条码扫描枪','有线条码扫描枪','服务器','触摸屏电脑','瘦客户机','嵌入式工控机']
+      data: xData
     },
     series: [
       {
+        name: '维修',
+        type: 'bar',
+        barMaxWidth:45,   //最大宽度
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'inside'
+          }
+        },
+        data: fixData
+      },
+      {
+        name: '故障',
+        type: 'bar',
+        barMaxWidth:45,   //最大宽度
+        stack: '总量',
+        label: {
+          normal: {
+            show: true,
+            position: 'inside'
+          }
+        },
+        data: errData
+      },
+      {
         name: '备件',
         type: 'bar',
+        barMaxWidth:45,   //最大宽度
         stack: '总量',
         label: {
           normal: {
@@ -55,11 +175,12 @@ function chartBackupShow(){
             position: 'inside'
           },
         },
-        data: [5, 0,5, 2, 3,0, 0, 0, 10,0]
+        data: backupData
       },
       {
         name: '在用',
         type: 'bar',
+        barMaxWidth:45,   //最大宽度
         stack: '总量',
         label: {
           normal: {
@@ -67,7 +188,7 @@ function chartBackupShow(){
             position: 'inside'
           },
         },
-        data: [5, 20,0, 20, 36, 10, 10, 20,0, 20]
+        data: useData
       }
     ]
   };

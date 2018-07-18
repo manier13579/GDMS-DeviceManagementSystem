@@ -13,14 +13,13 @@ using Newtonsoft.Json;
 namespace GDMS.Controllers
 {
     [RequestAuthorize]
-    public class OldChartController : ApiController
+    public class BackupChartController : ApiController
     {
 
         //POST对象 (通过POST只能获取1个对象，因此POST多个数据需要使用类)
-        public class OldChartAjax
+        public class BackupChartAjax
         {
             public string systemId { get; set; }
-            public string oldBenchmark { get; set; }
         }
         //返回对象
         private class Response
@@ -30,24 +29,22 @@ namespace GDMS.Controllers
             public object data { get; set; }
         }
 
-        //获取设备列表
+        //按设备类型返回图表数据
         [ActionName("type")]
-        public HttpResponseMessage SiteList([FromBody] OldChartAjax oldchartajax)
+        public HttpResponseMessage SiteList([FromBody] BackupChartAjax ajaxData)
         {
             Db db = new Db();
             string sql = @"
-                SELECT 
+                SELECT
                 A.COUNT,
-                A.DELIVERY_DATE,
-                ADD_MONTHS(A.DELIVERY_DATE,12*B.SERVICE_YEAR) AS SERVICE_DATE,
-                ADD_MONTHS(A.DELIVERY_DATE,12*" + oldchartajax.oldBenchmark + @") AS OLD_DATE,
-                C.ID AS TYPE_ID,
+                A.STATUS,
+                B.TYPE_ID,
                 C.NAME AS TYPE_NAME
                 FROM GDMS_DEV_MAIN A
                 LEFT JOIN GDMS_STYLE B ON A.STYLE_ID = B.ID
                 LEFT JOIN GDMS_TYPE C ON B.TYPE_ID = C.ID
                 LEFT JOIN GDMS_SYSTEM D ON C.SYSTEM_ID = D.ID
-                WHERE D.ID = '" + oldchartajax.systemId + @"'
+                WHERE D.ID = '" + ajaxData.systemId + @"'
                 ORDER BY C.NAME ASC";
 
             var ds = db.QueryT(sql);
@@ -56,9 +53,10 @@ namespace GDMS.Controllers
             //初始化计数
             string typeId = "";
             string typeName = "";
-            int okCountSum = 0;
-            int serviceCountSum = 0;
-            int oldCountSum = 0;
+            int useCountSum = 0;
+            int bakCountSum = 0;
+            int errCountSum = 0;
+            int fixCountSum = 0;
             foreach (DataRow col in ds.Rows)
             {
                 //第一次循环 或 本次类型与上次相同，数值加和
@@ -67,18 +65,22 @@ namespace GDMS.Controllers
                     typeId = col["TYPE_ID"].ToString();     //当前类型id
                     typeName = col["TYPE_NAME"].ToString();     //当前类型名称
                     var countStr = col["COUNT"].ToString();     //获取数量(字符串格式)
-                    var serviceDate = Convert.ToDateTime(col["SERVICE_DATE"].ToString());       //过保日期
-                    var oldDate = Convert.ToDateTime(col["OLD_DATE"].ToString());       //老旧日期
-                    var nowDate = System.DateTime.Now;      //当前日期
-                    if(nowDate <= serviceDate && nowDate <= oldDate)      //如果设备未过保，未老旧
+                    var status = col["STATUS"].ToString();        //获取设备状态
+                    if (status == "0")      //如果是备件
                     {
-                        okCountSum = okCountSum + int.Parse(countStr);      //当前类型正常数量
-                    }else if(nowDate > serviceDate && nowDate <= oldDate)      //如果设备过保，未老旧
+                        bakCountSum = bakCountSum + int.Parse(countStr);
+                    }
+                    else if(status == "1")      //如果是在用
                     {
-                        serviceCountSum = serviceCountSum + int.Parse(countStr);        //当前类型过保数量
-                    }else if (nowDate > oldDate)      //如果设备老旧
+                        useCountSum = useCountSum + int.Parse(countStr);
+                    }
+                    else if (status == "2")      //如果是故障
                     {
-                        oldCountSum = oldCountSum + int.Parse(countStr);        //当前类型老旧数量
+                        errCountSum = errCountSum + int.Parse(countStr);
+                    }
+                    else if (status == "3")      //如果是维修
+                    {
+                        fixCountSum = fixCountSum + int.Parse(countStr);
                     }
                 }
                 //循环到新类型
@@ -87,34 +89,38 @@ namespace GDMS.Controllers
                     Dictionary<string, string> dict = new Dictionary<string, string>
                     {
                         { "TYPE_NAME", typeName },
-                        { "OK_COUNT", okCountSum.ToString() },
-                        { "SERVICE_COUNT", serviceCountSum.ToString() },
-                        { "OLD_COUNT", oldCountSum.ToString() },
+                        { "BAK_COUNT", bakCountSum.ToString() },
+                        { "USE_COUNT", useCountSum.ToString() },
+                        { "ERR_COUNT", errCountSum.ToString() },
+                        { "FIX_COUNT", fixCountSum.ToString() },
                     };
                     data.Add(dict);
 
                     //初始化计数
-                    okCountSum = 0;
-                    serviceCountSum = 0;
-                    oldCountSum = 0;
+                    bakCountSum = 0;
+                    useCountSum = 0;
+                    errCountSum = 0;
+                    fixCountSum = 0;
 
                     typeId = col["TYPE_ID"].ToString();     //当前类型id
                     typeName = col["TYPE_NAME"].ToString();     //当前类型名称
                     var countStr = col["COUNT"].ToString();     //获取数量(字符串格式)
-                    var serviceDate = Convert.ToDateTime(col["SERVICE_DATE"].ToString());       //过保日期
-                    var oldDate = Convert.ToDateTime(col["OLD_DATE"].ToString());       //老旧日期
-                    var nowDate = System.DateTime.Now;      //当前日期
-                    if (nowDate <= serviceDate && nowDate <= oldDate)      //如果设备未过保，未老旧
+                    var status = col["STATUS"].ToString();        //获取设备状态
+                    if (status == "0")      //如果是备件
                     {
-                        okCountSum = okCountSum + int.Parse(countStr);      //当前类型正常数量
+                        bakCountSum = bakCountSum + int.Parse(countStr);
                     }
-                    else if (nowDate > serviceDate && nowDate <= oldDate)      //如果设备过保，未老旧
+                    else if (status == "1")      //如果是在用
                     {
-                        serviceCountSum = serviceCountSum + int.Parse(countStr);        //当前类型过保数量
+                        useCountSum = useCountSum + int.Parse(countStr);
                     }
-                    else if (nowDate > oldDate)      //如果设备老旧
+                    else if (status == "2")      //如果是故障
                     {
-                        oldCountSum = oldCountSum + int.Parse(countStr);        //当前类型老旧数量
+                        errCountSum = errCountSum + int.Parse(countStr);
+                    }
+                    else if (status == "3")      //如果是维修
+                    {
+                        fixCountSum = fixCountSum + int.Parse(countStr);
                     }
                 }
             }
@@ -122,9 +128,10 @@ namespace GDMS.Controllers
             Dictionary<string, string> dictLast = new Dictionary<string, string>
             {
                 { "TYPE_NAME", typeName },
-                { "OK_COUNT", okCountSum.ToString() },
-                { "SERVICE_COUNT", serviceCountSum.ToString() },
-                { "OLD_COUNT", oldCountSum.ToString() },
+                { "BAK_COUNT", bakCountSum.ToString() },
+                { "USE_COUNT", useCountSum.ToString() },
+                { "ERR_COUNT", errCountSum.ToString() },
+                { "FIX_COUNT", fixCountSum.ToString() },
             };
             data.Add(dictLast);
 

@@ -187,6 +187,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\BackupChartController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Controllers\OldChartController.cs" />
     <Compile Include="Controllers\TypeController.cs" />

@@ -13,8 +13,8 @@
           <div class="layui-input-inline">
             <select name="chartType" lay-verify="chartType" lay-filter="chartType">
               <option value="type">按类型</option>
-              <option value="site">按地点</option>
-              <option value="style">按式样</option>
+              <option value="site" disabled>按地点(开发中)</option>
+              <option value="style" disabled>按式样(开发中)</option>
               
             </select>  
           </div>
@@ -125,6 +125,7 @@ function chartOldShow(xData,oldData,overData,underData){
           type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
       }
     },
+
     grid: {
       left: '3%',
       right: '4%',

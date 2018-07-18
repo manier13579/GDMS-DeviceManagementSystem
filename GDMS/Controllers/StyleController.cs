@@ -53,6 +53,7 @@ namespace GDMS.Controllers
                 A.FILE_URL,
                 A.USER_ID,
                 A.EDIT_DATE,
+                A.SERVICE_YEAR,
                 B.ID AS TYPE_ID,
                 B.NAME AS TYPE_NAME,
                 C.ID AS SYSTEM_ID,
@@ -82,6 +83,7 @@ namespace GDMS.Controllers
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
                     { "TYPE_NAME", col["TYPE_NAME"].ToString() },
                     { "SYSTEM_NAME", col["SYSTEM_NAME"].ToString() },
+                    { "SERVICE_YEAR", col["SERVICE_YEAR"].ToString()+"年" },
                 };
 
                 data.Add(dict);
