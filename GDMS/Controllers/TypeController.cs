@@ -36,7 +36,7 @@ namespace GDMS.Controllers
 
         //获取设备列表
         [ActionName("list")]
-        public HttpResponseMessage SiteList([FromBody] TypeAjax typeajax)
+        public HttpResponseMessage TypeList([FromBody] TypeAjax typeajax)
         {
             Db db = new Db();
             string where = "";

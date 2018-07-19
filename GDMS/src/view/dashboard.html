@@ -1,26 +1,70 @@
 <script type="text/javascript" src="src/js/echarts.min.js"></script>
 <link rel="stylesheet" type="text/css" href="src/css/view/dashboard.css">
 
-<div class="layui-col-xs6 layui-col-sm7 layui-col-md4">
+<div class="layui-col-md3">
   <!-- 填充内容 -->
-  <div class="layui-card">
-    <div class="layui-card-header">设备状态</div>
-    <div class="layui-card-body"></div>
+  <div class="layui-card" style="height:140px;">
+    <div class="layui-card-header">系统选择</div>
+    <div class="layui-card-body">
+      <div class="sys-select">
+        <form class="layui-form" action="">
+            <select name="system" lay-verify="system" lay-filter="system"></select>
+        </form>
+      </div>
+      <div class="sys-text">
+        设备总数量<span class="total-count layui-badge layui-bg-black">0</span>
+      </div>
+    </div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-  <div class="layui-card">
-    <div class="layui-card-header">库房状态</div>
-    <div class="layui-card-body"></div>
+<div class="layui-col-md5">
+  <div class="layui-card" style="height:140px;">
+    <div class="layui-card-header">快捷入口</div>
+    <div class="layui-card-body">
+      <div class="fast-wrap">
+        <div class="fast-icon layui-icon layui-icon-edit" style="font-size: 30px; color: #666;"></div>
+        <div class="fast-text">故障登记</div>
+      </div>
+      <div class="fast-wrap">
+        <div class="fast-icon layui-icon layui-icon-edit" style="font-size: 30px; color: #666;"></div>
+        <div class="fast-text">维修登记</div>
+      </div>
+      <div class="fast-wrap">
+        <div class="fast-icon layui-icon layui-icon-edit" style="font-size: 30px; color: #666;"></div>
+        <div class="fast-text">出入库登记</div>
+      </div>
+      <div class="fast-wrap">
+        <div class="fast-icon layui-icon layui-icon-edit" style="font-size: 30px; color: #666;"></div>
+        <div class="fast-text">更换登记</div>
+      </div>
+    </div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm5 layui-col-md4">
-  <div class="layui-card">
+<div class="layui-col-md4">
+  <div class="layui-card" style="height:140px;">
     <div class="layui-card-header">用户信息</div>
-    <div class="layui-card-body"></div>
+    <div class="layui-card-body">
+      <table class="layui-table" lay-size="sm">
+        <colgroup>
+          <col width="100">
+          <col>
+        </colgroup>
+        <tbody>
+          <tr>
+            <td>系统权限</td>
+            <td class="usr-role"></td>
+          </tr>
+          <tr>
+            <td>注册日期</td>
+            <td class="usr-join"></td>
+          </tr>
+        </tbody>
+      </table>
+    
+    </div>
   </div>
 </div>
-<div class="layui-col-xs6 layui-col-sm7 layui-col-md8">
+<div class="layui-col-md8">
   <div class="layui-card">
     <div class="layui-card-header">设备监控</div>
     <div class="layui-card-body bing-monitoring">
@@ -85,7 +129,7 @@
 </div>
 <div class="layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header">备件情况</div>
+    <div class="layui-card-header">设备状态</div>
     <div class="layui-card-body">
       <div id="chart-backup" style="height:300px;"></div>
     </div>
@@ -93,7 +137,7 @@
 </div>
 <div class="layui-col-md4">
   <div class="layui-card">
-    <div class="layui-card-header">老旧率情况</div>
+    <div class="layui-card-header">老旧情况</div>
     <div class="layui-card-body">
       <div id="chart-old" style="height:300px;"></div>
     </div>
@@ -101,11 +145,113 @@
 </div>
 
 <script>
-chartOldShow();
-chartBackupShow();
-chartFaultShow();
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+if(sessionStorage.role == 1){
+  $('.usr-role').text('普通用户');
+}else if(sessionStorage.role == 2){
+  $('.usr-role').text('管理员');
+}
+$('.usr-join').text(sessionStorage.joindate);
 
-//故障情况图方法
+//页面效果
+$(".fast-wrap").hover(function(){
+  $(this).children().css("color","#1E9FFF");
+},function(){
+  $(this).children().css("color","#666");
+});
+
+
+layui.use(['form'], function(){
+  var form = layui.form;
+
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Stn/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+      initSystem(); //图表初始化
+      
+    }
+  });
+  
+  form.on('select', function(data){
+    initSystem(); //图表初始化
+  });
+});
+
+function initSystem(){
+  
+
+  
+  chartFaultShow();   //显示故障图
+
+  getchartBackupData();   //显示设备状态图
+  getChartOldData();   //显示老旧情况图
+
+}
+
+//获取设备状态图表数据
+function getchartBackupData(){
+  var systemId = $('select[name="system"]').val();  //获取系统ID
+  $.ajax({
+    url: 'actionApi/Dashboard/chartBackup',
+    type:'post',
+    data:{
+      "systemId":systemId,
+    },
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      if(res.code==0){
+        var fixCount = res.data.FIX_COUNT;
+        var errCount = res.data.ERR_COUNT;
+        var bakCount = res.data.BAK_COUNT;
+        var useCount = res.data.USE_COUNT;
+        chartBackupShow(fixCount,errCount,bakCount,useCount);
+        var totalCount = parseInt(fixCount) + parseInt(errCount) + parseInt(bakCount) + parseInt(useCount);
+        $('.total-count').text(totalCount);
+      }
+
+    }
+  });
+
+}
+
+//获取老旧图表数据
+function getChartOldData(){
+  var systemId = $('select[name="system"]').val();  //获取系统ID
+  var oldBenchmark = '5';
+  $.ajax({
+    url: 'actionApi/Dashboard/chartOld',
+    type:'post',
+    data:{
+      "systemId":systemId,
+      "oldBenchmark":oldBenchmark,
+    },
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      if(res.code==0){
+        var oldCount = res.data.OLD_COUNT;
+        var overCount = res.data.SERVICE_COUNT;
+        var underCount = res.data.OK_COUNT;
+        chartOldShow(oldCount,overCount,underCount);
+      }
+
+    }
+  });
+
+}
+
+//故障情况图方法-未完成
 function chartFaultShow(){
   var chartFault = echarts.init(document.getElementById('chart-fault'));
   // 指定图表的配置项和数据
@@ -186,7 +332,7 @@ function chartFaultShow(){
 }
 
 //备件情况图方法
-function chartBackupShow(){
+function chartBackupShow(fixCount,errCount,bakCount,useCount){
   var chartBackup = echarts.init(document.getElementById('chart-backup'));
   // 指定图表的配置项和数据
   var option = {
@@ -200,7 +346,7 @@ function chartBackupShow(){
       itemWidth: 14,
       itemHeight: 14,
       align: 'left',
-      data: ['备件', '在用'],
+      data: ['在用', '备件', '故障','维修' ],
       textStyle: {
         color: '#555'
       }
@@ -211,7 +357,7 @@ function chartBackupShow(){
         hoverAnimation: false,
         legendHoverLink: false,
         radius: ['40%', '42%'],
-        color: ['#9a8169', '#3077b7'],
+        color: ['#3077b7','#9a8169','#915872','#B65F42'],
         label: {
           normal: {
             position: 'inner'
@@ -227,11 +373,19 @@ function chartBackupShow(){
         },
         data: [
           {
-            value: 435,
+            value: useCount,
             name: ''
           },
           {
-            value: 679,
+            value: bakCount,
+            name: ''
+          },
+          {
+            value: errCount,
+            name: ''
+          },
+          {
+            value: fixCount,
             name: ''
           },
         ]
@@ -240,7 +394,7 @@ function chartBackupShow(){
         name: '统计',
         type: 'pie',
         radius: ['42%', '55%'],
-        color: ['#eba954', '#0092ff'],
+        color: ['#0092ff','#eba954','#d74e67','#D48265' ],
         label: {
           normal: {
             formatter: '{b}\n{d}%'
@@ -249,14 +403,21 @@ function chartBackupShow(){
         },
         data: [
           {
-            value: 435,
+            value: useCount,
+            name: '在用'
+          },
+          {
+            value: bakCount,
             name: '备件'
           },
           {
-            value: 679,
-            name: '在用'
+            value: errCount,
+            name: '故障'
           },
-
+          {
+            value: fixCount,
+            name: '维修'
+          },
         ]
       }
     ]
@@ -265,9 +426,8 @@ function chartBackupShow(){
   chartBackup.setOption(option);
 }
 
-
 //老旧率情况图方法
-function chartOldShow(){
+function chartOldShow(oldCount,overCount,underCount){
   var chartOld = echarts.init(document.getElementById('chart-old'));
   // 指定图表的配置项和数据
   var option = {
@@ -281,19 +441,19 @@ function chartOldShow(){
       itemWidth: 14,
       itemHeight: 14,
       align: 'left',
-      data: ['老旧', '过保', '在保'],
+      data: ['在保','过保','老旧'],
       textStyle: {
         color: '#555'
       }
     },
     series: [
       {
-        name: '访问来源',
+        name: '',
         type: 'pie',
         hoverAnimation: false,
         legendHoverLink: false,
         radius: ['40%', '42%'],
-        color: ['#915872', '#9a8169', '#3077b7'],
+        color: ['#3077b7','#9a8169','#915872'  ],
         label: {
           normal: {
             position: 'inner'
@@ -309,15 +469,15 @@ function chartOldShow(){
         },
         data: [
           {
-            value: 435,
+            value: underCount,
             name: ''
           },
           {
-            value: 679,
+            value: overCount,
             name: ''
           },
           {
-            value: 848,
+            value: oldCount,
             name: ''
           },
         ]
@@ -326,7 +486,7 @@ function chartOldShow(){
         name: '统计',
         type: 'pie',
         radius: ['42%', '55%'],
-        color: ['#d74e67', '#eba954', '#0092ff'],
+        color: ['#0092ff','#eba954','#d74e67' ],
         label: {
           normal: {
             formatter: '{b}\n{d}%'
@@ -335,16 +495,16 @@ function chartOldShow(){
         },
         data: [
           {
-            value: 435,
-            name: '老旧'
+            value: underCount,
+            name: '在保'
           },
           {
-            value: 679,
+            value: overCount,
             name: '过保'
           },
           {
-            value: 848,
-            name: '在保'
+            value: oldCount,
+            name: '老旧'
           }
 
         ]

@@ -32,7 +32,7 @@ namespace GDMS.Controllers
 
         //获取设备列表
         [ActionName("type")]
-        public HttpResponseMessage SiteList([FromBody] OldChartAjax oldchartajax)
+        public HttpResponseMessage OrdChart([FromBody] OldChartAjax oldchartajax)
         {
             Db db = new Db();
             string sql = @"
@@ -48,7 +48,7 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_TYPE C ON B.TYPE_ID = C.ID
                 LEFT JOIN GDMS_SYSTEM D ON C.SYSTEM_ID = D.ID
                 WHERE D.ID = '" + oldchartajax.systemId + @"'
-                ORDER BY C.NAME ASC";
+                ORDER BY C.ID ASC";
 
             var ds = db.QueryT(sql);
             Response res = new Response();

@@ -31,7 +31,7 @@ namespace GDMS.Controllers
 
         //按设备类型返回图表数据
         [ActionName("type")]
-        public HttpResponseMessage SiteList([FromBody] BackupChartAjax ajaxData)
+        public HttpResponseMessage BackupChart([FromBody] BackupChartAjax ajaxData)
         {
             Db db = new Db();
             string sql = @"
@@ -45,7 +45,7 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_TYPE C ON B.TYPE_ID = C.ID
                 LEFT JOIN GDMS_SYSTEM D ON C.SYSTEM_ID = D.ID
                 WHERE D.ID = '" + ajaxData.systemId + @"'
-                ORDER BY C.NAME ASC";
+                ORDER BY C.ID ASC";
 
             var ds = db.QueryT(sql);
             Response res = new Response();
@@ -95,7 +95,6 @@ namespace GDMS.Controllers
                         { "FIX_COUNT", fixCountSum.ToString() },
                     };
                     data.Add(dict);
-
                     //初始化计数
                     bakCountSum = 0;
                     useCountSum = 0;

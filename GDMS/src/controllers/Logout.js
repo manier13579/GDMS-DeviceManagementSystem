@@ -3,6 +3,8 @@ function Logout(){
   sessionStorage.removeItem('userid');
   sessionStorage.removeItem('username');
   sessionStorage.removeItem('role');
+  sessionStorage.removeItem('joindate');
   sessionStorage.removeItem('viewNow');
+
   location.href = 'account';
 }

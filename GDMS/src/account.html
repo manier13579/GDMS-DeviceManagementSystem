@@ -172,6 +172,7 @@ function login(){
           sessionStorage.userid = res.data.userid;
           sessionStorage.username = res.data.username;
           sessionStorage.role = res.data.role;
+          sessionStorage.joindate = res.data.joindate;
           window.location.href = rootpath+"/";
         }else if(res.code==1){
           layer.msg(res.msg, {

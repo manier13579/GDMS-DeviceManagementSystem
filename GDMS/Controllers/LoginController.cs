@@ -96,12 +96,14 @@ namespace GDMS.Controllers
                     var token = GetToken(user.username);
                     var USER_NAME = ds2.Rows[0]["USER_NAME"].ToString();
                     var USER_TYPE = ds2.Rows[0]["USER_TYPE"].ToString();
+                    var JOIN_DATE = ds2.Rows[0]["JOIN_DATE"].ToString();
                     res.data = new Dictionary<string, object>
                     {
                         {"access_token", token },
                         {"userid", user.username },
                         {"username", USER_NAME },
                         {"role", USER_TYPE },
+                        {"joindate", JOIN_DATE },
                     };
 
                     string sql3 = "UPDATE GDMS_USER SET FAILED_LOGINS = 0, LAST_LOGIN = SYSDATE, LAST_IP = '" + IPAddress + "' WHERE USER_ID = '" + user.username + "'";

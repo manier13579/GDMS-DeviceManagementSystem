@@ -36,7 +36,7 @@ namespace GDMS.Controllers
 
         //获取设备列表
         [ActionName("list")]
-        public HttpResponseMessage SiteList([FromBody] ProjectAjax projectajax)
+        public HttpResponseMessage ProjectList([FromBody] ProjectAjax projectajax)
         {
             Db db = new Db();
             string where = "";
