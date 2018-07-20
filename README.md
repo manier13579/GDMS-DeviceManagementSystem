@@ -17,8 +17,11 @@
 * 部署简单，开发完成后会编写部署文档。
 
 
-#### 登录页预览（持续改进，非最终版）
-![登录页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo1.png)  
+#### 控制台预览（持续改进，非最终版）
+![控制台预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo3.png)  
 
 #### 内容页预览（持续改进，非最终版）
 ![内容页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo2.png)  
+
+#### 登录页预览（持续改进，非最终版）
+![登录页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo1.png)  
