@@ -67,15 +67,8 @@
 <div class="layui-col-md8">
   <div class="layui-card">
     <div class="layui-card-header">设备监控</div>
-    <div class="layui-card-body bing-monitoring">
-      <div class="layui-progress" lay-showpercent="yes">
-        <h3>平均CPU使用率</h3>
-        <div class="layui-progress-bar" lay-percent="58%" style="width: 58%;"><span class="layui-progress-text">58%</span></div>
-      </div>
-      <div class="layui-progress" lay-showpercent="yes">
-        <h3>平均内存占用率</h3>
-        <div class="layui-progress-bar layui-bg-red" lay-percent="90%" style="width: 90%;"><span class="layui-progress-text">90%</span></div>
-      </div>
+    <div class="layui-card-body" style="height:200px;">
+      <div id="chart-monitoring"></div>
     </div>
   </div>
 </div>
@@ -192,7 +185,7 @@ layui.use(['form'], function(){
 function initSystem(){
   
 
-  
+  chartMonitoringShow();   //显示监控图
   chartFaultShow();   //显示故障图
 
   getchartBackupData();   //显示设备状态图
@@ -249,6 +242,96 @@ function getChartOldData(){
     }
   });
 
+}
+
+//监控图方法
+function chartMonitoringShow(){
+  var chartMonitoring = echarts.init(document.getElementById('chart-monitoring'));
+  var option = {
+      title: {
+          text: '堆叠区域图'
+      },
+      tooltip : {
+          trigger: 'axis',
+          axisPointer: {
+              type: 'cross',
+              label: {
+                  backgroundColor: '#6a7985'
+              }
+          }
+      },
+      legend: {
+          data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+      },
+      toolbox: {
+          feature: {
+              saveAsImage: {}
+          }
+      },
+      grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+      },
+      xAxis : [
+          {
+              type : 'category',
+              boundaryGap : false,
+              data : ['周一','周二','周三','周四','周五','周六','周日']
+          }
+      ],
+      yAxis : [
+          {
+              type : 'value'
+          }
+      ],
+      series : [
+          {
+              name:'邮件营销',
+              type:'line',
+              stack: '总量',
+              areaStyle: {normal: {}},
+              data:[120, 132, 101, 134, 90, 230, 210]
+          },
+          {
+              name:'联盟广告',
+              type:'line',
+              stack: '总量',
+              areaStyle: {normal: {}},
+              data:[220, 182, 191, 234, 290, 330, 310]
+          },
+          {
+              name:'视频广告',
+              type:'line',
+              stack: '总量',
+              areaStyle: {normal: {}},
+              data:[150, 232, 201, 154, 190, 330, 410]
+          },
+          {
+              name:'直接访问',
+              type:'line',
+              stack: '总量',
+              areaStyle: {normal: {}},
+              data:[320, 332, 301, 334, 390, 330, 320]
+          },
+          {
+              name:'搜索引擎',
+              type:'line',
+              stack: '总量',
+              label: {
+                  normal: {
+                      show: true,
+                      position: 'top'
+                  }
+              },
+              areaStyle: {normal: {}},
+              data:[820, 932, 901, 934, 1290, 1330, 1320]
+          }
+      ]
+  };
+  // 使用刚指定的配置项和数据显示图表。
+  chartMonitoring.setOption(option);
 }
 
 //故障情况图方法-未完成

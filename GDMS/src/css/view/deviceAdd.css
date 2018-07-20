@@ -1,0 +1,40 @@
+.layui-body .layui-form-label{
+  height: 34px !important;
+  padding: 6px 15px !important;
+  font-size:13px !important;
+}
+.layui-body .layui-form-item{
+  margin-bottom: 15px !important;
+}
+
+.layui-body .layui-input, .layui-select, .layui-textarea {
+  height: 34px  !important;
+}
+.layui-body .layui-form-item .layui-inline {
+  margin-bottom: 0px !important;
+}
+.layui-body .layui-form-mid {
+  padding: 7px 0 !important;
+}
+/*改写switch开关*/
+.layui-form-pane .layui-form-switch {
+  margin: 7px !important;
+}
+.layui-body .layui-form-switch {
+  height: 18px !important;
+  line-height: 18px !important;
+}
+.layui-body .layui-form-onswitch i {
+  margin-left: -18px !important;
+}
+.layui-body .layui-form-switch i {
+  top: 2px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+.layui-body .layui-form-radio > i {
+  font-size: 21px !important;
+}
+.layui-body .layui-form-pane .layui-form-radio{
+  margin:3px 0px 3px 10px !important;
+}

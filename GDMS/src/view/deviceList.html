@@ -45,7 +45,7 @@
   <div class="layui-card">
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
-      <button class="layui-btn layui-btn-sm">添加</button>
+      <button class="layui-btn layui-btn-sm viewBtn" view="deviceAdd">添加</button>
       <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
       <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
     </div>
@@ -222,7 +222,11 @@ layui.use(['table','form'], function(){
   });
 });
 
-
+//二级按钮点击事件
+$('.viewBtn').click(function(){
+  var view = $(this).attr('view');
+  $('#view').load('src/view/second/'+view+'.html');
+});
 
 
 </script>
