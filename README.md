@@ -11,7 +11,7 @@
 |WeChat|wbz9061
 
 ****
-* 界面优雅，完全独立开发，高仿layuiAdmin的界面，未使用其框架。
+* 界面优雅，完全独立开发；原本计划使用layuiAdmin，奈何对于业余开发者来说授权太贵且不开源，于是使用layui改写样式，高仿layuiAdmin的UI，自己集成了一套前端框架，保证代码全部开源。
 
 #### 登录页预览
 ![登录页预览](https://github.com/manier13579/GDMS-DeviceManagementSystem/raw/master/GDMS/src/images/demo1.png)  
