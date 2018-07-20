@@ -67,8 +67,8 @@
 <div class="layui-col-md8">
   <div class="layui-card">
     <div class="layui-card-header">设备监控</div>
-    <div class="layui-card-body" style="height:200px;">
-      <div id="chart-monitoring"></div>
+    <div class="layui-card-body">
+      <div id="chart-monitoring" style="height:200px;"></div>
     </div>
   </div>
 </div>
@@ -247,9 +247,22 @@ function getChartOldData(){
 //监控图方法
 function chartMonitoringShow(){
   var chartMonitoring = echarts.init(document.getElementById('chart-monitoring'));
+  var dateData = [];
+  var devCount = [];
+  var bakCount = [];
+  var errCount = [];
+  var fixCount = [];
+  for(i=1;i<=31;i++){
+    dateData.push(i);
+    devCount.push(600+Math.random()*100);
+    bakCount.push(100*Math.random());
+    errCount.push(100*Math.random());
+    fixCount.push(100*Math.random());
+  }
+  
   var option = {
       title: {
-          text: '堆叠区域图'
+          text: ''
       },
       tooltip : {
           trigger: 'axis',
@@ -261,7 +274,7 @@ function chartMonitoringShow(){
           }
       },
       legend: {
-          data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+          data:['正常数量','备件数量','故障数量','维修数量']
       },
       toolbox: {
           feature: {
@@ -278,7 +291,7 @@ function chartMonitoringShow(){
           {
               type : 'category',
               boundaryGap : false,
-              data : ['周一','周二','周三','周四','周五','周六','周日']
+              data : dateData
           }
       ],
       yAxis : [
@@ -288,46 +301,33 @@ function chartMonitoringShow(){
       ],
       series : [
           {
-              name:'邮件营销',
+              name:'正常数量',
               type:'line',
               stack: '总量',
               areaStyle: {normal: {}},
-              data:[120, 132, 101, 134, 90, 230, 210]
+              data:devCount
           },
           {
-              name:'联盟广告',
+              name:'备件数量',
               type:'line',
               stack: '总量',
               areaStyle: {normal: {}},
-              data:[220, 182, 191, 234, 290, 330, 310]
+              data:bakCount
           },
           {
-              name:'视频广告',
+              name:'故障数量',
               type:'line',
               stack: '总量',
               areaStyle: {normal: {}},
-              data:[150, 232, 201, 154, 190, 330, 410]
+              data:errCount
           },
           {
-              name:'直接访问',
+              name:'维修数量',
               type:'line',
               stack: '总量',
               areaStyle: {normal: {}},
-              data:[320, 332, 301, 334, 390, 330, 320]
+              data:fixCount
           },
-          {
-              name:'搜索引擎',
-              type:'line',
-              stack: '总量',
-              label: {
-                  normal: {
-                      show: true,
-                      position: 'top'
-                  }
-              },
-              areaStyle: {normal: {}},
-              data:[820, 932, 901, 934, 1290, 1330, 1320]
-          }
       ]
   };
   // 使用刚指定的配置项和数据显示图表。
