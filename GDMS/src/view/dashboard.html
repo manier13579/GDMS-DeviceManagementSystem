@@ -66,16 +66,42 @@
 </div>
 <div class="layui-col-md8">
   <div class="layui-card">
-    <div class="layui-card-header">设备监控</div>
+    <div class="layui-card-header">设备趋势</div>
     <div class="layui-card-body">
-      <div id="chart-monitoring" style="height:200px;"></div>
+      <div id="chart-monitoring" style="height:250px;"></div>
     </div>
   </div>
 </div>
 <div class="layui-col-md4">
   <div class="layui-card">
+    <div class="layui-card-header">未定</div>
+    <div class="layui-card-body">
+      <div id="chart-fault" style="height:250px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="layui-col-md4">
+  <div class="layui-card">
+    <div class="layui-card-header">设备状态</div>
+    <div class="layui-card-body">
+      <div id="chart-backup" style="height:300px;"></div>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md4">
+  <div class="layui-card">
+    <div class="layui-card-header">老旧情况</div>
+    <div class="layui-card-body">
+      <div id="chart-old" style="height:300px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="layui-col-md4">
+  <div class="layui-card">
     <div class="layui-card-header">系统公告</div>
-    <div class="layui-card-body bing-notice">
+    <div class="layui-card-body bing-notice" style="height:300px;margin-bottom:15px;">
       <ul class="layui-timeline">
         <li class="layui-timeline-item">
           <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
@@ -112,31 +138,6 @@
     </div>
   </div>
 </div>
-<div class="layui-col-md4">
-  <div class="layui-card">
-    <div class="layui-card-header">故障情况</div>
-    <div class="layui-card-body">
-      <div id="chart-fault" style="height:300px;"></div>
-    </div>
-  </div>
-</div>
-<div class="layui-col-md4">
-  <div class="layui-card">
-    <div class="layui-card-header">设备状态</div>
-    <div class="layui-card-body">
-      <div id="chart-backup" style="height:300px;"></div>
-    </div>
-  </div>
-</div>
-<div class="layui-col-md4">
-  <div class="layui-card">
-    <div class="layui-card-header">老旧情况</div>
-    <div class="layui-card-body">
-      <div id="chart-old" style="height:300px;"></div>
-    </div>
-  </div>
-</div>
-
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
@@ -186,7 +187,6 @@ function initSystem(){
   
 
   chartMonitoringShow();   //显示监控图
-  chartFaultShow();   //显示故障图
 
   getchartBackupData();   //显示设备状态图
   getChartOldData();   //显示老旧情况图
@@ -253,7 +253,7 @@ function chartMonitoringShow(){
   var errCount = [];
   var fixCount = [];
   for(i=1;i<=31;i++){
-    dateData.push(i);
+    dateData.push('2018-7-'+i);
     devCount.push(600+Math.random()*100);
     bakCount.push(100*Math.random());
     errCount.push(100*Math.random());
@@ -274,12 +274,7 @@ function chartMonitoringShow(){
           }
       },
       legend: {
-          data:['正常数量','备件数量','故障数量','维修数量']
-      },
-      toolbox: {
-          feature: {
-              saveAsImage: {}
-          }
+        data:['正常','备件','故障','维修中']
       },
       grid: {
           left: '3%',
@@ -299,33 +294,50 @@ function chartMonitoringShow(){
               type : 'value'
           }
       ],
+      dataZoom: {
+        show : true,
+        startValue: '2018-7-24',
+        type: 'inside'
+      },
       series : [
           {
-              name:'正常数量',
+              name:'正常',
               type:'line',
               stack: '总量',
-              areaStyle: {normal: {}},
+              symbol:"none",
+              color: '#0092FF',
+              areaStyle: {color: '#0092FF'},    // 堆叠面积样式
+              lineStyle: {color: '#0092FF'},    // 线条样式
               data:devCount
           },
           {
-              name:'备件数量',
+              name:'备件',
               type:'line',
               stack: '总量',
-              areaStyle: {normal: {}},
+              symbol:"none",
+              color: '#EBA954',
+              areaStyle: {color: '#EBA954'},    // 堆叠面积样式
+              lineStyle: {color: '#EBA954'},    // 线条样式
               data:bakCount
           },
           {
-              name:'故障数量',
+              name:'故障',
               type:'line',
               stack: '总量',
-              areaStyle: {normal: {}},
+              symbol:"none",
+              color: '#D74E67',
+              areaStyle: {color: '#D74E67'},    // 堆叠面积样式
+              lineStyle: {color: '#D74E67'},    // 线条样式
               data:errCount
           },
           {
-              name:'维修数量',
+              name:'维修中',
               type:'line',
               stack: '总量',
-              areaStyle: {normal: {}},
+              symbol:"none",
+              color: '#D48265',
+              areaStyle: {color: '#D48265'},    // 堆叠面积样式
+              lineStyle: {color: '#D48265'},    // 线条样式
               data:fixCount
           },
       ]
@@ -334,85 +346,6 @@ function chartMonitoringShow(){
   chartMonitoring.setOption(option);
 }
 
-//故障情况图方法-未完成
-function chartFaultShow(){
-  var chartFault = echarts.init(document.getElementById('chart-fault'));
-  // 指定图表的配置项和数据
-  var option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: "{a} <br/>{b}: {c} ({d}%)",
-    },
-    legend: {
-      orient: 'vertical',
-      x: 'right',
-      itemWidth: 14,
-      itemHeight: 14,
-      align: 'left',
-      data: ['故障', '正常'],
-      textStyle: {
-        color: '#555'
-      }
-    },
-    series: [
-      {
-        type: 'pie',
-        hoverAnimation: false,
-        legendHoverLink: false,
-        radius: ['40%', '42%'],
-        color: ['#915872', '#3077b7'],
-        label: {
-          normal: {
-            position: 'inner'
-          }
-        },
-        labelLine: {
-          normal: {
-            show: false
-          },
-        },
-        tooltip: {
-          show: false,
-        },
-        data: [
-          {
-            value: 4,
-            name: ''
-          },
-          {
-            value: 679,
-            name: ''
-          },
-        ]
-      },
-      {
-        name: '统计',
-        type: 'pie',
-        radius: ['42%', '55%'],
-        color: ['#d74e67', '#0092ff'],
-        label: {
-          normal: {
-            formatter: '{b}\n{d}%'
-          },
-
-        },
-        data: [
-          {
-            value: 4,
-            name: '故障'
-          },
-          {
-            value: 679,
-            name: '正常'
-          },
-
-        ]
-      }
-    ]
-  };
-  // 使用刚指定的配置项和数据显示图表。
-  chartFault.setOption(option);
-}
 
 //备件情况图方法
 function chartBackupShow(fixCount,errCount,bakCount,useCount){
