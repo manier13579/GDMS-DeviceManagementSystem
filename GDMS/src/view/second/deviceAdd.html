@@ -7,11 +7,11 @@
         <div class="layui-form-item">
           <label class="layui-form-label">系统</label>
           <div class="layui-input-inline">
-            <select name="system">
+            <select name="system" lay-verify="required" lay-filter="system">
             </select>
           </div>
           <div class="layui-input-inline">
-            <select name="project">
+            <select name="project" lay-filter="project">
               <option value="">项目 (可选)</option>
             </select>
           </div>
@@ -19,12 +19,12 @@
         <div class="layui-form-item">
           <label class="layui-form-label">地点</label>
           <div class="layui-input-inline">
-            <select name="site">
+            <select name="site" lay-filter="site">
               <option value="">地点 (可选)</option>
             </select>
           </div>
           <div class="layui-input-inline">
-            <select name="stn">
+            <select name="stn" lay-filter="stn">
               <option value="">位置 (可选)</option>
             </select>
           </div>
@@ -32,11 +32,11 @@
         <div class="layui-form-item">
           <label class="layui-form-label">类型</label>
           <div class="layui-input-inline">
-            <select name="type">
+            <select name="type" lay-verify="required" lay-filter="type">
             </select>
           </div>
           <div class="layui-input-inline">
-            <select name="style">
+            <select name="style" lay-verify="required" lay-filter="style">
             </select>
           </div>
         </div>
@@ -44,7 +44,7 @@
           <div class="layui-inline">
             <label class="layui-form-label">到货日期</label>
             <div class="layui-input-block">
-              <input name="delivery" id="date1" autocomplete="off" class="layui-input" type="text">
+              <input name="delivery" id="date1" autocomplete="off" class="layui-input" type="text" lay-verify="required">
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@
         <div class="layui-form-item">
           <label class="layui-form-label">序列号</label>
           <div class="layui-input-block">
-            <input name="sn" autocomplete="off" placeholder="序列号" class="layui-input" type="text">
+            <input name="sn" autocomplete="off" placeholder="序列号或别名" class="layui-input" type="text" lay-verify="required">
           </div>
         </div>
         <div class="layui-form-item">
@@ -64,7 +64,7 @@
         <div class="layui-form-item">
           <label class="layui-form-label">状态</label>
           <div class="layui-input-inline">
-            <select name="status">
+            <select name="status" lay-verify="required">
               <option value="0">备件</option>
               <option value="1">在用</option>
               <option value="2">故障</option>
@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="layui-form-item">
-          <button class="layui-btn" lay-submit="" lay-filter="demo2">添加</button>
+          <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
         </div>
       </form>
     </div>
@@ -86,9 +86,117 @@
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
 
-layui.use('form', function(){
+layui.use(['form','laydate'], function(){
   var form = layui.form;
+  var laydate = layui.laydate;
+  
   form.render();
+  laydate.render({
+    elem: '#date1',   //指定元素
+    value:todayDate('-')    //默认限制今天日期
+  });
+  
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  $('select[name="site"]').attr('disabled','disabled');
+  $('select[name="style"]').attr('disabled','disabled');
+  $('select[name="stn"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Device/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      var projectList = selectData.project;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      for(var key in projectList){
+        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
+      }
+      form.render('select');
+      selectInit($('select[name="system"]').val());
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    selectInit(data.value);
+  });
+  
+  //初始化系统select菜单方法
+  function selectInit(systemId){
+    $('select[name="site"]').attr('disabled','disabled');
+    $('select[name="site"]').html('<option value="">地点 (可选)</option>');
+    $('select[name="stn"]').attr('disabled','disabled');
+    $('select[name="stn"]').html('<option value="">位置 (可选)</option>');
+    $('select[name="type"]').attr('disabled','disabled');
+    $('select[name="type"]').html('<option value="">类型</option>');
+    $('select[name="style"]').attr('disabled','disabled');
+    $('select[name="style"]').html('<option value="">式样</option>');
+    //如果系统里有地点，地点select增加选项并启用
+    if(selectData.site[systemId]){
+      $('select[name="site"]').removeAttr('disabled');
+      $('select[name="site"]').html('<option value="">地点 (可选)</option>');
+      for(var key in selectData.site[systemId]){
+        $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
+      }
+    }
+    //如果系统里有类型，类型select增加选项并启用
+    if(selectData.type[systemId]){
+      $('select[name="type"]').removeAttr('disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      for(var key in selectData.type[systemId]){
+        $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
+      }
+    }
+    form.render('select');
+  }
+  
+  //地点select选择事件
+  form.on('select(site)', function(data){
+    var siteId = data.value;
+    //位置select增加选项
+    if(selectData.stn[siteId]){
+      $('select[name="stn"]').removeAttr('disabled');
+      $('select[name="stn"]').html('<option value="">位置 (可选)</option>');
+      for(var key in selectData.stn[siteId]){
+        $('select[name="stn"]').append('<option value="'+key+'">'+selectData.stn[siteId][key]+'</option>');
+      }
+    }else{
+      $('select[name="stn"]').attr('disabled','disabled');
+      $('select[name="stn"]').html('<option value="">位置 (可选)</option>');
+    }
+    form.render('select');
+  });
+  
+  //类型select选择事件
+  form.on('select(type)', function(data){
+    var typeId = data.value;
+    //式样select增加选项
+    if(selectData.style[typeId]){
+      $('select[name="style"]').removeAttr('disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+      for(var key in selectData.style[typeId]){
+        $('select[name="style"]').append('<option value="'+key+'">'+selectData.style[typeId][key]+'</option>');
+      }
+    }else{
+      $('select[name="style"]').attr('disabled','disabled');
+      $('select[name="style"]').html('<option value="">式样</option>');
+    }
+    form.render('select');
+  });
+  
+  
+  form.on('submit(add)', function(data){
+    console.log(data.field);
+    return false;
+  });
 });
 
 
