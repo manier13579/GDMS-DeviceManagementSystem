@@ -9,14 +9,23 @@ using System.Text;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
     [RequestAuthorize]
     public class DeviceController : ApiController
     {
+        //返回对象
+        private class Response
+        {
+            public int code { get; set; }
+            public string count { get; set; }
+            public string msg { get; set; }
+            public object data { get; set; }
+        }
 
-        //POST对象 (通过POST只能获取1个对象，因此POST多个数据需要使用类)
+        //获取设备列表 - POST对象
         public class DeviceAjax
         {
             public string userId { get; set; }
@@ -28,14 +37,6 @@ namespace GDMS.Controllers
             public string styleId { get; set; }
             public string projectId { get; set; }
             public string keyword { get; set; }
-        }
-        //返回对象
-        private class Response
-        {
-            public int code { get; set; }
-            public string count { get; set; }
-            public string msg { get; set; }
-            public object data { get; set; }
         }
 
         //获取设备列表
@@ -73,7 +74,7 @@ namespace GDMS.Controllers
                 H.ID AS SYSTEM_ID
                 FROM
                 GDMS_DEV_MAIN A
-                INNER JOIN GDMS_STN_MAIN B ON A.STN_ID = B.ID
+                LEFT JOIN GDMS_STN_MAIN B ON A.STN_ID = B.ID
                 LEFT JOIN GDMS_SITE C ON B.SITE_ID = C.ID
                 LEFT JOIN GDMS_STYLE D ON A.STYLE_ID = D.ID
                 LEFT JOIN GDMS_PROJECT E ON A.PROJECT_ID = E.ID
@@ -123,7 +124,7 @@ namespace GDMS.Controllers
                 COUNT(*) AS COUNT
                 FROM
                 GDMS_DEV_MAIN A
-                INNER JOIN GDMS_STN_MAIN B ON A.STN_ID = B.ID
+                LEFT JOIN GDMS_STN_MAIN B ON A.STN_ID = B.ID
                 LEFT JOIN GDMS_SITE C ON B.SITE_ID = C.ID
                 LEFT JOIN GDMS_STYLE D ON A.STYLE_ID = D.ID
                 LEFT JOIN GDMS_PROJECT E ON A.PROJECT_ID = E.ID
@@ -343,16 +344,70 @@ namespace GDMS.Controllers
 
         //删除设备
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] DeviceAjax deviceAjax)
+        public HttpResponseMessage DeviceDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var devId in idArr)
+            {
+                sqlin = sqlin + devId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_DEV_MAIN WHERE ID IN ("+ sqlin + ")";
 
-            var ds = db.QueryT(sql);
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个设备";
+            res.data = null;
+            
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //添加设备 - POST对象
+        public class DeviceAddAjax
+        {
+            public string userId { get; set; }
+            public string stnId { get; set; }
+            public string styleId { get; set; }
+            public string projectId { get; set; }
+            public string remark { get; set; }
+            public string sn { get; set; }
+            public string delivery { get; set; }
+            public string status { get; set; }
+        }
+
+        //添加设备
+        [ActionName("add")]
+        public HttpResponseMessage DeviceAdd([FromBody] DeviceAddAjax ajaxData)
+        {
+            Db db = new Db();
+            string sql = @"INSERT INTO GDMS_DEV_MAIN 
+                (ID,COUNT,STN_ID,STYLE_ID,PROJECT_ID,SN,DELIVERY_DATE,STATUS,REMARK,USER_ID,EDIT_DATE)
+                VALUES(
+                GDMS_DEV_MAIN_SEQ.nextVal,
+                '1',
+                '" + ajaxData.stnId + @"',
+                '" + ajaxData.styleId + @"',
+                '" + ajaxData.projectId + @"',
+                '" + ajaxData.sn + @"',
+                to_date('" + ajaxData.delivery + @"', 'yyyy-mm-dd'),
+                '" + ajaxData.status + @"',
+                '" + ajaxData.remark + @"',
+                '" + ajaxData.userId + @"',SYSDATE)";
+
+            var rows = db.ExecuteSql(sql);
+            Response res = new Response();
+
+            res.code = 0;
+            res.msg = "操作成功，添加了" + rows + "个设备";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
@@ -362,7 +417,5 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
-
-
     }
 }

@@ -46,8 +46,8 @@
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
       <button class="layui-btn layui-btn-sm viewBtn" view="deviceAdd">添加</button>
-      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
-      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal" id="edit">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger" id="del">删除</button>
     </div>
   </div>
 </div>
@@ -85,7 +85,7 @@ layui.use(['table','form'], function(){
         "projectId":projectId
       },
       headers:{"Authorization":"Basic "+access_token},
-      even:true,
+      even:false,    //隔行变色
       height:'full-230',
       size:'sm',
       method: 'post',
@@ -101,8 +101,9 @@ layui.use(['table','form'], function(){
         {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
-        {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
+        {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+
       ]],
       done: function(res, curr, count){
         table1Data = res.data;
@@ -210,7 +211,8 @@ layui.use(['table','form'], function(){
     form.render('select');
   });
   
-  form.on('select', function(data){
+  //全局select选择事件，查询设备列表
+  form.on('select', function(){
     var systemId = $('select[name="system"]').val();
     var siteId = $('select[name="site"]').val();
     var typeId = $('select[name="type"]').val();
@@ -219,6 +221,57 @@ layui.use(['table','form'], function(){
     var projectId = $('select[name="project"]').val();
     formShow(systemId,typeId,siteId,projectId,styleId,stnId);
     
+  });
+  
+  //删除按钮点击事件
+  $('#del').click(function(){
+    var checkStatus = table.checkStatus('table1'),
+    data = checkStatus.data;
+    if(data.length==0){
+      layer.msg('请选择要删除设备 | No Device Selected!');
+    }else{
+      var idArr = [],tishi = '';
+      for(i=0;i<data.length;i++){
+        tishi += data[i].SN + ' , ';
+        idArr.push(data[i].DEV_ID);
+      }
+      tishi = tishi.substring(0,tishi.length-2);
+      layer.confirm(tishi, {
+          btn: ['Yes', 'No'],
+          time: 0,
+          title:'确定删除? - Delete?',
+        }, function(){
+          ajax = $.ajax({
+            url:"actionApi/Device/del",
+            async:true,
+            type: 'post',
+            dataType:'json',
+            headers:{"Authorization":"Basic "+access_token},
+            data: {
+              "":JSON.stringify(idArr)
+            },
+            success:function(res){
+              if(res.code==0){
+                parent.layer.closeAll();
+                parent.layer.msg('删除成功');
+                
+                var systemId = $('select[name="system"]').val();
+                var siteId = $('select[name="site"]').val();
+                var typeId = $('select[name="type"]').val();
+                var styleId = $('select[name="style"]').val();
+                var stnId = $('select[name="stn"]').val();
+                var projectId = $('select[name="project"]').val();
+                formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+              }else{
+                parent.layer.closeAll();
+                parent.layer.msg('出现错误');
+              }
+            }
+          });
+        }
+      
+      );
+    }
   });
 });
 
@@ -229,4 +282,9 @@ $('.viewBtn').click(function(){
 });
 
 
+
+
+
 </script>
+
+
