@@ -74,6 +74,7 @@
         </div>
         <div class="layui-form-item">
           <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
+          <button class="layui-btn layui-btn-primary" lay-filter="cancel">取消</button>
         </div>
       </form>
     </div>
@@ -194,8 +195,49 @@ layui.use(['form','laydate'], function(){
   
   
   form.on('submit(add)', function(data){
-    console.log(data.field);
+    $.ajax({
+      url: 'actionApi/Device/add',
+      type:'post',
+      data:{
+        "stnId":data.field.stn,
+        "styleId":data.field.style,
+        "projectId":data.field.project,
+        "sn":data.field.sn,
+        "delivery":data.field.delivery,
+        "status":data.field.status,
+        "remark":data.field.remark,
+        "userId":userId
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(res.code==0){
+          var id = layer.msg(res.msg, {
+            time: false,   //取消自动关闭
+            btn: ['完成', '继续添加'],
+            btn1:function(){
+              var view = sessionStorage.viewNow;
+              $('#view').load('src/view/'+view+'.html');
+              layer.close(id);
+            },
+            btn2:function(){
+              $('input[name="sn"]').val('');
+              $('input[name="remark"]').val('');
+              layer.close(id);
+            }
+          });
+        }else{
+          
+        }
+      }
+    });
+    
+    
+    
     return false;
+  });
+  form.on('submit(cancel)', function(data){
+    var view = sessionStorage.viewNow;
+    $('#view').load('src/view/'+view+'.html');
   });
 });
 

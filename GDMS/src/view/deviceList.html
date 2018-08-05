@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="src/css/view/deviceList.css">
 <div class="layui-col-md9">
   <div class="layui-card">
     <div class="layui-card-body">
@@ -46,8 +47,8 @@
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
       <button class="layui-btn layui-btn-sm viewBtn" view="deviceAdd">添加</button>
-      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
-      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal" id="edit">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger" id="del">删除</button>
     </div>
   </div>
 </div>
@@ -63,6 +64,10 @@
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
+var rowData;
+var tableRef = false;
+var moreShow = false;
+var moreIndex;
 
 layui.use(['table','form'], function(){
   var table = layui.table;
@@ -85,7 +90,7 @@ layui.use(['table','form'], function(){
         "projectId":projectId
       },
       headers:{"Authorization":"Basic "+access_token},
-      even:true,
+      even:false,    //隔行变色
       height:'full-230',
       size:'sm',
       method: 'post',
@@ -93,16 +98,17 @@ layui.use(['table','form'], function(){
       page: true, //是否开启分页
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
-        {field: 'TYPE_NAME',title:'类型', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'STYLE_NAME', title: '式样', fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'SN', title: '序列号', fixed: 'left', width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'TYPE_NAME',title:'类型',fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'STYLE_NAME', title: '式样', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'SN', title: '序列号',fixed: 'left', event: 'devMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;",style:'cursor: pointer;'},
         //{field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-        {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
-        {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'stn', style:'cursor: pointer;color:#01AAED;'},
         {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
+        {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+
       ]],
       done: function(res, curr, count){
         table1Data = res.data;
@@ -115,7 +121,26 @@ layui.use(['table','form'], function(){
   table.on('tool(table1)', function(obj){
     var data = obj.data;
     if(obj.event === 'devMore'){
-      console.log(data);
+      if(moreShow == true){ //如果更多显示已打开
+        if(moreIndex == data.DEV_ID){   //再次点击，关闭更多显示
+          $('.layui-table').find('td').removeClass('row-selected');
+          moreShow == false;
+          moreIndex = '';
+          console.log('更多显示关闭');
+        }else{
+          $('.layui-table').find('td').removeClass('row-selected');
+          $(this).addClass('row-selected');
+          moreIndex = data.DEV_ID;
+          console.log('更多显示更新为'+data.SN);
+        }
+      }else{
+        $('.layui-table').find('td').removeClass('row-selected');
+        $(this).addClass('row-selected');
+        moreShow = true;    //更多信息显示标记
+        moreIndex = data.DEV_ID;
+        console.log('更多显示打开为'+data.SN);
+      }
+
     }
   });
   
@@ -210,7 +235,8 @@ layui.use(['table','form'], function(){
     form.render('select');
   });
   
-  form.on('select', function(data){
+  //全局select选择事件，查询设备列表
+  form.on('select', function(){
     var systemId = $('select[name="system"]').val();
     var siteId = $('select[name="site"]').val();
     var typeId = $('select[name="type"]').val();
@@ -220,6 +246,102 @@ layui.use(['table','form'], function(){
     formShow(systemId,typeId,siteId,projectId,styleId,stnId);
     
   });
+  
+  //删除按钮点击事件
+  $('#del').click(function(){
+    var checkStatus = table.checkStatus('table1'),
+    data = checkStatus.data;
+    if(data.length==0){
+      layer.msg('请选择要删除的设备 | No Device Selected!');
+    }else{
+      var idArr = [],tishi = '';
+      for(i=0;i<data.length;i++){
+        tishi += data[i].SN + ' , ';
+        idArr.push(data[i].DEV_ID);
+      }
+      tishi = tishi.substring(0,tishi.length-2);
+      layer.confirm(tishi, {
+          btn: ['Yes', 'No'],
+          time: 0,
+          title:'确定删除? - Delete?',
+        }, function(){
+          ajax = $.ajax({
+            url:"actionApi/Device/del",
+            async:true,
+            type: 'post',
+            dataType:'json',
+            headers:{"Authorization":"Basic "+access_token},
+            data: {
+              "":JSON.stringify(idArr)
+            },
+            success:function(res){
+              if(res.code==0){
+                parent.layer.closeAll();
+                parent.layer.msg('删除成功');
+                
+                var systemId = $('select[name="system"]').val();
+                var siteId = $('select[name="site"]').val();
+                var typeId = $('select[name="type"]').val();
+                var styleId = $('select[name="style"]').val();
+                var stnId = $('select[name="stn"]').val();
+                var projectId = $('select[name="project"]').val();
+                formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+              }else{
+                parent.layer.closeAll();
+                parent.layer.msg('出现错误');
+              }
+            }
+          });
+        }
+      
+      );
+    }
+  });
+  
+  
+  //编辑按钮点击事件
+  $('#edit').click(function(){
+    var checkStatus = table.checkStatus('table1'),
+    data = checkStatus.data;
+    if(data.length==0){
+      layer.msg('请选择要编辑的设备 | No Device Selected!');
+    }else{
+      for(i=0;i<data.length;i++){
+        rowData = data[i];
+        //打开添加弹出层
+        layer.open({
+          type: 2,
+          title: '设备编辑 - Edit Devices',
+          shade: 0.4,
+          area: ['830px','510px'],
+          content: 'src/view/second/deviceEdit.html',
+          end:function(){
+            if(tableRef==true){
+              var systemId = $('select[name="system"]').val();
+              var siteId = $('select[name="site"]').val();
+              var typeId = $('select[name="type"]').val();
+              var styleId = $('select[name="style"]').val();
+              var stnId = $('select[name="stn"]').val();
+              var projectId = $('select[name="project"]').val();
+              formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+              tableRef = false;
+            }
+          }
+        }); 
+      }
+
+    }
+  });
+  
+  //监听行点击事件
+  <!-- $(document).on('click', '.layui-table>tbody>tr', function (){ -->
+    <!-- var systemId = $(this).children('td:eq(0)').text(); -->
+    <!-- console.log(systemId); -->
+    <!-- $(this).parents().children().removeClass('row-selected'); -->
+    <!-- $(this).addClass('row-selected'); -->
+  <!-- }); -->
+  
+  
 });
 
 //二级按钮点击事件
@@ -229,4 +351,9 @@ $('.viewBtn').click(function(){
 });
 
 
+
+
+
 </script>
+
+
