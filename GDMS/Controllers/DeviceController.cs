@@ -417,5 +417,38 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
+
+        //获取更多信息 - POST对象
+        public class DeviceMoreAjax
+        {
+            public string devId { get; set; }
+        }
+
+        //获取更多信息
+        [ActionName("more")]
+        public HttpResponseMessage DeviceMore([FromBody] DeviceMoreAjax ajaxData)
+        {
+            Db db = new Db();
+            string sql = "SELECT ITEM,VALUE FROM GDMS_DEV_MORE WHERE DEV_ID = '"+ ajaxData.devId + "'";
+
+            var ds = db.QueryT(sql);
+            Response res = new Response();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (DataRow col in ds.Rows)
+            {
+                dict.Add(col["ITEM"].ToString(), col["VALUE"].ToString());
+            }
+
+            res.code = 0;
+            res.msg = "";
+            res.data = dict;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
     }
 }

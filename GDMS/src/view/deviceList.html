@@ -61,6 +61,14 @@
   </div>
 </div>
 
+<div class="more">
+  <div class="more-title">更多信息</div>
+  <div class="more-close"><span class="layui-icon layui-icon-close"></span></div>
+  <div class="more-wrap">
+    <div class="more-tishi">无更多信息</div>
+  </div>
+</div>
+
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
@@ -124,25 +132,58 @@ layui.use(['table','form'], function(){
       if(moreShow == true){ //如果更多显示已打开
         if(moreIndex == data.DEV_ID){   //再次点击，关闭更多显示
           $('.layui-table').find('td').removeClass('row-selected');
-          moreShow == false;
+          moreShow = false;
           moreIndex = '';
+          $('.more').hide();
           console.log('更多显示关闭');
         }else{
           $('.layui-table').find('td').removeClass('row-selected');
           $(this).addClass('row-selected');
           moreIndex = data.DEV_ID;
-          console.log('更多显示更新为'+data.SN);
+          getMoreInfo(data.DEV_ID);
+          console.log('更多显示更新为'+data.DEV_ID);
         }
       }else{
         $('.layui-table').find('td').removeClass('row-selected');
         $(this).addClass('row-selected');
         moreShow = true;    //更多信息显示标记
         moreIndex = data.DEV_ID;
-        console.log('更多显示打开为'+data.SN);
+        getMoreInfo(data.DEV_ID);
+        $('.more').slideLeftShow();
+        console.log('更多显示打开为'+data.DEV_ID);
       }
 
     }
   });
+  //更多信息关闭按钮事件
+  $('.more .layui-icon-close').click(function(){
+    $('.layui-table').find('td').removeClass('row-selected');
+    moreIndex = '';
+    moreShow = false;
+    $('.more').hide();
+  });
+  
+  //获取更多信息
+  function getMoreInfo(devId){
+    $('.more-wrap').html('');
+    $.ajax({
+      url: 'actionApi/Device/more',
+      type:'post',
+      data:{"devId":devId},
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(Object.keys(res.data).length!=0){
+          for(var key in res.data){
+            $('.more-wrap').append('<div class="more-info">'+
+              '<div class="more-key">'+key+'</div>'+
+              '<div class="more-value">'+res.data[key]+'</div></div>');
+          }
+        }else{
+          $('.more-wrap').html('<div class="more-tishi">无更多信息</div>');
+        }
+      }
+    });
+  }
   
   //初始化select
   $('select[name="type"]').attr('disabled','disabled');
@@ -341,7 +382,7 @@ layui.use(['table','form'], function(){
     <!-- $(this).addClass('row-selected'); -->
   <!-- }); -->
   
-  
+
 });
 
 //二级按钮点击事件
