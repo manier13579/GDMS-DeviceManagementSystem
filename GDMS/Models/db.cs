@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using Oracle.DataAccess.Client;
@@ -134,28 +135,7 @@ namespace GDMS.Models
             }
 
         }
-
-        /// 执行存储过程  
-        /// 参数：storedProcName(存储过程名)
-        /// 参数：CommandText(存储过程指令的SQL语句)
-        /// 参数：tableName(DataSet结果中的表名)
-        /// 返回：DataSet
-        public DataSet RunProcedure(string storedProcName, string CommandText, string tableName)
-        {
-            using (OracleConnection conn = new OracleConnection(connString))
-            {
-                DataSet dataSet = new DataSet();
-                conn.Open();
-                OracleDataAdapter sqlDA = new OracleDataAdapter();
-
-                sqlDA.SelectCommand.Connection = conn;
-                sqlDA.SelectCommand.CommandType = CommandType.StoredProcedure;
-                sqlDA.SelectCommand.CommandText = CommandText;
-                sqlDA.Fill(dataSet, tableName);
-                conn.Close();
-                return dataSet;
-            }
-        }
+        
 
     }
 

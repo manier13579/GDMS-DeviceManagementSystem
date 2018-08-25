@@ -201,23 +201,17 @@ layui.use(['form','laydate'], function(){
   
   
   form.on('submit(add)', function(data){
+    formData = $('.layui-form').serialize();
     $.ajax({
       url: 'actionApi/Device/add',
       type:'post',
       data:{
-        "stnId":data.field.stn,
-        "styleId":data.field.style,
-        "projectId":data.field.project,
-        "sn":data.field.sn,
-        "delivery":data.field.delivery,
-        "status":data.field.status,
-        "remark":data.field.remark,
-        "userId":userId
+        "":JSON.stringify(data.field)
       },
       headers:{"Authorization":"Basic "+access_token},
       success:function(res){
         if(res.code==0){
-          var id = layer.msg(res.msg, {
+          var id = layer.msg("添加成功", {
             time: false,   //取消自动关闭
             btn: ['完成', '继续添加'],
             btn1:function(){
@@ -232,7 +226,7 @@ layui.use(['form','laydate'], function(){
             }
           });
         }else{
-          
+          layer.msg("添加失败");
         }
       }
     });
@@ -245,6 +239,46 @@ layui.use(['form','laydate'], function(){
     var view = sessionStorage.viewNow;
     $('#view').load('src/view/'+view+'.html');
   });
+  
+  //增加更多信息点击事件
+  $('.more-btn').click(function(){
+    var self = $(this);
+    infoHtml = '<div class="layui-form-item addItem">'+
+                 '<label class="layui-form-label">'+
+                   '<input type="text" value="" class="info-input">'+
+                 '</label>'+
+                 '<div class="layui-input-inline">'+
+                   '<input type="text" name="" placeholder="" value="" autocomplete="off" class="layui-input">'+
+                   '<div class="delBtn"><span class="layui-icon">&#x1006;</span></div>'+
+                 '</div>'+
+               '</div>';
+    self.parent().before(infoHtml);
+  });
+  
+  //增加条目-名称输入监听
+  $('body').on('blur', '.info-input', function(){
+    var self = $(this);
+    self.parent().parent().find('.layui-input').attr('name',self.val());
+    
+  });
+
+  //增加条目-鼠标移入监听-显示删除按钮
+  $('body').on('mouseover', '.addItem', function(){
+    var self = $(this);
+    self.find('.delBtn').show();
+  });
+  $('body').on('mouseout', '.addItem', function(){
+    var self = $(this);
+    self.find('.delBtn').hide();
+  });
+
+  //增加条目-删除按钮点击事件
+  $('body').on('click', '.delBtn', function(){
+    var self = $(this);
+    self.parent().parent().remove();
+  });
+  
+  
 });
 
 

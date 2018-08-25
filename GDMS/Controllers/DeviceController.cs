@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,7 @@ using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Oracle.DataAccess.Client;
 
 namespace GDMS.Controllers
 {
@@ -371,43 +373,44 @@ namespace GDMS.Controllers
             return resJson;
         }
 
-        //添加设备 - POST对象
-        public class DeviceAddAjax
-        {
-            public string userId { get; set; }
-            public string stnId { get; set; }
-            public string styleId { get; set; }
-            public string projectId { get; set; }
-            public string remark { get; set; }
-            public string sn { get; set; }
-            public string delivery { get; set; }
-            public string status { get; set; }
-        }
 
         //添加设备
         [ActionName("add")]
-        public HttpResponseMessage DeviceAdd([FromBody] DeviceAddAjax ajaxData)
+        public HttpResponseMessage DeviceAdd([FromBody] String ajaxData)
         {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
             Db db = new Db();
-            string sql = @"INSERT INTO GDMS_DEV_MAIN 
-                (ID,COUNT,STN_ID,STYLE_ID,PROJECT_ID,SN,DELIVERY_DATE,STATUS,REMARK,USER_ID,EDIT_DATE)
-                VALUES(
-                GDMS_DEV_MAIN_SEQ.nextVal,
-                '1',
-                '" + ajaxData.stnId + @"',
-                '" + ajaxData.styleId + @"',
-                '" + ajaxData.projectId + @"',
-                '" + ajaxData.sn + @"',
-                to_date('" + ajaxData.delivery + @"', 'yyyy-mm-dd'),
-                '" + ajaxData.status + @"',
-                '" + ajaxData.remark + @"',
-                '" + ajaxData.userId + @"',SYSDATE)";
+            string sql = @"SELECT DEVICE_ADD(
+                '" + (String)formData["stn"] + @"', 
+                '" + (String)formData["style"] + @"', 
+                '" + (String)formData["project"] + @"',
+                '" + (String)formData["sn"] + @"', 
+                to_date('" + (String)formData["delivery"] + @"', 'yyyy-mm-dd'),
+                '" + (String)formData["status"] + @"',
+                '" + (String)formData["remark"] + @"',
+                '" + (String)formData["userId"] + @"'
+                ) AS DEVID FROM DUAL";
+            var ds = db.QueryT(sql);    //执行设备添加ORACLE函数，返回主键：devId
+            var devId = "";
+            foreach (DataRow col in ds.Rows)
+            {
+                devId = col["DEVID"].ToString();
+            }
 
-            var rows = db.ExecuteSql(sql);
+            ArrayList sql2 = new ArrayList();
+            foreach (JProperty item in formData.Properties())   //遍历更多信息，写入sql2数组列表
+            {
+                if (item.Name != "stn" && item.Name != "style" && item.Name != "project" && item.Name != "sn" && item.Name != "system" && item.Name != "site"
+                    && item.Name != "delivery" && item.Name != "status" && item.Name != "remark" && item.Name != "userId" && item.Name != "type")
+                {
+                    sql2.Add("INSERT INTO GDMS_DEV_MORE (DEV_ID,ITEM,VALUE) VALUES ('"+ devId + "','"+ item.Name + "','"+ (String)item.Value + "')");
+                }
+            }
+            db.ExecuteSqlTran(sql2);    //执行多条更多信息插入
+
             Response res = new Response();
-
             res.code = 0;
-            res.msg = "操作成功，添加了" + rows + "个设备";
+            res.msg = (string)devId;
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);

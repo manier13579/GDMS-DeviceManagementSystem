@@ -60,9 +60,29 @@
   color:;
 }
 
-
-
-
+.info-input{
+  width:100%;
+  height:100%;
+  border:0px;
+  text-align:center;
+}
+.addItem{
+  position:relative;
+}
+.addItem .layui-input{
+  width: 329px;
+}
+.delBtn{
+  display:none;
+  position:absolute;
+  right:-170px;
+  top:0px;
+  padding:4px 8px;
+  cursor:pointer;
+  border:1px solid #ddd;
+  color:#fff;
+  background-color:#2F4056;
+}
 
 
 
