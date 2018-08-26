@@ -39,6 +39,9 @@ namespace GDMS.Controllers
             public string styleId { get; set; }
             public string projectId { get; set; }
             public string keyword { get; set; }
+
+            public int page { get; set; }
+            public int limit { get; set; }
         }
 
         //获取设备列表
@@ -54,8 +57,14 @@ namespace GDMS.Controllers
             if (deviceAjax.stnId != null) { where = where + " AND A.STN_ID = '" + deviceAjax.stnId + "'"; }
             if (deviceAjax.styleId != null) { where = where + " AND A.STYLE_ID = '" + deviceAjax.styleId + "'"; }
             if (deviceAjax.projectId != null) { where = where + " AND A.PROJECT_ID = '" + deviceAjax.projectId + "'"; }
-            if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) { where = where + "AND ( A.SN LIKE '" + deviceAjax.keyword + "' or A.REMARK LIKE '" + deviceAjax.keyword + "')"; }
-            string sql = @"
+            if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) {
+                //模糊搜索项：序列号、备注
+                where = where + "AND ( "+
+                    "A.SN LIKE '%" + deviceAjax.keyword + "%' or " +
+                    "A.REMARK LIKE '%" + deviceAjax.keyword + "%')";
+            }
+
+            string sqlnp = @"
                 SELECT
                 A.COUNT,
                 A.SN,
@@ -83,9 +92,13 @@ namespace GDMS.Controllers
                 LEFT JOIN GDMS_SYSTEM F ON B.SITE_ID = F.ID
                 LEFT JOIN GDMS_TYPE G ON D.TYPE_ID = G.ID
                 LEFT JOIN GDMS_SYSTEM H ON G.SYSTEM_ID = H.ID
-                WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "') " + where;
+                WHERE G.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + deviceAjax.userId + "') " + where +
+                "ORDER BY G.ID ASC,D.ID ASC,A.DELIVERY_DATE DESC,A.SN ASC";
 
-            
+            int limit1 = (deviceAjax.page - 1) * deviceAjax.limit + 1;
+            int limit2 = deviceAjax.page * deviceAjax.limit;
+            string sql = "SELECT * FROM(SELECT p1.*,ROWNUM rn FROM(" + sqlnp + ")p1)WHERE rn BETWEEN " + limit1 + " AND " + limit2;
+
             var ds = db.QueryT(sql);
             Response res = new Response();
             ArrayList data = new ArrayList();
@@ -152,7 +165,7 @@ namespace GDMS.Controllers
             return resJson;
         }
 
-        //获取select
+        //获取select下拉菜单选项
         [ActionName("select")]
         public HttpResponseMessage DeviceSelect([FromBody] DeviceAjax deviceAjax)
         {
