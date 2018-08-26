@@ -123,25 +123,21 @@
   
   <!--右侧内容容器-->
   <div class="layui-body">
-  
     <div class="layui-fluid">
       <div class="layui-row layui-col-space10" id="view">
         <!-- 视图内容 -->
       </div>
     </div>
-      
-
   </div>
-  
   
 </body>
 </html>
 <script type="text/javascript">
+//顶部导航刷新按钮点击事件
 $('.layui-icon-refresh-3').click(function(){
   var view = sessionStorage.viewNow;
   $('#view').load('src/view/'+view+'.html');
 });
-
 
 //初始化页面记录
 if(!sessionStorage.viewNow){
@@ -165,6 +161,7 @@ layui.use(['element','layer'], function(){
     initLang('index',langNow);
   });
   
+  //初始化语言函数
   function initLang(pageName,lang){
     var access_token = sessionStorage.access_token;
     $.ajax({
@@ -199,7 +196,7 @@ layui.use(['element','layer'], function(){
   
 });
 
-//左侧按钮分类点击事件
+//左侧导航 - 按钮分类点击事件
 $('.left-wrap').find('.layui-nav-item').click(function(){
   if($('.bing-shrink').hasClass('layui-icon-spread-left')){
     $('.bing-shrink').click();
@@ -207,7 +204,7 @@ $('.left-wrap').find('.layui-nav-item').click(function(){
   $(this).siblings().removeClass('layui-nav-itemed');
 });
 
-//收缩按钮事件
+//顶部导航 - 收缩按钮事件
 $('.bing-shrink').click(function(){
   if($(this).hasClass('layui-icon-shrink-right')){
     $('.bing-title').find('.title-text').hide().end().find('.layui-icon').show().end().animate({width:"55px"},200);
@@ -231,7 +228,7 @@ $('.bing-shrink').click(function(){
   }
 });
 
-//全屏按钮事件
+//顶部导航 - 全屏按钮事件
 $('.bing-screen').click(function(){
   if($(this).hasClass('layui-icon-screen-full')){
     requestFullScreen();
@@ -242,7 +239,7 @@ $('.bing-screen').click(function(){
   }
 });
 
-//便签功能
+//顶部导航 - 便签功能
 $('.layui-icon-note').click(function(){
   if($('.note-input').length == 0){
     var width = $(window).width();
@@ -267,7 +264,7 @@ $('.layui-icon-note').click(function(){
 
 //引用退出控制器
 loadJS('src/controllers/Logout.js',function(){
-  //退出登录
+  //用户退出登录按钮点击事件
   $('.bing-logout').click(function(){
     Logout();
   });
@@ -277,7 +274,7 @@ loadJS('src/controllers/Logout.js',function(){
 //用户名初始化
 $('.bing-username').text(sessionStorage.username);
 
-//左侧导航按钮点击事件
+//左侧导航 - 按钮点击事件
 $('.viewBtn').click(function(){
   var view = $(this).attr('view');
   sessionStorage.viewNow = view;
