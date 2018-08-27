@@ -115,7 +115,7 @@ layui.use(['table','form'], function(){
         {type:'checkbox', fixed: 'left',width:30},
         {field: 'TYPE_NAME',title:'类型',fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'STYLE_NAME', title: '式样', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'SN', title: '序列号 / 别名',fixed: 'left', event: 'devMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;",style:'cursor: pointer;'},
+        {field: 'SN', title: '编号 / 别名',fixed: 'left', event: 'devMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;",style:'cursor: pointer;'},
         //{field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
@@ -144,7 +144,7 @@ layui.use(['table','form'], function(){
         //筛选表格
         formShow();
       }
-    },300);
+    },500);
   }
   //监听搜索栏输入事件
   $('.layui-input-search').bind('input propertychange', function() {
@@ -342,13 +342,7 @@ layui.use(['table','form'], function(){
                 parent.layer.closeAll();
                 parent.layer.msg('删除成功');
                 
-                var systemId = $('select[name="system"]').val();
-                var siteId = $('select[name="site"]').val();
-                var typeId = $('select[name="type"]').val();
-                var styleId = $('select[name="style"]').val();
-                var stnId = $('select[name="stn"]').val();
-                var projectId = $('select[name="project"]').val();
-                formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+                formShow();
               }else{
                 parent.layer.closeAll();
                 parent.layer.msg('出现错误');
@@ -376,17 +370,11 @@ layui.use(['table','form'], function(){
           type: 2,
           title: '设备编辑 - Edit Devices',
           shade: 0.4,
-          area: ['830px','510px'],
+          area: ['1000px','465px'],
           content: 'src/view/second/deviceEdit.html',
           end:function(){
             if(tableRef==true){
-              var systemId = $('select[name="system"]').val();
-              var siteId = $('select[name="site"]').val();
-              var typeId = $('select[name="type"]').val();
-              var styleId = $('select[name="style"]').val();
-              var stnId = $('select[name="stn"]').val();
-              var projectId = $('select[name="project"]').val();
-              formShow(systemId,typeId,siteId,projectId,styleId,stnId);
+              formShow();
               tableRef = false;
             }
           }
