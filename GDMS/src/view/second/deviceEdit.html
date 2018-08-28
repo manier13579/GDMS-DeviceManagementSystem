@@ -57,9 +57,9 @@
       </div>
       
       <div class="layui-form-item">
-        <label class="layui-form-label">序列号</label>
+        <label class="layui-form-label">设备编号</label>
         <div class="layui-input-block">
-          <input name="sn" autocomplete="off" placeholder="序列号或别名" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+          <input name="sn" autocomplete="off" placeholder="编号或别名" class="layui-input" type="text" lay-verify="required" style="width:329px;">
         </div>
       </div>
       <div class="layui-form-item">
@@ -105,15 +105,16 @@ var userId = sessionStorage.userid;
 layui.use(['form','laydate'], function(){
   var form = layui.form;
   var laydate = layui.laydate;
-  
-  //显示数据
+  //获取基本数据
   var rowData = parent.rowData; 
-  //console.log(rowData);
+  $('input[name="sn"]').val(rowData.SN);
+  $('input[name="remark"]').val(rowData.REMARK);
+  $('select[name="status"]').val(rowData.STATUS_ID);
   
   form.render();
   laydate.render({
     elem: '#date1',   //指定元素
-    value:todayDate('-')    //默认限制今天日期
+    value:rowData.DELIVERY_DATE
   });
   
   //初始化select
@@ -136,9 +137,13 @@ layui.use(['form','laydate'], function(){
       for(var key in systemList){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
       }
+      $('select[name="system"]').val(rowData.SYSTEM_ID);
+      
       for(var key in projectList){
         $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
       }
+      $('select[name="project"]').val(rowData.PROJECT_ID);
+      
       form.render('select');
       selectInit($('select[name="system"]').val());
     }
@@ -166,6 +171,7 @@ layui.use(['form','laydate'], function(){
       for(var key in selectData.site[systemId]){
         $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
       }
+      $('select[name="site"]').val(rowData.SITE_ID);
     }
     //如果系统里有类型，类型select增加选项并启用
     if(selectData.type[systemId]){
@@ -174,10 +180,31 @@ layui.use(['form','laydate'], function(){
       for(var key in selectData.type[systemId]){
         $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
       }
+      $('select[name="type"]').val(rowData.TYPE_ID);
     }
+    //如果数据里有位置，位置select增加选项并启用
+    if(selectData.stn[rowData.SITE_ID]){
+      $('select[name="stn"]').removeAttr('disabled');
+      $('select[name="stn"]').html('<option value="">位置 (可选)</option>');
+      for(var key in selectData.stn[rowData.SITE_ID]){
+        $('select[name="stn"]').append('<option value="'+key+'">'+selectData.stn[rowData.SITE_ID][key]+'</option>');
+      }
+      $('select[name="stn"]').val(rowData.STN_ID);
+    }
+    //如果数据里有式样，式样select增加选项并启用
+    if(selectData.style[rowData.TYPE_ID]){
+      $('select[name="style"]').removeAttr('disabled');
+      $('select[name="style"]').html('<option value="">式样 (可选)</option>');
+      for(var key in selectData.style[rowData.TYPE_ID]){
+        $('select[name="style"]').append('<option value="'+key+'">'+selectData.style[rowData.TYPE_ID][key]+'</option>');
+      }
+      $('select[name="style"]').val(rowData.STYLE_ID);
+    }
+    
     form.render('select');
+    
   }
-  
+
   //地点select选择事件
   form.on('select(site)', function(data){
     var siteId = data.value;
@@ -212,10 +239,36 @@ layui.use(['form','laydate'], function(){
     form.render('select');
   });
   
+
+  getMoreInfo(rowData.DEV_ID);  //获取更多信息
+  
+  //获取更多信息函数
+  function getMoreInfo(devId){
+    $.ajax({
+      url: rootpath + '/actionApi/Device/more',
+      type:'post',
+      data:{"devId":devId},
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(Object.keys(res.data).length!=0){
+          for(var key in res.data){
+            $('.more-wrap').prepend(
+              '<div class="layui-form-item addItem">'+
+              '<label class="layui-form-label"><input type="text" value="'+key+'" class="info-input"></label>'+
+              '<div class="layui-input-inline">'+
+              '<input type="text" name="'+key+'" placeholder="" value="'+res.data[key]+'" autocomplete="off" class="layui-input">'+
+              '<div class="delBtn"><span class="layui-icon">&#x1006;</span></div></div></div>');
+          }
+        }
+      }
+    });
+  }
+  
+  console.log(rowData);
   //保存编辑按钮点击事件
   form.on('submit(edit)', function(data){
-    console.log(0);
-    formData = $('.layui-form').serialize();
+    data.field["userId"] = userId;  //表单数据中增加用户名
+    data.field["devId"] = rowData.DEV_ID;  //表单数据中增加设备ID
     $.ajax({
       url: rootpath + '/actionApi/Device/edit',
       type:'post',
@@ -225,22 +278,12 @@ layui.use(['form','laydate'], function(){
       headers:{"Authorization":"Basic "+access_token},
       success:function(res){
         if(res.code==0){
-          var id = layer.msg("添加成功", {
-            time: false,   //取消自动关闭
-            btn: ['完成', '继续添加'],
-            btn1:function(){
-              var view = sessionStorage.viewNow;
-              $('#view').load('src/view/'+view+'.html');
-              layer.close(id);
-            },
-            btn2:function(){
-              $('input[name="sn"]').val('');
-              $('input[name="remark"]').val('');
-              layer.close(id);
-            }
-          });
+          parent.tableRef = true;
+          parent.layer.msg("修改成功");
+          var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+          parent.layer.close(index); //再执行关闭   
         }else{
-          layer.msg("添加失败");
+          layer.msg("修改失败");
         }
       }
     });
@@ -266,7 +309,7 @@ layui.use(['form','laydate'], function(){
                    '<div class="delBtn"><span class="layui-icon">&#x1006;</span></div>'+
                  '</div>'+
                '</div>';
-    self.parent().before(infoHtml);
+    self.before(infoHtml);
   });
   
   //增加条目-名称输入监听

@@ -201,7 +201,7 @@ layui.use(['form','laydate'], function(){
   
   
   form.on('submit(add)', function(data){
-    formData = $('.layui-form').serialize();
+    data.field["userId"] = userId;  //表单数据中增加用户名
     $.ajax({
       url: 'actionApi/Device/add',
       type:'post',

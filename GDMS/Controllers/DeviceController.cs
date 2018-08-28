@@ -121,6 +121,7 @@ namespace GDMS.Controllers
                     { "SN", col["SN"].ToString() },
                     { "DELIVERY_DATE", col["DELIVERY_DATE"].ToString() },
                     { "STATUS", status },
+                    { "STATUS_ID", col["STATUS"].ToString() },
                     { "REMARK", col["REMARK"].ToString() },
 
                     { "DEV_ID", col["DEV_ID"].ToString() },
@@ -128,7 +129,8 @@ namespace GDMS.Controllers
                     { "SITE_ID", col["SITE_ID"].ToString() },
                     { "STYLE_ID", col["STYLE_ID"].ToString() },
                     { "PROJECT_ID", col["PROJECT_ID"].ToString() },
-                    { "TYPE_ID", col["TYPE_ID"].ToString() }
+                    { "TYPE_ID", col["TYPE_ID"].ToString() },
+                    { "SYSTEM_ID", col["SYSTEM_ID"].ToString() }
                 };
 
                 data.Add(dict);
@@ -424,6 +426,51 @@ namespace GDMS.Controllers
             Response res = new Response();
             res.code = 0;
             res.msg = (string)devId;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改设备
+        [ActionName("edit")]
+        public HttpResponseMessage DeviceEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_DEV_MAIN SET 
+                STN_ID = '" + (String)formData["stn"] + @"',
+                STYLE_ID = '" + (String)formData["style"] + @"',
+                PROJECT_ID = '" + (String)formData["project"] + @"',
+                SN = '" + (String)formData["sn"] + @"',
+                DELIVERY_DATE = to_date('" + (String)formData["delivery"] + @"', 'yyyy-mm-dd'),
+                STATUS = '" + (String)formData["status"] + @"',
+                REMARK = '" + (String)formData["remark"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["devId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            ArrayList sql2 = new ArrayList();
+            sql2.Add("DELETE FROM GDMS_DEV_MORE WHERE DEV_ID = '"+ (String)formData["devId"] + "'");
+            foreach (JProperty item in formData.Properties())   //遍历更多信息，写入sql2数组列表
+            {
+                if (item.Name != "stn" && item.Name != "style" && item.Name != "project" && item.Name != "sn" && item.Name != "system" && item.Name != "site"
+                    && item.Name != "delivery" && item.Name != "status" && item.Name != "remark" && item.Name != "userId" && item.Name != "type" && item.Name != "devId")
+                {
+                    sql2.Add("INSERT INTO GDMS_DEV_MORE (DEV_ID,ITEM,VALUE) VALUES ('" + (String)formData["devId"] + "','" + item.Name + "','" + (String)item.Value + "')");
+                }
+            }
+            db.ExecuteSqlTran(sql2);    //执行多条更多信息插入
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);

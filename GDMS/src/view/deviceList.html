@@ -161,13 +161,13 @@ layui.use(['table','form'], function(){
           moreShow = false;
           moreIndex = '';
           $('.more').hide();
-          console.log('更多显示关闭');
+          //console.log('更多显示关闭');
         }else{
           $('.layui-table').find('td').removeClass('row-selected');
           $(this).addClass('row-selected');
           moreIndex = data.DEV_ID;
           getMoreInfo(data.DEV_ID);
-          console.log('更多显示更新为'+data.DEV_ID);
+          //console.log('更多显示更新为'+data.DEV_ID);
         }
       }else{
         $('.layui-table').find('td').removeClass('row-selected');
@@ -176,7 +176,7 @@ layui.use(['table','form'], function(){
         moreIndex = data.DEV_ID;
         getMoreInfo(data.DEV_ID);
         $('.more').slideLeftShow();
-        console.log('更多显示打开为'+data.DEV_ID);
+        //console.log('更多显示打开为'+data.DEV_ID);
       }
 
     }
