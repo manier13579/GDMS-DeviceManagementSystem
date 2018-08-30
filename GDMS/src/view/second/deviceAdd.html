@@ -119,12 +119,8 @@ layui.use(['form','laydate'], function(){
     success:function(res){
       selectData = res.data;
       var systemList = selectData.system;
-      var projectList = selectData.project;
       for(var key in systemList){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
-      }
-      for(var key in projectList){
-        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
       }
       form.render('select');
       selectInit($('select[name="system"]').val());
@@ -138,6 +134,8 @@ layui.use(['form','laydate'], function(){
   
   //初始化系统select菜单方法
   function selectInit(systemId){
+    $('select[name="project"]').attr('disabled','disabled');
+    $('select[name="project"]').html('<option value="">项目 (可选)</option>');
     $('select[name="site"]').attr('disabled','disabled');
     $('select[name="site"]').html('<option value="">地点 (可选)</option>');
     $('select[name="stn"]').attr('disabled','disabled');
@@ -146,6 +144,14 @@ layui.use(['form','laydate'], function(){
     $('select[name="type"]').html('<option value="">类型</option>');
     $('select[name="style"]').attr('disabled','disabled');
     $('select[name="style"]').html('<option value="">式样</option>');
+    //如果系统里有项目，项目select增加选项并启用
+    if(selectData.project[systemId]){
+      $('select[name="project"]').removeAttr('disabled');
+      $('select[name="project"]').html('<option value="">项目 (可选)</option>');
+      for(var key in selectData.project[systemId]){
+        $('select[name="project"]').append('<option value="'+key+'">'+selectData.project[systemId][key]+'</option>');
+      }
+    }
     //如果系统里有地点，地点select增加选项并启用
     if(selectData.site[systemId]){
       $('select[name="site"]').removeAttr('disabled');

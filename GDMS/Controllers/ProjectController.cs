@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
@@ -34,14 +35,16 @@ namespace GDMS.Controllers
             public object data { get; set; }
         }
 
-        //获取设备列表
+        //获取项目列表
         [ActionName("list")]
         public HttpResponseMessage ProjectList([FromBody] ProjectAjax projectajax)
         {
             Db db = new Db();
             string where = "";
             if (projectajax.systemId != null) { where = where + " AND A.SYSTEM_ID = '" + projectajax.systemId + "'"; }
-            if (projectajax.keyword != null && projectajax.keyword.Length != 0) { where = where + "AND ( A.DETAIL LIKE '" + projectajax.keyword + "' or A.NAME LIKE '" + projectajax.keyword + "')"; }
+            if (projectajax.keyword != null && projectajax.keyword.Length != 0) {
+                where = where + "AND ( UPPER(A.DETAIL) LIKE '%" + projectajax.keyword.ToUpper() + "%' or UPPER(A.NAME) LIKE '%" + projectajax.keyword.ToUpper() + "%')";
+            }
             string sqlnp = @"
                 SELECT
                 A.ID AS PROJECT_ID,
@@ -50,6 +53,7 @@ namespace GDMS.Controllers
                 A.YEAR,
                 A.USER_ID,
                 A.EDIT_DATE,
+                B.ID AS SYSTEM_ID,
                 B.NAME AS SYSTEM_NAME
                 FROM
                 GDMS_PROJECT A
@@ -72,6 +76,7 @@ namespace GDMS.Controllers
                     { "YEAR", col["YEAR"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
+                    { "SYSTEM_ID", col["SYSTEM_ID"].ToString() },
                     { "SYSTEM_NAME", col["SYSTEM_NAME"].ToString() },
                 };
 
@@ -105,7 +110,7 @@ namespace GDMS.Controllers
 
         //获取select
         [ActionName("select")]
-        public HttpResponseMessage DeviceSelect([FromBody] ProjectAjax projectajax)
+        public HttpResponseMessage ProjectSelect([FromBody] ProjectAjax projectajax)
         {
             Db db = new Db();
             Response res = new Response();
@@ -142,16 +147,23 @@ namespace GDMS.Controllers
 
         //删除项目
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] ProjectAjax projectajax)
+        public HttpResponseMessage ProjectDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var devId in idArr)
+            {
+                sqlin = sqlin + devId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_PROJECT WHERE ID IN (" + sqlin + ")";
 
-            var ds = db.QueryT(sql);
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个项目";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
@@ -162,6 +174,65 @@ namespace GDMS.Controllers
             return resJson;
         }
 
+        //添加项目
+        [ActionName("add")]
+        public HttpResponseMessage ProjectAdd([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"INSERT INTO GDMS_PROJECT(ID,NAME,DETAIL,YEAR,SYSTEM_ID,USER_ID,EDIT_DATE) VALUES (
+                GDMS_PROJECT_SEQ.nextVal, 
+                '" + (String)formData["name"] + @"', 
+                '" + (String)formData["detail"] + @"',
+                '" + (String)formData["year"] + @"', 
+                '" + (String)formData["system"] + @"',
+                '" + (String)formData["userId"] + @"',
+                SYSDATE
+                )";
+            var rows = db.ExecuteSql(sql);
 
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "添加成功"+rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改项目
+        [ActionName("edit")]
+        public HttpResponseMessage ProjectEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_PROJECT SET 
+                SYSTEM_ID = '" + (String)formData["system"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                DETAIL = '" + (String)formData["detail"] + @"',
+                YEAR = '" + (String)formData["year"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["projectId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功"+ rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
     }
 }

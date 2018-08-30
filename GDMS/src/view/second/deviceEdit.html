@@ -106,7 +106,8 @@ layui.use(['form','laydate'], function(){
   var form = layui.form;
   var laydate = layui.laydate;
   //获取基本数据
-  var rowData = parent.rowData; 
+  var id = getPar('id');
+  var rowData = parent.rowData[id]; 
   $('input[name="sn"]').val(rowData.SN);
   $('input[name="remark"]').val(rowData.REMARK);
   $('select[name="status"]').val(rowData.STATUS_ID);
@@ -139,11 +140,6 @@ layui.use(['form','laydate'], function(){
       }
       $('select[name="system"]').val(rowData.SYSTEM_ID);
       
-      for(var key in projectList){
-        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
-      }
-      $('select[name="project"]').val(rowData.PROJECT_ID);
-      
       form.render('select');
       selectInit($('select[name="system"]').val());
     }
@@ -156,6 +152,8 @@ layui.use(['form','laydate'], function(){
   
   //初始化系统select菜单方法
   function selectInit(systemId){
+    $('select[name="project"]').attr('disabled','disabled');
+    $('select[name="project"]').html('<option value="">项目 (可选)</option>');
     $('select[name="site"]').attr('disabled','disabled');
     $('select[name="site"]').html('<option value="">地点 (可选)</option>');
     $('select[name="stn"]').attr('disabled','disabled');
@@ -164,6 +162,15 @@ layui.use(['form','laydate'], function(){
     $('select[name="type"]').html('<option value="">类型</option>');
     $('select[name="style"]').attr('disabled','disabled');
     $('select[name="style"]').html('<option value="">式样</option>');
+    //如果系统里有项目，项目select增加选项并启用
+    if(selectData.project[systemId]){
+      $('select[name="project"]').removeAttr('disabled');
+      $('select[name="project"]').html('<option value="">项目 (可选)</option>');
+      for(var key in selectData.project[systemId]){
+        $('select[name="project"]').append('<option value="'+key+'">'+selectData.project[systemId][key]+'</option>');
+      }
+      $('select[name="project"]').val(rowData.PROJECT_ID);
+    }
     //如果系统里有地点，地点select增加选项并启用
     if(selectData.site[systemId]){
       $('select[name="site"]').removeAttr('disabled');
@@ -264,7 +271,7 @@ layui.use(['form','laydate'], function(){
     });
   }
   
-  console.log(rowData);
+  //console.log(rowData);
   //保存编辑按钮点击事件
   form.on('submit(edit)', function(data){
     data.field["userId"] = userId;  //表单数据中增加用户名

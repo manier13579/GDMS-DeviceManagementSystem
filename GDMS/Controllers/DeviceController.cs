@@ -60,8 +60,8 @@ namespace GDMS.Controllers
             if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) {
                 //模糊搜索项：序列号、备注
                 where = where + "AND ( "+
-                    "A.SN LIKE '%" + deviceAjax.keyword + "%' or " +
-                    "A.REMARK LIKE '%" + deviceAjax.keyword + "%')";
+                    "UPPER(A.SN) LIKE '%" + deviceAjax.keyword.ToUpper() + "%' or " +
+                    "UPPER(A.REMARK) LIKE '%" + deviceAjax.keyword.ToUpper() + "%')";
             }
 
             string sqlnp = @"
@@ -333,19 +333,31 @@ namespace GDMS.Controllers
                 A.NAME AS PROJECT_NAME
                 FROM
                 GDMS_PROJECT A
-                LEFT JOIN GDMS_DEV_MAIN B ON A.ID = B.PROJECT_ID
-                LEFT JOIN GDMS_STYLE C ON B.STYLE_ID = C.ID
-                LEFT JOIN GDMS_TYPE D ON C.TYPE_ID = D.ID
-                LEFT JOIN GDMS_USER_SYSTEM E ON D.SYSTEM_ID = E.SYSTEM_ID
-                WHERE E.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.NAME ASC";
+                LEFT JOIN GDMS_USER_SYSTEM B ON A.SYSTEM_ID = B.SYSTEM_ID
+                WHERE B.USER_ID = '" + deviceAjax.userId + "' ORDER BY A.NAME ASC";
             var ds6 = db.QueryT(sql6);
+            Dictionary<string, object> ProjectData = new Dictionary<string, object>();
             Dictionary<string, string> dict6 = new Dictionary<string, string>();
             index = "0";
             foreach (DataRow col in ds6.Rows)
             {
-                dict6.Add(col["PROJECT_ID"].ToString(), col["PROJECT_NAME"].ToString());
+                if (index == "0" || index == col["PROJECT_ID"].ToString())
+                {
+                    dict6.Add(col["PROJECT_ID"].ToString(), col["PROJECT_NAME"].ToString());
+                    index = col["PROJECT_ID"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>(dict6);
+                    ProjectData.Add(index, temp);
+                    dict6.Clear();
+                    dict6.Add(col["PROJECT_ID"].ToString(), col["PROJECT_NAME"].ToString());
+                    index = col["PROJECT_ID"].ToString();
+                }
+
             }
-            data.Add("project", dict6);
+            ProjectData.Add(index, dict6);
+            data.Add("project", ProjectData);
 
             res.code = 0;
             res.msg = "";
@@ -400,7 +412,7 @@ namespace GDMS.Controllers
                 '" + (String)formData["style"] + @"', 
                 '" + (String)formData["project"] + @"',
                 '" + (String)formData["sn"] + @"', 
-                to_date('" + (String)formData["delivery"] + @"', 'yyyy-mm-dd'),
+                '" + (String)formData["delivery"] + @"',
                 '" + (String)formData["status"] + @"',
                 '" + (String)formData["remark"] + @"',
                 '" + (String)formData["userId"] + @"'

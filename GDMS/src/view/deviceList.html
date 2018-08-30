@@ -45,7 +45,7 @@
   <div class="layui-card">
     <div class="layui-card-header">操作</div>
     <div class="layui-card-body">
-      <button class="layui-btn layui-btn-sm viewBtn" view="deviceAdd">添加</button>
+      <button class="layui-btn layui-btn-sm viewBtn2" view="deviceAdd">添加</button>
       <button class="layui-btn layui-btn-sm layui-btn-normal" id="edit">修改</button>
       <button class="layui-btn layui-btn-sm layui-btn-danger" id="del">删除</button>
     </div>
@@ -73,6 +73,7 @@ var rowData;
 var tableRef = false;
 var moreShow = false;
 var moreIndex;
+$('.layui-input-search').val('');   //初始化搜索框
 
 layui.use(['table','form'], function(){
   var table = layui.table;
@@ -215,6 +216,7 @@ layui.use(['table','form'], function(){
   }
   
   //初始化select
+  $('select[name="project"]').attr('disabled','disabled');
   $('select[name="type"]').attr('disabled','disabled');
   $('select[name="site"]').attr('disabled','disabled');
   $('select[name="style"]').attr('disabled','disabled');
@@ -230,12 +232,8 @@ layui.use(['table','form'], function(){
     success:function(res){
       selectData = res.data;
       var systemList = selectData.system;
-      var projectList = selectData.project;
       for(var key in systemList){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
-      }
-      for(var key in projectList){
-        $('select[name="project"]').append('<option value="'+key+'">'+projectList[key]+'</option>');
       }
       form.render('select');
     }
@@ -243,6 +241,8 @@ layui.use(['table','form'], function(){
   
   //系统select选择事件
   form.on('select(system)', function(data){
+    $('select[name="project"]').attr('disabled','disabled');
+    $('select[name="project"]').html('<option value="">项目</option>');
     $('select[name="site"]').attr('disabled','disabled');
     $('select[name="site"]').html('<option value="">地点</option>');
     $('select[name="stn"]').attr('disabled','disabled');
@@ -252,6 +252,14 @@ layui.use(['table','form'], function(){
     $('select[name="style"]').attr('disabled','disabled');
     $('select[name="style"]').html('<option value="">式样</option>');
     var systemId = data.value;
+    //如果系统里有项目，项目select增加选项并启用
+    if(selectData.project[systemId]){
+      $('select[name="project"]').removeAttr('disabled');
+      $('select[name="project"]').html('<option value="">项目</option>');
+      for(var key in selectData.project[systemId]){
+        $('select[name="project"]').append('<option value="'+key+'">'+selectData.project[systemId][key]+'</option>');
+      }
+    }
     //如果系统里有地点，地点select增加选项并启用
     if(selectData.site[systemId]){
       $('select[name="site"]').removeAttr('disabled');
@@ -364,20 +372,24 @@ layui.use(['table','form'], function(){
       layer.msg('请选择要编辑的设备 | No Device Selected!');
     }else{
       for(i=0;i<data.length;i++){
-        rowData = data[i];
+        rowData = data;
         //打开添加弹出层
         layer.open({
           type: 2,
           title: '设备编辑 - Edit Devices',
-          shade: 0.4,
+          shade: 0,
           area: ['1000px','465px'],
-          content: 'src/view/second/deviceEdit.html',
+          content: 'src/view/second/deviceEdit.html?id='+i,
           end:function(){
             if(tableRef==true){
               formShow();
               tableRef = false;
             }
-          }
+          },
+          zIndex: layer.zIndex,
+          success: function(layero){
+            layer.setTop(layero);
+          } 
         }); 
       }
 
@@ -396,7 +408,7 @@ layui.use(['table','form'], function(){
 });
 
 //二级按钮点击事件
-$('.viewBtn').click(function(){
+$('.viewBtn2').click(function(){
   var view = $(this).attr('view');
   $('#view').load('src/view/second/'+view+'.html');
 });
