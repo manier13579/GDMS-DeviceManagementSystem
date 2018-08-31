@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="src/css/view/siteList.css">
 <div class="layui-col-md9">
   <div class="layui-card">
     <div class="layui-card-body">
@@ -16,9 +17,23 @@
 <div class="layui-col-md3">
   <div class="layui-card">
     <div class="layui-card-body">
-      <button class="layui-btn layui-btn-sm">添加</button>
-      <button class="layui-btn layui-btn-sm layui-btn-normal">修改</button>
-      <button class="layui-btn layui-btn-sm layui-btn-danger">删除</button>
+      <button class="layui-btn layui-btn-sm viewBtn2" view="siteAdd">添加</button>
+      <button class="layui-btn layui-btn-sm layui-btn-normal" id="edit">修改</button>
+      <button class="layui-btn layui-btn-sm layui-btn-danger" id="del">删除</button>
+    </div>
+  </div>
+</div>
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div class="layui-card-body">
+      <div class="tree-wrap">
+        1
+      
+      </div>
+      <button class="layui-btn layui-btn-sm layui-btn-fluid layui-btn-normal showBtn">
+        <i class="layui-icon layui-icon-down"></i>
+        显示地点树图
+      </button>
     </div>
   </div>
 </div>
@@ -34,6 +49,23 @@
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
+var rowData;
+var tableRef = false;
+$('.layui-input-search').val('');   //初始化搜索框
+
+var showBtn = false;
+$('.showBtn').click(function(){
+  if(showBtn==false){
+    $('.tree-wrap').slideDown();
+    showBtn = true;
+  }else{
+    $('.tree-wrap').hide();
+    showBtn = false;
+  }
+  
+});
+
+
 
 layui.use(['table','form'], function(){
   var table = layui.table;
@@ -41,7 +73,9 @@ layui.use(['table','form'], function(){
   form.render();
   formShow();
   
-  function formShow(systemId,keyword){
+  function formShow(){
+    var systemId = $('select[name="system"]').val();
+    var keyword = Trim($('.layui-input-search').val());
     table1 = table.render({
       elem:'#table1',
       height: 528, //容器高度
@@ -53,16 +87,16 @@ layui.use(['table','form'], function(){
       },
       headers:{"Authorization":"Basic "+access_token},
       even:true,
-      height:'full-200',
+      height:'full-270',
       size:'sm',
       method: 'post',
       id:'table1',
       page: true, //是否开启分页
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
-        {field: 'NAME',title:'地点', fixed: 'left',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'NAME',title:'地点', fixed: 'left',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'SITE_ID', title: '地点ID', fixed: 'left', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'PARENT_ID', title: '父地点ID', width:90, fixed: 'left', sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'PARENT_ID', title: '父地点 [ID]', width:160, fixed: 'left', sort: true,align:'center',style:"text-align:center;font-size:12px;", templet: '#tempParent'},
         {field: 'USER_ID', title: '编辑用户', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'EDIT_DATE', title: '编辑日期', width:130,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
@@ -74,6 +108,26 @@ layui.use(['table','form'], function(){
       }
     }); 
   }
+  
+  //搜索输入监听 - 重新加载表格
+  var inputStat = 0;
+  //搜索函数
+  function inputSearch(){
+    inputStat += 1;
+    //延迟执行，防止快速输入时频繁刷新表格
+    setTimeout(function(){
+      inputStat -= 1;
+      if(inputStat==0){
+        //筛选表格
+        formShow();
+      }
+    },500);
+  }
+  //监听搜索栏输入事件
+  $('.layui-input-search').bind('input propertychange', function() {
+    inputSearch();    //执行搜索函数
+  });  
+  
   
   //监听单元格事件
   table.on('tool(table1)', function(obj){
@@ -101,13 +155,105 @@ layui.use(['table','form'], function(){
   });
   
   form.on('select', function(data){
-    var systemId = $('select[name="system"]').val();
-    formShow(systemId);
-    
+    formShow();
   });
+  
+  //删除按钮点击事件
+  $('#del').click(function(){
+    var checkStatus = table.checkStatus('table1'),
+    data = checkStatus.data;
+    //console.log(data);
+    if(data.length==0){
+      layer.msg('请选择要删除的地点 | No Site Selected!');
+    }else{
+      var idArr = [],tishi = '';
+      for(i=0;i<data.length;i++){
+        tishi += data[i].NAME + ' , ';
+        idArr.push(data[i].SITE_ID);
+      }
+      tishi = tishi.substring(0,tishi.length-2);
+      layer.confirm(tishi, {
+          btn: ['Yes', 'No'],
+          time: 0,
+          title:'确定删除? - Delete?',
+        }, function(){
+          ajax = $.ajax({
+            url:"actionApi/Site/del",
+            async:true,
+            type: 'post',
+            dataType:'json',
+            headers:{"Authorization":"Basic "+access_token},
+            data: {
+              "":JSON.stringify(idArr)
+            },
+            success:function(res){
+              if(res.code==0){
+                parent.layer.closeAll();
+                parent.layer.msg('删除成功');
+                
+                formShow();
+              }else{
+                parent.layer.closeAll();
+                parent.layer.msg('出现错误');
+              }
+            }
+          });
+        }
+      
+      );
+    }
+  });
+  
+  
+  //编辑按钮点击事件
+  $('#edit').click(function(){
+    var checkStatus = table.checkStatus('table1'),
+    data = checkStatus.data;
+    if(data.length==0){
+      layer.msg('请选择要编辑的地点 | No Site Selected!');
+    }else{
+      for(i=0;i<data.length;i++){
+        rowData = data;
+        //打开添加弹出层
+        layer.open({
+          type: 2,
+          title: '地点修改 - Edit Site',
+          shade: 0,
+          area: ['480px','330px'],
+          content: 'src/view/second/siteEdit.html?id='+i,
+          end:function(){
+            if(tableRef==true){
+              formShow();
+              tableRef = false;
+            }
+          },
+          zIndex: layer.zIndex,
+          success: function(layero){
+            layer.setTop(layero);
+          } 
+        }); 
+      }
+
+    }
+  });
+});
+
+//二级按钮点击事件
+$('.viewBtn2').click(function(){
+  var view = $(this).attr('view');
+  $('#view').load('src/view/second/'+view+'.html');
 });
 
 
 
 
+</script>
+
+<script type="text/html" id="tempParent">
+  {{#  if(d.PARENT_ID !=0){ }}
+    {{d.PARENT_NAME}} [{{d.PARENT_ID}}]
+  {{#  } else { }}
+    根节点
+  {{#  } }}
+  
 </script>

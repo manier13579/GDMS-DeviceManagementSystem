@@ -152,9 +152,9 @@ namespace GDMS.Controllers
             Db db = new Db();
             JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
             string sqlin = "";
-            foreach (var devId in idArr)
+            foreach (var projectId in idArr)
             {
-                sqlin = sqlin + devId + ",";
+                sqlin = sqlin + projectId + ",";
             }
             sqlin = sqlin.Substring(0, sqlin.Length - 1);
             string sql = "DELETE FROM GDMS_PROJECT WHERE ID IN (" + sqlin + ")";

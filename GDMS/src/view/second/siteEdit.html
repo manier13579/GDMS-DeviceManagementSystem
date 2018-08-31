@@ -18,23 +18,21 @@
       </div>
     </div>
     <div class="layui-form-item">
-      <label class="layui-form-label">项目名称</label>
+      <label class="layui-form-label">地点名称</label>
       <div class="layui-input-block">
         <input name="name" autocomplete="off" placeholder="名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
       </div>
     </div>
     <div class="layui-form-item">
-      <label class="layui-form-label">项目描述</label>
+      <label class="layui-form-label">父地点</label>
       <div class="layui-input-block">
-        <input name="detail" autocomplete="off" placeholder="描述 (选填)" class="layui-input" type="text" style="width:329px;">
+        <input name="parent" autocomplete="off" placeholder="描述" class="layui-input" type="text" lay-verify="required" style="width:329px;">
       </div>
     </div>
     <div class="layui-form-item">
-      <div class="layui-inline">
-        <label class="layui-form-label">项目日期</label>
-        <div class="layui-input-block">
-          <input name="year" id="date1" autocomplete="off" placeholder="日期 (选填)" class="layui-input" type="text">
-        </div>
+      <label class="layui-form-label">备注</label>
+      <div class="layui-input-block">
+        <input name="remark" autocomplete="off" placeholder="描述" class="layui-input" type="text" style="width:329px;">
       </div>
     </div>
     
@@ -52,25 +50,20 @@ var userId = sessionStorage.userid;
 
 layui.use(['form','laydate'], function(){
   var form = layui.form;
-  var laydate = layui.laydate;
   //获取基本数据
   var id = getPar('id');
   var rowData = parent.rowData[id]; 
   //console.log(rowData);
-  $('input[name="name"]').val(rowData.PROJECT_NAME);
-  $('input[name="detail"]').val(rowData.DETAIL);
+  $('input[name="name"]').val(rowData.NAME);
+  $('input[name="remark"]').val(rowData.REMARK);
+  $('input[name="parent"]').val(rowData.PARENT_ID);
   
   form.render();
-  laydate.render({
-    elem: '#date1',   //指定元素
-    value:rowData.YEAR,    //默认显示今天月份
-    type:'month'
-  });
   
   var selectData;
   //获取select选项
   $.ajax({
-    url: rootpath + '/actionApi/Project/select',
+    url: rootpath + '/actionApi/Site/select',
     type:'post',
     data:{"userId":userId},
     headers:{"Authorization":"Basic "+access_token},
@@ -89,9 +82,9 @@ layui.use(['form','laydate'], function(){
   //保存编辑按钮点击事件
   form.on('submit(edit)', function(data){
     data.field["userId"] = userId;  //表单数据中增加用户名
-    data.field["projectId"] = rowData.PROJECT_ID;  //表单数据中增加设备ID
+    data.field["siteId"] = rowData.SITE_ID;  //表单数据中增加设备ID
     $.ajax({
-      url: rootpath + '/actionApi/Project/edit',
+      url: rootpath + '/actionApi/Site/edit',
       type:'post',
       data:{
         "":JSON.stringify(data.field)

@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
@@ -50,11 +51,14 @@ namespace GDMS.Controllers
                 A.REMARK,
                 A.USER_ID,
                 A.EDIT_DATE,
-                B.NAME AS SYSTEM_NAME
+                B.ID AS SYSTEM_ID,
+                B.NAME AS SYSTEM_NAME,
+                C.NAME AS PARENT_NAME
                 FROM
                 GDMS_SITE A
                 LEFT JOIN GDMS_SYSTEM B ON A.SYSTEM_ID = B.ID
-                WHERE A.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + siteajax.userId + "') " + where;
+                LEFT JOIN GDMS_SITE C ON A.PARENT_ID = C.ID
+                WHERE A.SYSTEM_ID IN (SELECT SYSTEM_ID FROM GDMS_USER_SYSTEM WHERE USER_ID = '" + siteajax.userId + "') " + where + "ORDER BY PARENT_ID,NAME ASC";
 
             int limit1 = (siteajax.page - 1) * siteajax.limit + 1;
             int limit2 = siteajax.page * siteajax.limit;
@@ -68,10 +72,12 @@ namespace GDMS.Controllers
                 {
                     { "SITE_ID", col["SITE_ID"].ToString() },
                     { "PARENT_ID", col["PARENT_ID"].ToString() },
+                    { "PARENT_NAME", col["PARENT_NAME"].ToString() },
                     { "NAME", col["NAME"].ToString() },
                     { "REMARK", col["REMARK"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
+                    { "SYSTEM_ID", col["SYSTEM_ID"].ToString() },
                     { "SYSTEM_NAME", col["SYSTEM_NAME"].ToString() },
                 };
 
@@ -140,18 +146,86 @@ namespace GDMS.Controllers
             return resJson;
         }
 
-        //删除设备
+        //删除项目
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] SiteAjax siteajax)
+        public HttpResponseMessage SiteDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var siteId in idArr)
+            {
+                sqlin = sqlin + siteId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_SITE WHERE ID IN (" + sqlin + ")";
 
-            var ds = db.QueryT(sql);
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个地点";
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //添加项目
+        [ActionName("add")]
+        public HttpResponseMessage SiteAdd([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"INSERT INTO GDMS_SITE(ID,PARENT_ID,SYSTEM_ID,NAME,REMARK,USER_ID,EDIT_DATE) VALUES (
+                GDMS_SITE_SEQ.nextVal, 
+                '" + (String)formData["parent"] + @"', 
+                '" + (String)formData["system"] + @"',
+                '" + (String)formData["name"] + @"', 
+                '" + (String)formData["remark"] + @"',
+                '" + (String)formData["userId"] + @"',
+                SYSDATE
+                )";
+            var rows = db.ExecuteSql(sql);
+
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "添加成功" + rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改项目
+        [ActionName("edit")]
+        public HttpResponseMessage SiteEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_SITE SET 
+                SYSTEM_ID = '" + (String)formData["system"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                REMARK = '" + (String)formData["remark"] + @"',
+                PARENT_ID = '" + (String)formData["parent"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["siteId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功" + rows;
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);

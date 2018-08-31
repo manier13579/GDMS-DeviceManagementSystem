@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="src/css/view/commonAdd.css">
 <div class="layui-col-md12">
   <div class="layui-card">
-    <div class="layui-card-header">项目添加</div>
+    <div class="layui-card-header">地点添加</div>
     <div class="layui-card-body">
       <form class="layui-form layui-form-pane" action="">
         <div class="layui-form-item">
@@ -12,23 +12,21 @@
           </div>
         </div>
         <div class="layui-form-item">
-          <label class="layui-form-label">项目名称</label>
+          <label class="layui-form-label">地点名称</label>
           <div class="layui-input-block">
             <input name="name" autocomplete="off" placeholder="名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
           </div>
         </div>
         <div class="layui-form-item">
-          <label class="layui-form-label">项目描述</label>
+          <label class="layui-form-label">父地点</label>
           <div class="layui-input-block">
-            <input name="detail" autocomplete="off" placeholder="描述" class="layui-input" type="text" style="width:329px;">
+            <input name="parent" autocomplete="off" placeholder="描述" class="layui-input" type="text" lay-verify="required" style="width:329px;">
           </div>
         </div>
         <div class="layui-form-item">
-          <div class="layui-inline">
-            <label class="layui-form-label">项目日期</label>
-            <div class="layui-input-block">
-              <input name="year" id="date1" autocomplete="off" class="layui-input" type="text" lay-verify="required">
-            </div>
+          <label class="layui-form-label">备注</label>
+          <div class="layui-input-block">
+            <input name="remark" autocomplete="off" placeholder="描述" class="layui-input" type="text" style="width:329px;">
           </div>
         </div>
         
@@ -49,19 +47,12 @@ var userId = sessionStorage.userid;
 
 layui.use(['form','laydate'], function(){
   var form = layui.form;
-  var laydate = layui.laydate;
-  
   form.render();
-  laydate.render({
-    elem: '#date1',   //指定元素
-    value:todayDate('-').substr(0, todayDate('-').length - 3),    //默认限制今天月份
-    type:'month'
-  });
-  
+
   var selectData;
   //获取select选项
   $.ajax({
-    url: 'actionApi/Project/select',
+    url: 'actionApi/Site/select',
     type:'post',
     data:{"userId":userId},
     headers:{"Authorization":"Basic "+access_token},
@@ -79,7 +70,7 @@ layui.use(['form','laydate'], function(){
   form.on('submit(add)', function(data){
     data.field["userId"] = userId;  //表单数据中增加用户名
     $.ajax({
-      url: 'actionApi/Project/add',
+      url: 'actionApi/Site/add',
       type:'post',
       data:{
         "":JSON.stringify(data.field)
@@ -97,7 +88,8 @@ layui.use(['form','laydate'], function(){
             },
             btn2:function(){
               $('input[name="name"]').val('');
-              $('input[name="detail"]').val('');
+              $('input[name="parent"]').val('');
+              $('input[name="remark"]').val('');
               layer.close(id);
             }
           });
