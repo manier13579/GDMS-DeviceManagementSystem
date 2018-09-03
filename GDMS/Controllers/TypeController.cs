@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
@@ -41,13 +42,14 @@ namespace GDMS.Controllers
             Db db = new Db();
             string where = "";
             if (typeajax.systemId != null) { where = where + " AND A.SYSTEM_ID = '" + typeajax.systemId + "'"; }
-            if (typeajax.keyword != null && typeajax.keyword.Length != 0) { where = where + "AND ( A.REMARK LIKE '" + typeajax.keyword + "' or A.NAME LIKE '" + typeajax.keyword + "')"; }
+            if (typeajax.keyword != null && typeajax.keyword.Length != 0) { where = where + "AND ( A.NAME LIKE '%" + typeajax.keyword + "%')"; }
             string sqlnp = @"
                 SELECT
                 A.ID AS TYPE_ID,
                 A.NAME AS TYPE_NAME,
                 A.USER_ID,
                 A.EDIT_DATE,
+                B.ID AS SYSTEM_ID,
                 B.NAME AS SYSTEM_NAME
                 FROM
                 GDMS_TYPE A
@@ -68,6 +70,7 @@ namespace GDMS.Controllers
                     { "TYPE_NAME", col["TYPE_NAME"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
+                    { "SYSTEM_ID", col["SYSTEM_ID"].ToString() },
                     { "SYSTEM_NAME", col["SYSTEM_NAME"].ToString() },
                 };
 
@@ -136,18 +139,25 @@ namespace GDMS.Controllers
             return resJson;
         }
 
-        //删除设备
+        //删除项目
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] TypeAjax typeajax)
+        public HttpResponseMessage TypeDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var siteId in idArr)
+            {
+                sqlin = sqlin + siteId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_TYPE WHERE ID IN (" + sqlin + ")";
 
-            var ds = db.QueryT(sql);
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个类型";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
@@ -157,6 +167,64 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
+
+        //添加项目
+        [ActionName("add")]
+        public HttpResponseMessage TypeAdd([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"INSERT INTO GDMS_TYPE(ID,SYSTEM_ID,NAME,USER_ID,EDIT_DATE) VALUES (
+                GDMS_TYPE_SEQ.nextVal, 
+                '" + (String)formData["system"] + @"',
+                '" + (String)formData["name"] + @"', 
+                '" + (String)formData["userId"] + @"',
+                SYSDATE
+                )";
+            var rows = db.ExecuteSql(sql);
+
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "添加成功" + rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改项目
+        [ActionName("edit")]
+        public HttpResponseMessage TypeEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_TYPE SET 
+                SYSTEM_ID = '" + (String)formData["system"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["typeId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功" + rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
 
 
     }

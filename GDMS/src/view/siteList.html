@@ -23,21 +23,7 @@
     </div>
   </div>
 </div>
-<div class="layui-col-md12">
-  <div class="layui-card">
-    <div class="layui-card-body">
-      <div class="tree-wrap">
-        1
-      
-      </div>
-      <button class="layui-btn layui-btn-sm layui-btn-fluid layui-btn-normal showBtn">
-        <i class="layui-icon layui-icon-down"></i>
-        显示地点树图
-      </button>
-    </div>
-  </div>
-</div>
-<div class="layui-col-md12">
+<div class="layui-col-md7">
   <div class="layui-card">
     <div id="a1"></div>
     <div class="layui-card-body">
@@ -45,6 +31,17 @@
     </div>
   </div>
 </div>
+<div class="layui-col-md5">
+  <div class="layui-card">
+    <div class="layui-card-body tree-body">
+      <div class="tree-wrap">
+        <div class="tree-msg">地点树图</div><hr>
+      
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 var access_token = sessionStorage.access_token;
@@ -52,19 +49,6 @@ var userId = sessionStorage.userid;
 var rowData;
 var tableRef = false;
 $('.layui-input-search').val('');   //初始化搜索框
-
-var showBtn = false;
-$('.showBtn').click(function(){
-  if(showBtn==false){
-    $('.tree-wrap').slideDown();
-    showBtn = true;
-  }else{
-    $('.tree-wrap').hide();
-    showBtn = false;
-  }
-  
-});
-
 
 
 layui.use(['table','form'], function(){
@@ -87,7 +71,7 @@ layui.use(['table','form'], function(){
       },
       headers:{"Authorization":"Basic "+access_token},
       even:true,
-      height:'full-270',
+      height:'full-200',
       size:'sm',
       method: 'post',
       id:'table1',
@@ -95,8 +79,8 @@ layui.use(['table','form'], function(){
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
         {field: 'NAME',title:'地点', fixed: 'left',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'SITE_ID', title: '地点ID', fixed: 'left', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'PARENT_ID', title: '父地点 [ID]', width:160, fixed: 'left', sort: true,align:'center',style:"text-align:center;font-size:12px;", templet: '#tempParent'},
+        {field: 'SITE_ID', title: '地点ID', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'PARENT_ID', title: '父地点 [ID]', width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;", templet: '#tempParent'},
         {field: 'USER_ID', title: '编辑用户', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'EDIT_DATE', title: '编辑日期', width:130,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
@@ -104,6 +88,42 @@ layui.use(['table','form'], function(){
       ]],
       done: function(res, curr, count){
         table1Data = res.data;
+        $('.tree-body').css('height',$('.layui-table-view').css('height'));   //右侧树图与左侧列表同高
+        if(systemId == ''){
+          $('.tree-wrap').html('<div class="tree-msg"><i class="layui-icon">&#xe62e;</i>地点树图</div><hr><div class="tree-no">选择系统后显示</div>');
+        }else{
+          $('.tree-wrap').html('<div class="tree-msg"><i class="layui-icon">&#xe62e;</i>地点树图</div><hr><div class="zu level1" zid="0"><span class="JS-zuConfirm">根节点</span></div>');     //显示根节点
+          for(i=0;i<table1Data.length;i++){
+            //将子节点追加到相应的父节点上
+            $('div[zid="'+table1Data[i]['PARENT_ID']+'"]').append(
+              '<div class="zu" zid="'+table1Data[i]['SITE_ID']+'">'+
+                '<span class="layui-icon">&#xe625;</span>'+
+                '<span class="JS-zuConfirm">'+table1Data[i]['NAME']+'['+table1Data[i]['SITE_ID']+']</span>'+
+              '</div>'
+            );
+          }
+          //没有子组织的层级浅色显示
+          $('.zu').each(function(){
+            if($(this).find('div').length == 0){
+              $(this).find('.layui-icon').html('&#xe623;');
+              $(this).find('.layui-icon').css('color','#ccc');
+            }
+          });
+
+          //文件夹图标点击事件，展开收起层级
+          $('.layui-icon').click(function(e){
+            e.stopPropagation();
+            if($(this).parent().children('div').css('display')!='none'){
+              $(this).parent().children('div').hide();
+              $(this).parent().children('.layui-icon').html('&#xe623;');
+            }else{
+              $(this).parent().children('div').show();
+              $(this).parent().children('.layui-icon').html('&#xe625;');
+            }
+
+          });
+        }
+
         
       }
     }); 

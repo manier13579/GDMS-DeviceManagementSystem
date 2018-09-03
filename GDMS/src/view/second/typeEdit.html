@@ -1,0 +1,105 @@
+<meta http-equiv="content-type" content="text/html" charset="UTF-8">
+
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../js//layui/css/layui.css">
+<link rel="stylesheet" type="text/css" href="../../css/bingAdmin.css">
+<link rel="stylesheet" type="text/css" href="../../css/view/commonEdit.css">
+
+<div class="wrap">
+  <form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+      <label class="layui-form-label">系统</label>
+      <div class="layui-input-inline">
+        <select name="system" lay-verify="required" lay-filter="system">
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">类型名称</label>
+      <div class="layui-input-block">
+        <input name="name" autocomplete="off" placeholder="设备类型名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+      </div>
+    </div>
+    
+    <div class="layui-form-item">
+      <button class="layui-btn" lay-submit="" lay-filter="edit">保存</button>
+      <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
+    </div>
+  </form>
+  
+  
+</div>
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['form','laydate'], function(){
+  var form = layui.form;
+  //获取基本数据
+  var id = getPar('id');
+  var rowData = parent.rowData[id]; 
+  //console.log(rowData);
+  $('input[name="name"]').val(rowData.TYPE_NAME);
+  
+  form.render();
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: rootpath + '/actionApi/Type/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      $('select[name="system"]').val(rowData.SYSTEM_ID);
+      
+      form.render('select');
+    }
+  });
+
+  //保存编辑按钮点击事件
+  form.on('submit(edit)', function(data){
+    data.field["userId"] = userId;  //表单数据中增加用户名
+    data.field["typeId"] = rowData.TYPE_ID;  //表单数据中增加设备ID
+    $.ajax({
+      url: rootpath + '/actionApi/Type/edit',
+      type:'post',
+      data:{
+        "":JSON.stringify(data.field)
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(res.code==0){
+          parent.tableRef = true;
+          parent.layer.msg("修改成功");
+          var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+          parent.layer.close(index); //再执行关闭   
+        }else{
+          layer.msg("修改失败");
+        }
+      }
+    });
+    
+    return false;
+  });
+  //取消按钮点击事件
+  $('#cancel').click(function(){
+    //当你在iframe页面关闭自身时
+    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    parent.layer.close(index); //再执行关闭   
+  });
+
+  
+});
+
+
+
+</script>

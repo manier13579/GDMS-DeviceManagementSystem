@@ -35,14 +35,14 @@ namespace GDMS.Controllers
             public object data { get; set; }
         }
 
-        //获取设备列表
+        //获取地点列表
         [ActionName("list")]
         public HttpResponseMessage SiteList([FromBody] SiteAjax siteajax)
         {
             Db db = new Db();
             string where = "";
             if (siteajax.systemId != null) { where = where + " AND A.SYSTEM_ID = '" + siteajax.systemId + "'"; }
-            if (siteajax.keyword != null && siteajax.keyword.Length != 0) { where = where + "AND ( A.REMARK LIKE '" + siteajax.keyword + "' or A.NAME LIKE '" + siteajax.keyword + "')"; }
+            if (siteajax.keyword != null && siteajax.keyword.Length != 0) { where = where + "AND ( A.REMARK LIKE '%" + siteajax.keyword + "%' or A.NAME LIKE '%" + siteajax.keyword + "%')"; }
             string sqlnp = @"
                 SELECT
                 A.ID AS SITE_ID,
@@ -235,6 +235,7 @@ namespace GDMS.Controllers
             };
             return resJson;
         }
+
 
 
     }

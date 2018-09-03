@@ -33,7 +33,6 @@ namespace GDMS.Controllers
             Db db = new Db();
             string sql = "SELECT XU_HAO, WEN_ZI FROM GDMS_LANG WHERE YE_MIAN_MING = '"+ langajax.pageName + "' AND YU_ZHONG = '"+ langajax.lang +"' order by XU_HAO";
             var ds = db.QueryT(sql);
-            int i = 0;
             Response res = new Response();
             Dictionary<string, string> data = new Dictionary<string, string>();
             foreach (DataRow col in ds.Rows)
