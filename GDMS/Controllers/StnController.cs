@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
@@ -80,7 +81,11 @@ namespace GDMS.Controllers
                     { "STATUS", col["STATUS"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
+
+                    { "SITE_ID", col["SITE_ID"].ToString() },
                     { "SITE_NAME", col["SITE_NAME"].ToString() },
+
+                    { "SYSTEM_ID", col["SYSTEM_ID"].ToString() },
                     { "SYSTEM_NAME", col["SYSTEM_NAME"].ToString() },
                 };
 
@@ -115,7 +120,7 @@ namespace GDMS.Controllers
 
         //获取select
         [ActionName("select")]
-        public HttpResponseMessage DeviceSelect([FromBody] StnAjax stnajax)
+        public HttpResponseMessage StnSelect([FromBody] StnAjax stnajax)
         {
             Db db = new Db();
             Response res = new Response();
@@ -185,16 +190,23 @@ namespace GDMS.Controllers
 
         //删除设备
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] StnAjax stnajax)
+        public HttpResponseMessage StnDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var stnId in idArr)
+            {
+                sqlin = sqlin + stnId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_STN_MAIN WHERE ID IN (" + sqlin + ")";
 
-            var ds = db.QueryT(sql);
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个地点";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
@@ -205,6 +217,126 @@ namespace GDMS.Controllers
             return resJson;
         }
 
+        //添加设备
+        [ActionName("add")]
+        public HttpResponseMessage StnAdd([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"SELECT STN_ADD(
+                '" + (String)formData["site"] + @"', 
+                '" + (String)formData["name"] + @"', 
+                '" + (String)formData["detail"] + @"',
+                '" + (String)formData["status"] + @"',
+                '" + (String)formData["remark"] + @"',
+                '" + (String)formData["userId"] + @"'
+                ) AS STNID FROM DUAL";
+            var ds = db.QueryT(sql);    //执行设备添加ORACLE函数，返回主键：devId
+            var stnId = "";
+            foreach (DataRow col in ds.Rows)
+            {
+                stnId = col["STNID"].ToString();
+            }
+
+            ArrayList sql2 = new ArrayList();
+            foreach (JProperty item in formData.Properties())   //遍历更多信息，写入sql2数组列表
+            {
+                if (item.Name != "site" && item.Name != "name" && item.Name != "detail" && item.Name != "system" 
+                    && item.Name != "status" && item.Name != "remark" && item.Name != "userId")
+                {
+                    sql2.Add("INSERT INTO GDMS_STN_MORE (STN_ID,ITEM,VALUE) VALUES ('" + stnId + "','" + item.Name + "','" + (String)item.Value + "')");
+                }
+            }
+            db.ExecuteSqlTran(sql2);    //执行多条更多信息插入
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = (string)stnId;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改位置
+        [ActionName("edit")]
+        public HttpResponseMessage StnEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_STN_MAIN SET 
+                SITE_ID = '" + (String)formData["site"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                DETAIL = '" + (String)formData["detail"] + @"',
+                STATUS = '" + (String)formData["status"] + @"',
+                REMARK = '" + (String)formData["remark"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["stnId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            ArrayList sql2 = new ArrayList();
+            sql2.Add("DELETE FROM GDMS_STN_MORE WHERE STN_ID = '" + (String)formData["stnId"] + "'");
+            foreach (JProperty item in formData.Properties())   //遍历更多信息，写入sql2数组列表
+            {
+                if (item.Name != "site" && item.Name != "name" && item.Name != "system" && item.Name != "detail"
+                    && item.Name != "status" && item.Name != "remark" && item.Name != "userId" && item.Name != "stnId")
+                {
+                    sql2.Add("INSERT INTO GDMS_STN_MORE (STN_ID,ITEM,VALUE) VALUES ('" + (String)formData["stnId"] + "','" + item.Name + "','" + (String)item.Value + "')");
+                }
+            }
+            db.ExecuteSqlTran(sql2);    //执行多条更多信息插入
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功";
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //获取更多信息 - POST对象
+        public class StnMoreAjax
+        {
+            public string stnId { get; set; }
+        }
+
+        //获取更多信息
+        [ActionName("more")]
+        public HttpResponseMessage StnMore([FromBody] StnMoreAjax ajaxData)
+        {
+            Db db = new Db();
+            string sql = "SELECT ITEM,VALUE FROM GDMS_STN_MORE WHERE STN_ID = '" + ajaxData.stnId + "'";
+
+            var ds = db.QueryT(sql);
+            Response res = new Response();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (DataRow col in ds.Rows)
+            {
+                dict.Add(col["ITEM"].ToString(), col["VALUE"].ToString());
+            }
+
+            res.code = 0;
+            res.msg = "";
+            res.data = dict;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
 
     }
 }

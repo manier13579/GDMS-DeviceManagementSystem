@@ -1,0 +1,200 @@
+<link rel="stylesheet" type="text/css" href="src/css/view/commonAdd.css">
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div class="layui-card-header">位置添加</div>
+    <div class="layui-card-body">
+      <form class="layui-form layui-form-pane" action="">
+        <div class="layui-form-item">
+          <label class="layui-form-label">系统</label>
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="required" lay-filter="system">
+            </select>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">地点</label>
+          <div class="layui-input-inline">
+            <select name="site" lay-filter="site" lay-verify="required" >
+              <option value="">地点</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-block">
+            <input name="name" autocomplete="off" placeholder="位置名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">描述</label>
+          <div class="layui-input-block">
+            <input name="detail" autocomplete="off" placeholder="位置描述" class="layui-input" type="text" style="width:329px;">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">备注</label>
+          <div class="layui-input-block">
+            <input name="remark" autocomplete="off" placeholder="备注" class="layui-input" type="text" style="width:329px;">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">状态</label>
+          <div class="layui-input-inline">
+            <select name="status" lay-verify="required">
+              <option value="0">未使用</option>
+              <option value="1">使用中</option>
+            </select>
+          </div>
+        </div>
+        <div class="more-wrap">
+          <div class="more-btn">
+            <span class="layui-icon layui-icon-add-1"></span>
+            <span class="more-text">更多信息</span>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
+          <button class="layui-btn layui-btn-primary" lay-filter="cancel">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['form','laydate'], function(){
+  var form = layui.form;
+  form.render();
+  
+  //初始化select
+  $('select[name="site"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Stn/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+      selectInit($('select[name="system"]').val());
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    selectInit(data.value);
+  });
+  
+  //初始化系统select菜单方法
+  function selectInit(systemId){
+    $('select[name="site"]').attr('disabled','disabled');
+    $('select[name="site"]').html('<option value="">地点</option>');
+    //如果系统里有地点，地点select增加选项并启用
+    if(selectData.site[systemId]){
+      $('select[name="site"]').removeAttr('disabled');
+      $('select[name="site"]').html('<option value="">地点</option>');
+      for(var key in selectData.site[systemId]){
+        $('select[name="site"]').append('<option value="'+key+'">'+selectData.site[systemId][key]+'</option>');
+      }
+    }
+    form.render('select');
+  }
+  //添加按钮点击事件
+  form.on('submit(add)', function(data){
+    data.field["userId"] = userId;  //表单数据中增加用户名
+    $.ajax({
+      url: 'actionApi/Stn/add',
+      type:'post',
+      data:{
+        "":JSON.stringify(data.field)
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(res.code==0){
+          var id = layer.msg("添加成功", {
+            time: false,   //取消自动关闭
+            btn: ['完成', '继续添加'],
+            btn1:function(){
+              var view = sessionStorage.viewNow;
+              $('#view').load('src/view/'+view+'.html');
+              layer.close(id);
+            },
+            btn2:function(){
+              $('input[name="station"]').val('');
+              $('input[name="detail"]').val('');
+              $('input[name="remark"]').val('');
+              layer.close(id);
+            }
+          });
+        }else{
+          layer.msg("添加失败");
+        }
+      }
+    });
+    
+    
+    
+    return false;
+  });
+  form.on('submit(cancel)', function(data){
+    var view = sessionStorage.viewNow;
+    $('#view').load('src/view/'+view+'.html');
+  });
+  
+  //增加更多信息点击事件
+  $('.more-btn').click(function(){
+    var self = $(this);
+    infoHtml = '<div class="layui-form-item addItem">'+
+                 '<label class="layui-form-label">'+
+                   '<input type="text" value="" class="info-input">'+
+                 '</label>'+
+                 '<div class="layui-input-inline">'+
+                   '<input type="text" name="" placeholder="" value="" autocomplete="off" class="layui-input">'+
+                   '<div class="delBtn"><span class="layui-icon">&#x1006;</span></div>'+
+                 '</div>'+
+               '</div>';
+    self.parent().before(infoHtml);
+  });
+  
+  //增加条目-名称输入监听
+  $('body').on('blur', '.info-input', function(){
+    var self = $(this);
+    self.parent().parent().find('.layui-input').attr('name',self.val());
+    
+  });
+
+  //增加条目-鼠标移入监听-显示删除按钮
+  $('body').on('mouseover', '.addItem', function(){
+    var self = $(this);
+    self.find('.delBtn').show();
+  });
+  $('body').on('mouseout', '.addItem', function(){
+    var self = $(this);
+    self.find('.delBtn').hide();
+  });
+
+  //增加条目-删除按钮点击事件
+  $('body').on('click', '.delBtn', function(){
+    var self = $(this);
+    self.parent().parent().remove();
+  });
+  
+  
+});
+
+
+
+
+</script>
