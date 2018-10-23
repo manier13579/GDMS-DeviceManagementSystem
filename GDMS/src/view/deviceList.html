@@ -111,12 +111,13 @@ layui.use(['table','form'], function(){
       id:'table1',
       limit:20,
       limits:[20, 50, 200, 500],
-      page: true, //是否开启分页
+      page: true,   //是否开启分页
+      toolbar: '#toolbarHtml',
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
         {field: 'TYPE_NAME',title:'类型',fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'STYLE_NAME', title: '式样', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'SN', title: '编号 / 别名',fixed: 'left', event: 'devMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;cursor: pointer;"},
+        {field: 'STYLE_NAME', title: '式样', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;color:#01AAED;cursor: pointer;"},
+        {field: 'SN', title: '编号 / 别名',fixed: 'left', event: 'devMore',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;cursor: pointer;font-weight:700;"},
         //{field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
@@ -124,6 +125,7 @@ layui.use(['table','form'], function(){
         {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'stn', style:'cursor: pointer;color:#01AAED;'},
         {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
         {field: 'PROJECT_NAME', title: '项目', width:180,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;"},
 
       ]],
       done: function(res, curr, count){
@@ -148,6 +150,7 @@ layui.use(['table','form'], function(){
     },500);
   }
   //监听搜索栏输入事件
+  $('.layui-input-search').unbind();
   $('.layui-input-search').bind('input propertychange', function() {
     inputSearch();    //执行搜索函数
   });  
@@ -419,4 +422,11 @@ $('.viewBtn2').click(function(){
 
 </script>
 
-
+<script type="text/html" id="toolbarHtml">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStatus">状态：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterDate">到货日期：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterSite">地点：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStation">位置：<span>全部</span></button>
+  </div>
+</script>

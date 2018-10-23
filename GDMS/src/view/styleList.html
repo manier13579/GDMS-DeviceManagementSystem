@@ -64,16 +64,17 @@ layui.use(['table','form'], function(){
       method: 'post',
       id:'table1',
       page: true, //是否开启分页
+      toolbar:'#toolbarHtml',
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
         {field: 'STYLE_NAME',title:'式样', fixed: 'left',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'DETAIL', title: '描述', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'DETAIL', title: '描述', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:left;font-size:12px;"},
         {field: 'SERVICE_YEAR', title: '维保时间', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'FILE_URL', title: '文件', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'TYPE_NAME', title: '类型', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'SYSTEM_NAME', title: '系统', align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'USER_ID', title: '编辑用户', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'EDIT_DATE', title: '编辑日期', width:130,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-        {field: 'TYPE_NAME', title: '类型', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-        {field: 'SYSTEM_NAME', title: '系统', align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
       ]],
       done: function(res, curr, count){
         table1Data = res.data;
@@ -137,4 +138,10 @@ layui.use(['table','form'], function(){
 
 
 
+</script>
+
+<script type="text/html" id="toolbarHtml">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStatus">状态：<span>全部</span></button>
+  </div>
 </script>

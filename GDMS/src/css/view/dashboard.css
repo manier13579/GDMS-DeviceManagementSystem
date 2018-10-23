@@ -29,3 +29,17 @@
   color:#666;
   text-align:center;
 }
+.layui-card-setting{
+  position: absolute;
+  right: 10px;
+  top: 0;
+  color: #aaa;
+}
+.layui-icon-set-fill{
+  padding:5px;
+  cursor:pointer;
+}
+.layui-icon-set-fill:hover{
+  background-color:#eee;
+  color:#01AAED;
+}

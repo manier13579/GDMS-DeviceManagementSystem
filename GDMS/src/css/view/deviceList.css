@@ -13,6 +13,7 @@
   border-bottom:1px solid #ddd;
   box-shadow: 1px 1px 10px 3px #ddd;
   display:none;
+  z-index:900;
 }
 .more-title{
   text-align:center;

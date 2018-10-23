@@ -95,6 +95,7 @@ layui.use(['table','form'], function(){
     },500);
   }
   //监听搜索栏输入事件
+  $('.layui-input-search').unbind();
   $('.layui-input-search').bind('input propertychange', function() {
     inputSearch();    //执行搜索函数
   });  

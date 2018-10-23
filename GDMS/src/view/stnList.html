@@ -79,17 +79,17 @@ layui.use(['table','form'], function(){
       method: 'post',
       id:'table1',
       page: true, //是否开启分页
+      toolbar:'#toolbarHtml',
       cols:  [[ //标题栏
         {type:'checkbox', fixed: 'left',width:30},
-        {field: 'STN_NAME',title:'位置', fixed: 'left', event: 'stnMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;cursor: pointer;"},
-        {field: 'DETAIL', title: '描述', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        
+        {field: 'STN_NAME',title:'位置', fixed: 'left', event: 'stnMore',width:150, sort: true,align:'center',style:"text-align:center;font-size:12px;cursor: pointer;font-weight:700;"},
+        {field: 'DETAIL', title: '描述', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:left;font-size:12px;"},
         {field: 'STATUS', title: '状态', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'REMARK', title: '备注', width:200, sort: true,align:'center',style:"text-align:left;font-size:12px;"},
+        {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'USER_ID', title: '编辑用户', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'EDIT_DATE', title: '编辑日期', width:130,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-        {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
-        {field: 'SYSTEM_NAME', title: '系统', width:150, align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'devMore', style:'cursor: pointer;color:#01AAED;'},
-        {field: 'REMARK', title: '备注',  sort: true,align:'center',style:"text-align:center;font-size:12px;"},
       ]],
       done: function(res, curr, count){
         table1Data = res.data;
@@ -113,6 +113,7 @@ layui.use(['table','form'], function(){
     },500);
   }
   //监听搜索栏输入事件
+  $('.layui-input-search').unbind();
   $('.layui-input-search').bind('input propertychange', function() {
     inputSearch();    //执行搜索函数
   });  
@@ -310,4 +311,10 @@ $('.viewBtn2').click(function(){
 
 
 
+</script>
+
+<script type="text/html" id="toolbarHtml">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStatus">状态：<span>全部</span></button>
+  </div>
 </script>
