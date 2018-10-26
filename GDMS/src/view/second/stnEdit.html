@@ -102,7 +102,6 @@ layui.use(['form','laydate'], function(){
     success:function(res){
       selectData = res.data;
       var systemList = selectData.system;
-      var projectList = selectData.project;
       for(var key in systemList){
         $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
       }
@@ -160,7 +159,6 @@ layui.use(['form','laydate'], function(){
     });
   }
   
-  //console.log(rowData);
   //保存编辑按钮点击事件
   form.on('submit(edit)', function(data){
     data.field["userId"] = userId;  //表单数据中增加用户名

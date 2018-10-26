@@ -1,0 +1,300 @@
+<link rel="stylesheet" type="text/css" href="src/css/view/commonAdd.css">
+<div class="layui-col-md12">
+  <div class="layui-card">
+    <div class="layui-card-header">式样添加</div>
+    <div class="layui-card-body">
+      <form class="layui-form layui-form-pane" action="">
+        <div class="layui-form-item">
+          <label class="layui-form-label">系统</label>
+          <div class="layui-input-inline">
+            <select name="system" lay-verify="required" lay-filter="system">
+            </select>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">类型</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-filter="type" lay-verify="required" >
+              <option value="">类型</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-block">
+            <input name="name" autocomplete="off" placeholder="式样名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">描述</label>
+          <div class="layui-input-block">
+            <input name="detail" autocomplete="off" placeholder="式样描述" class="layui-input" type="text" style="width:329px;">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">维保时间</label>
+          <div class="layui-input-block">
+            <input name="year" autocomplete="off" placeholder="维保时间(年)" class="layui-input" type="text" style="width:329px;">
+          </div>
+        </div>
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+          <legend>上传式样文件（限制上传1个文件及1张图片，多文件建议上传压缩包）</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <button type="button" class="layui-btn" id="uploadFile">
+              <i class="layui-icon">&#xe67c;</i>文件上传
+            </button>
+            <button type="button" class="layui-btn layui-btn-danger" id="uploadImg">
+              <i class="layui-icon">&#xe67c;</i>图片上传
+            </button>
+        </div>
+        <div class="layui-upload-list" style="display:none;">
+          <table class="layui-table">
+            <thead>
+              <tr><th>文件名</th>
+              <th>大小</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr></thead>
+            <tbody id="fileList"></tbody>
+          </table>
+        </div>
+        <hr>
+        <div class="layui-form-item">
+          <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
+          <button id="fileListAction" style="display:none;">隐藏上传按钮</button>
+          <button class="layui-btn layui-btn-primary" lay-filter="cancel">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['form','laydate','upload'], function(){
+  var form = layui.form;
+  var upload = layui.upload;
+  form.render();
+  
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: 'actionApi/Style/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      form.render('select');
+      selectInit($('select[name="system"]').val());
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    selectInit(data.value);
+  });
+  
+  //初始化系统select菜单方法
+  function selectInit(systemId){
+    $('select[name="type"]').attr('disabled','disabled');
+    $('select[name="type"]').html('<option value="">地点</option>');
+    //如果系统里有地点，地点select增加选项并启用
+    if(selectData.type[systemId]){
+      $('select[name="type"]').removeAttr('disabled');
+      $('select[name="type"]').html('<option value="">地点</option>');
+      for(var key in selectData.type[systemId]){
+        $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
+      }
+    }
+    form.render('select');
+  }
+  //添加按钮点击事件
+  form.on('submit(add)', function(data){
+    data.field["userId"] = userId;  //表单数据中增加用户名
+    $.ajax({
+      url: 'actionApi/Style/add',
+      type:'post',
+      data:{
+        "":JSON.stringify(data.field)
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(res.code==0){
+          var id = layer.msg("添加成功", {
+            time: false,   //取消自动关闭
+            btn: ['完成', '继续添加'],
+            btn1:function(){
+              var view = sessionStorage.viewNow;
+              $('#view').load('src/view/'+view+'.html');
+              layer.close(id);
+            },
+            btn2:function(){
+              $('input[name="station"]').val('');
+              $('input[name="detail"]').val('');
+              $('input[name="remark"]').val('');
+              layer.close(id);
+            }
+          });
+        }else{
+          layer.msg("添加失败");
+        }
+      }
+    });
+    
+    
+    
+    return false;
+  });
+  form.on('submit(cancel)', function(data){
+    var view = sessionStorage.viewNow;
+    $('#view').load('src/view/'+view+'.html');
+  });
+  
+  
+  //上传式样文件
+  var fileListView = $('#fileList');
+  var signFile = false;   //是否已选择文件标记
+  var signImg = false;   //是否已选择图片标记
+  //文件上传
+  var uploadListFile = upload.render({
+    elem: '#uploadFile',
+    url: 'actionApi/Style/uploadFile',
+    accept: 'file',
+    auto: false,
+    bindAction: '#fileListAction',
+    choose: function(obj){
+      $('.layui-upload-list').show();   //显示上传文件列表
+      if(signFile == false){
+        var files = this.files = obj.pushFile();//将每次选择的文件追加到文件队列
+        signFile = true;
+        //读取本地文件
+        obj.preview(function(index, file, result){
+          var tr = $(['<tr id="upload-'+ index +'">'
+            ,'<td>'+ file.name +'</td>'
+            ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+            ,'<td>等待上传</td>'
+            ,'<td>'
+              ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+              ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+            ,'</td>'
+          ,'</tr>'].join(''));
+          
+          //单个重传
+          tr.find('.demo-reload').on('click', function(){
+            obj.upload(index, file);
+          });
+          
+          //删除
+          tr.find('.demo-delete').on('click', function(){
+            delete files[index]; //删除对应的文件
+            signFile = false;
+            tr.remove();
+            uploadListFile.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+          });
+          
+          fileListView.append(tr);
+        });
+      }else{
+        layer.msg('只能上传1个文件');
+        return;
+      }
+
+    },
+    done: function(res, index, upload){
+      if(res.code == 0){ //上传成功
+        var tr = fileListView.find('tr#upload-'+ index)
+        ,tds = tr.children();
+        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+        tds.eq(3).html(''); //清空操作
+        return delete this.files[index]; //删除文件队列已经上传成功的文件
+      }
+      this.error(index, upload);
+    },
+    error: function(index, upload){
+      var tr = fileListView.find('tr#upload-'+ index)
+      ,tds = tr.children();
+      tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+      tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+    }
+  });
+  
+  //文件图片
+  var uploadListImg = upload.render({
+    elem: '#uploadImg',
+    url: 'actionApi/Style/uploadImg',
+    accept: 'images',
+    auto: false,
+    bindAction: '#fileListAction',
+    choose: function(obj){
+      $('.layui-upload-list').show();   //显示上传文件列表
+      if(signImg == false){
+        var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+        signImg = true;
+        //读取本地文件
+        obj.preview(function(index, file, result){
+          var tr = $(['<tr id="upload-'+ index +'">'
+            ,'<td>'+ file.name +'</td>'
+            ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+            ,'<td>等待上传</td>'
+            ,'<td>'
+              ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+              ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+            ,'</td>'
+          ,'</tr>'].join(''));
+          
+          //单个重传
+          tr.find('.demo-reload').on('click', function(){
+            obj.upload(index, file);
+          });
+          
+          //删除
+          tr.find('.demo-delete').on('click', function(){
+            delete files[index]; //删除对应的文件
+            signImg = false;
+            tr.remove();
+            uploadListImg.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+          });
+          
+          fileListView.append(tr);
+        });
+      }else{
+        layer.msg('只能上传1张图片');
+        return;
+      }
+    },
+    done: function(res, index, upload){
+      if(res.code == 0){ //上传成功
+        var tr = fileListView.find('tr#upload-'+ index)
+        ,tds = tr.children();
+        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+        tds.eq(3).html(''); //清空操作
+        return delete this.files[index]; //删除文件队列已经上传成功的文件
+      }
+      this.error(index, upload);
+    },
+    error: function(index, upload){
+      var tr = fileListView.find('tr#upload-'+ index)
+      ,tds = tr.children();
+      tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+      tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+    }
+  });
+});
+
+
+
+
+</script>

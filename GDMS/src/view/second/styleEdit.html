@@ -1,0 +1,176 @@
+<meta http-equiv="content-type" content="text/html" charset="UTF-8">
+
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../js//layui/css/layui.css">
+<link rel="stylesheet" type="text/css" href="../../css/bingAdmin.css">
+<link rel="stylesheet" type="text/css" href="../../css/view/commonEdit.css">
+
+<div class="wrap">
+  <form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+      <label class="layui-form-label">系统</label>
+      <div class="layui-input-inline">
+        <select name="system" lay-verify="required" lay-filter="system">
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">类型</label>
+      <div class="layui-input-inline">
+        <select name="type" lay-verify="required" lay-filter="type">
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">名称</label>
+      <div class="layui-input-block">
+        <input name="name" autocomplete="off" placeholder="式样名称" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">描述</label>
+      <div class="layui-input-block">
+        <input name="detail" autocomplete="off" placeholder="式样描述" class="layui-input" type="text" lay-verify="required" style="width:329px;">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">维保时间</label>
+      <div class="layui-input-block">
+        <input name="year" autocomplete="off" placeholder="维保时间(年)" class="layui-input" type="text" style="width:329px;">
+      </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+      <legend>上传式样文件（限制上传1个文件及1张图片，多文件建议上传压缩包）</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <button type="button" class="layui-btn" id="uploadFile">
+          <i class="layui-icon">&#xe67c;</i>文件上传
+        </button>
+        <button type="button" class="layui-btn layui-btn-danger" id="uploadImg">
+          <i class="layui-icon">&#xe67c;</i>图片上传
+        </button>
+    </div>
+    <div class="layui-upload-list" style="display:none;">
+      <table class="layui-table">
+        <thead>
+          <tr><th>文件名</th>
+          <th>大小</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr></thead>
+        <tbody id="fileList"></tbody>
+      </table>
+    </div>
+    <hr>
+    
+    <div class="layui-form-item">
+      <button class="layui-btn" lay-submit="" lay-filter="edit">保存</button>
+      <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
+    </div>
+  </form>
+  
+  
+</div>
+<script>
+var access_token = sessionStorage.access_token;
+var userId = sessionStorage.userid;
+
+layui.use(['form'], function(){
+  var form = layui.form;
+  //获取基本数据
+  var id = getPar('id');
+  var rowData = parent.rowData[id]; 
+  //console.log(rowData);
+  $('input[name="name"]').val(rowData.STYLE_NAME);
+  $('input[name="detail"]').val(rowData.DETAIL);
+  $('input[name="parent"]').val(rowData.SERVICE_YEAR);
+  
+  form.render();
+  
+  //初始化select
+  $('select[name="type"]').attr('disabled','disabled');
+  
+  var selectData;
+  //获取select选项
+  $.ajax({
+    url: rootpath + '/actionApi/Style/select',
+    type:'post',
+    data:{"userId":userId},
+    headers:{"Authorization":"Basic "+access_token},
+    success:function(res){
+      selectData = res.data;
+      var systemList = selectData.system;
+      for(var key in systemList){
+        $('select[name="system"]').append('<option value="'+key+'">'+systemList[key]+'</option>');
+      }
+      $('select[name="system"]').val(rowData.SYSTEM_ID);
+      
+      form.render('select');
+      selectInit($('select[name="system"]').val());
+    }
+  });
+  
+  //系统select选择事件
+  form.on('select(system)', function(data){
+    selectInit(data.value);
+  });
+  
+  //初始化系统select菜单方法
+  function selectInit(systemId){
+    $('select[name="type"]').attr('disabled','disabled');
+    $('select[name="type"]').html('<option value="">类型</option>');
+    //如果系统里有地点，地点select增加选项并启用
+    if(selectData.type[systemId]){
+      $('select[name="type"]').removeAttr('disabled');
+      $('select[name="type"]').html('<option value="">类型</option>');
+      for(var key in selectData.type[systemId]){
+        $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
+      }
+      $('select[name="type"]').val(rowData.TYPE_ID);
+    }
+    
+    form.render('select');
+    
+  }
+  
+  //保存编辑按钮点击事件
+  form.on('submit(edit)', function(data){
+    data.field["userId"] = userId;  //表单数据中增加用户名
+    data.field["styleId"] = rowData.STYLE_ID;  //表单数据中增加设备ID
+    $.ajax({
+      url: rootpath + '/actionApi/Style/edit',
+      type:'post',
+      data:{
+        "":JSON.stringify(data.field)
+      },
+      headers:{"Authorization":"Basic "+access_token},
+      success:function(res){
+        if(res.code==0){
+          parent.tableRef = true;
+          parent.layer.msg("修改成功");
+          var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+          parent.layer.close(index); //再执行关闭   
+        }else{
+          layer.msg("修改失败");
+        }
+      }
+    });
+    
+    return false;
+  });
+  //取消按钮点击事件
+  $('#cancel').click(function(){
+    //当你在iframe页面关闭自身时
+    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    parent.layer.close(index); //再执行关闭   
+  });
+
+  
+});
+
+
+
+</script>

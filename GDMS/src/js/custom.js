@@ -1,3 +1,13 @@
+//监听数据表格行点击事件
+$(document).on('click', '.layui-table>tbody>tr>td', function (){
+  var field = $(this).attr('data-field');
+  //不能是链接行
+  if(field!='0'&&field!='STYLE_NAME'&&field!='SN'&&field!='STN_NAME'){
+    var index = $(this).parent().attr('data-index');
+    $('.layui-table-fixed tr[data-index='+index+']').find('.layui-form-checkbox').click();
+  }
+});
+
 //底部版权点击事件
 $('body').on('click','.footer-line',function(){
   layer.open({

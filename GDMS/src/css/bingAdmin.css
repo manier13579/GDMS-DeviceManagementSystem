@@ -221,3 +221,7 @@
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
   border-left: 1px solid #e6e6e6 !important;
 }
+.layui-field-title legend{
+  font-size:12px;
+  color:#888;
+}

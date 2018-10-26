@@ -118,9 +118,8 @@ layui.use(['table','form'], function(){
         {field: 'TYPE_NAME',title:'类型',fixed: 'left', width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'STYLE_NAME', title: '式样', fixed: 'left',width:130, sort: true,align:'center',style:"text-align:center;font-size:12px;color:#01AAED;cursor: pointer;"},
         {field: 'SN', title: '编号 / 别名',fixed: 'left', event: 'devMore',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;cursor: pointer;font-weight:700;"},
-        //{field: 'COUNT', title: '数量', fixed: 'left', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'DELIVERY_DATE', title: '到货日期', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
+        {field: 'STATUS', title: '状态', width:60,align:'center', sort: true,style:"text-align:center;font-size:12px;", templet: '#temp1'},
         {field: 'SITE_NAME', title: '地点', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'STN_NAME', title: '位置', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;", event: 'stn', style:'cursor: pointer;color:#01AAED;'},
         {field: 'REMARK', title: '备注', width:200,align:'center', sort: true,style:"text-align:left;font-size:12px;"},
@@ -398,15 +397,6 @@ layui.use(['table','form'], function(){
 
     }
   });
-  
-  //监听行点击事件
-  <!-- $(document).on('click', '.layui-table>tbody>tr', function (){ -->
-    <!-- var systemId = $(this).children('td:eq(0)').text(); -->
-    <!-- console.log(systemId); -->
-    <!-- $(this).parents().children().removeClass('row-selected'); -->
-    <!-- $(this).addClass('row-selected'); -->
-  <!-- }); -->
-  
 
 });
 
@@ -417,9 +407,18 @@ $('.viewBtn2').click(function(){
 });
 
 
+</script>
 
-
-
+<script type="text/html" id="temp1">
+  {{#  if(d.STATUS == '在用'){ }}
+    <span style="color:#0092FF;">{{d.STATUS}}</span>
+  {{#  } else if(d.STATUS == '备件'){ }}
+    <span style="color:#5FB878;">{{d.STATUS}}</span>
+  {{#  } else if(d.STATUS == '故障'){ }}
+    <span style="color:#D74E67;">{{d.STATUS}}</span>
+  {{#  } else if(d.STATUS == '维修'){ }}
+    <span style="color:#D48265;">{{d.STATUS}}</span>
+  {{#  } }}
 </script>
 
 <script type="text/html" id="toolbarHtml">
