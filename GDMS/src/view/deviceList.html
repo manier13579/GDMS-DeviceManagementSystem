@@ -73,6 +73,7 @@ var rowData;
 var tableRef = false;
 var moreShow = false;
 var moreIndex;
+var filterData = {'status':'','deliveryStart':'','deliveryEnd':'','site':'','stn':''};
 $('.layui-input-search').val('');   //初始化搜索框
 
 layui.use(['table','form'], function(){
@@ -101,7 +102,12 @@ layui.use(['table','form'], function(){
         "styleId":styleId,
         "stnId":stnId,
         "projectId":projectId,
-        "keyword":keyword
+        "keyword":keyword,
+        "filterStatus":filterData.status,
+        "filterDeliveryStart":filterData.deliveryStart,
+        "filterDeliveryEnd":filterData.deliveryEnd,
+        "filterSite":filterData.site,
+        "filterStn":filterData.stn
       },
       headers:{"Authorization":"Basic "+access_token},
       even:false,    //隔行变色
@@ -132,6 +138,36 @@ layui.use(['table','form'], function(){
         
       }
     }); 
+    switch(filterData.status){
+      case '': var statusHtml = '全部'; break;
+      case '0': var statusHtml = '备件'; break;
+      case '1': var statusHtml = '在用'; break;
+      case '2': var statusHtml = '故障'; break;
+      case '3': var statusHtml = '维修'; break;
+    }
+    switch(filterData.site){
+      case '': var siteHtml = '全部'; break;
+      case '0': var siteHtml = '无'; break;
+      case '1': var siteHtml = '有'; break;
+    }
+    switch(filterData.stn){
+      case '': var stnHtml = '全部'; break;
+      case '0': var stnHtml = '无'; break;
+      case '1': var stnHtml = '有'; break;
+    }
+    if(filterData.deliveryStart == ''&&filterData.deliveryEnd == ''){
+      var dateHtml = '全部';
+    }else if(filterData.deliveryStart == ''){
+      var dateHtml = '更早 - '+filterData.deliveryEnd;
+    }else if(filterData.deliveryEnd == ''){
+      var dateHtml = filterData.deliveryStart + ' - 至今';
+    }else{
+      var dateHtml = filterData.deliveryStart+' - '+filterData.deliveryEnd;
+    }
+    $('#filterStatus').find('span').text(statusHtml);
+    $('#filterDate').find('span').text(dateHtml);
+    $('#filterSite').find('span').text(siteHtml);
+    $('#filterStn').find('span').text(stnHtml);
   }
   
   //搜索输入监听 - 重新加载表格
@@ -398,6 +434,27 @@ layui.use(['table','form'], function(){
     }
   });
 
+  //监听工具栏事件
+  table.on('toolbar(table1)', function(obj){
+    switch(obj.event){
+      case 'filter':
+        layer.open({
+          type: 2,
+          title:'筛选',
+          area: ['478px', '380px'], //宽高
+          content: 'src/view/second/deviceFilter.html',
+          end:function(){
+            if(tableRef==true){
+              formShow();
+              console.log(filterData);
+              tableRef = false;
+            }
+          },
+        });
+      break;
+    };
+  });
+  
 });
 
 //二级按钮点击事件
@@ -423,9 +480,9 @@ $('.viewBtn2').click(function(){
 
 <script type="text/html" id="toolbarHtml">
   <div class="layui-btn-container">
-    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStatus">状态：<span>全部</span></button>
-    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterDate">到货日期：<span>全部</span></button>
-    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterSite">地点：<span>全部</span></button>
-    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStation">位置：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" id="filterStatus" lay-event="filter">状态：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" id="filterDate" lay-event="filter">到货日期：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" id="filterSite" lay-event="filter">地点：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" id="filterStn" lay-event="filter">位置：<span>全部</span></button>
   </div>
 </script>

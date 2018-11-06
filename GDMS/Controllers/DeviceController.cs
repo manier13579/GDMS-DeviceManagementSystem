@@ -39,6 +39,11 @@ namespace GDMS.Controllers
             public string styleId { get; set; }
             public string projectId { get; set; }
             public string keyword { get; set; }
+            public string filterStatus { get; set; }
+            public string filterDeliveryStart { get; set; }
+            public string filterDeliveryEnd { get; set; }
+            public string filterSite { get; set; }
+            public string filterStn { get; set; }
 
             public int page { get; set; }
             public int limit { get; set; }
@@ -57,13 +62,30 @@ namespace GDMS.Controllers
             if (deviceAjax.stnId != null) { where = where + " AND A.STN_ID = '" + deviceAjax.stnId + "'"; }
             if (deviceAjax.styleId != null) { where = where + " AND A.STYLE_ID = '" + deviceAjax.styleId + "'"; }
             if (deviceAjax.projectId != null) { where = where + " AND A.PROJECT_ID = '" + deviceAjax.projectId + "'"; }
-            if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) {
-                //模糊搜索项：序列号、备注
-                where = where + "AND ( "+
+            if (deviceAjax.keyword != null && deviceAjax.keyword.Length != 0) {   //模糊搜索项：序列号、备注
+                where = where + " AND ( "+
                     "UPPER(A.SN) LIKE '%" + deviceAjax.keyword.ToUpper() + "%' or " +
                     "UPPER(A.REMARK) LIKE '%" + deviceAjax.keyword.ToUpper() + "%')";
             }
-
+            if (deviceAjax.filterStatus != null && deviceAjax.filterStatus.Length != 0){   //筛选状态
+                where = where + " AND A.STATUS = '" + deviceAjax.filterStatus + "'";
+            }
+            if (deviceAjax.filterDeliveryStart != null && deviceAjax.filterDeliveryStart.Length != 0){  //筛选到货日期 - 起始日期
+                where = where + " AND DELIVERY_DATE >= to_date('" + deviceAjax.filterDeliveryStart + "','yyyy-mm-dd')";
+            }
+            if (deviceAjax.filterDeliveryEnd != null && deviceAjax.filterDeliveryEnd.Length != 0){  //筛选到货日期 - 结束日期
+                where = where + " AND DELIVERY_DATE <= to_date('" + deviceAjax.filterDeliveryEnd + "','yyyy-mm-dd')";
+            }
+            if (deviceAjax.filterSite == "0"){  //筛选地点
+                where = where + " AND (SITE_ID = '' OR SITE_ID IS NULL)";
+            }else if (deviceAjax.filterSite == "1"){
+                where = where + " AND (SITE_ID <> '' OR SITE_ID IS NOT NULL)";
+            }
+            if (deviceAjax.filterStn == "0"){  //筛选位置
+                where = where + " AND (STN_ID = '' OR STN_ID IS NULL)";
+            }else if (deviceAjax.filterStn == "1"){
+                where = where + " AND (STN_ID <> '' OR STN_ID IS NOT NULL)";
+            }
             string sqlnp = @"
                 SELECT
                 A.COUNT,
