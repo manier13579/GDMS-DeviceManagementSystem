@@ -26,6 +26,7 @@ namespace GDMS.Controllers
             public int page { get; set; }
             public int limit { get; set; }
             public string keyword { get; set; }
+            public string filterStatus { get; set; }
         }
         //返回对象
         private class Response
@@ -45,6 +46,10 @@ namespace GDMS.Controllers
             if (stnajax.systemId != null) { where = where + " AND B.SYSTEM_ID = '" + stnajax.systemId + "'"; }
             if (stnajax.siteId != null) { where = where + " AND A.SITE_ID = '" + stnajax.siteId + "'"; }
             if (stnajax.keyword != null && stnajax.keyword.Length != 0) { where = where + "AND ( A.NAME LIKE '" + stnajax.keyword + "' or A.DETAIL LIKE '" + stnajax.keyword + "' or A.REMARK LIKE '" + stnajax.keyword + "')"; }
+            if (stnajax.filterStatus != null && stnajax.filterStatus.Length != 0){   //筛选状态
+                where = where + " AND A.STATUS = '" + stnajax.filterStatus + "'";
+            }
+
             string sqlnp = @"
                 SELECT
                 A.ID AS STN_ID,

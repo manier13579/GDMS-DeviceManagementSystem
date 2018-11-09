@@ -20,44 +20,13 @@
       <div class="layui-input-inline">
         <select name="status" lay-filter="status">
           <option value="">全部</option>
-          <option value="1">在用</option>
-          <option value="0">备件</option>
-          <option value="2">故障</option>
-          <option value="3">维修</option>
-        </select>
-      </div>
-    </div>
-    <div class="layui-form-item">
-      <label class="layui-form-label">到货日期</label>
-      <div class="layui-input-inline">
-        <input name="deliveryStart" id="date1" autocomplete="off" placeholder="起始" class="layui-input" type="text">
-      </div>
-      <div class="layui-input-inline">
-        <input name="deliveryEnd" id="date2" autocomplete="off" placeholder="结束" class="layui-input" type="text">
-      </div>
-    </div>
-    <div class="layui-form-item">
-      <label class="layui-form-label">地点</label>
-      <div class="layui-input-block">
-        <select name="site" lay-filter="site">
-          <option value="">全部</option>
-          <option value="1">有</option>
-          <option value="0">无</option>
-        </select>
-      </div>
-    </div>
-    <div class="layui-form-item">
-      <label class="layui-form-label">位置</label>
-      <div class="layui-input-block">
-        <select name="stn" lay-filter="stn">
-          <option value="">全部</option>
-          <option value="1">有</option>
-          <option value="0">无</option>
+          <option value="1">使用中</option>
+          <option value="0">未使用</option>
         </select>
       </div>
     </div>
     
-    <div class="layui-form-item" style="margin-top:80px;padding-left: 108px;">
+    <div class="layui-form-item" style="margin-top:65px;padding-left:23px;">
       <button class="layui-btn" lay-submit="" lay-filter="save">筛选</button>
       <button class="layui-btn layui-btn-warm" type="reset" >重置</button>
       <button class="layui-btn layui-btn-primary" id="cancel">取消</button>
@@ -70,33 +39,18 @@
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
 
-layui.use(['form','laydate'], function(){
+layui.use(['form'], function(){
   var form = layui.form;
-  var laydate = layui.laydate;
   //获取数据
   var filterData = parent.filterData;
   $('select[name="status"]').val(filterData.status);
-  $('select[name="site"]').val(filterData.site);
-  $('select[name="stn"]').val(filterData.stn);
   
   form.render();
-  laydate.render({
-    elem: '#date1',   //指定元素
-    value:filterData.deliveryStart
-  });
-  laydate.render({
-    elem: '#date2',   //指定元素
-    value:filterData.deliveryEnd
-  });
   
   //保存编辑按钮点击事件
   form.on('submit(save)', function(data){
     parent.filterData = {
-      'deliveryStart':data.field.deliveryStart,
-      'deliveryEnd':data.field.deliveryEnd,
-      'status':data.field.status,
-      'site':data.field.site,
-      'stn':data.field.stn
+      'status':data.field.status
     };
     parent.tableRef = true;
     parent.layer.msg("筛选成功");

@@ -50,6 +50,7 @@ var rowData;
 var tableRef = false;
 var moreShow = false;
 var moreIndex;
+var filterData = {'status':''};
 $('.layui-input-search').val('');   //初始化搜索框
 
 layui.use(['table','form'], function(){
@@ -70,7 +71,8 @@ layui.use(['table','form'], function(){
         "userId":userId,
         "systemId":systemId,
         "siteId":siteId,
-        "keyword":keyword
+        "keyword":keyword,
+        "filterStatus":filterData.status
       },
       headers:{"Authorization":"Basic "+access_token},
       even:true,
@@ -301,6 +303,27 @@ layui.use(['table','form'], function(){
 
     }
   });
+  
+  //监听工具栏事件
+  table.on('toolbar(table1)', function(obj){
+    switch(obj.event){
+      case 'filter':
+        layer.open({
+          type: 2,
+          title:'筛选',
+          area: ['308px', '220px'], //宽高
+          content: 'src/view/second/stnFilter.html',
+          end:function(){
+            if(tableRef==true){
+              formShow();
+              tableRef = false;
+            }
+          },
+        });
+      break;
+    };
+  });
+  
 });
 
 //二级按钮点击事件
@@ -315,6 +338,6 @@ $('.viewBtn2').click(function(){
 
 <script type="text/html" id="toolbarHtml">
   <div class="layui-btn-container">
-    <button class="layui-btn layui-btn-primary layui-btn-sm" lay-event="filterStatus">状态：<span>全部</span></button>
+    <button class="layui-btn layui-btn-primary layui-btn-sm" id="filterStatus" lay-event="filter">状态：<span>全部</span></button>
   </div>
 </script>

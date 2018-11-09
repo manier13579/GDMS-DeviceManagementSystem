@@ -137,7 +137,7 @@ layui.use(['table','form'], function(){
     $('select[name="type"]').attr('disabled','disabled');
     $('select[name="type"]').html('<option value="">类型</option>');
     var systemId = data.value;
-    //如果系统里有地点，类型select增加选项并启用
+    //如果系统里有类型，类型select增加选项并启用
     if(selectData.type[systemId]){
       $('select[name="type"]').removeAttr('disabled');
       $('select[name="type"]').html('<option value="">类型</option>');

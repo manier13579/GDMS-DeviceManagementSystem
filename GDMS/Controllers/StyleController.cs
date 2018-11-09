@@ -6,9 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Web;
 using System.Web.Http;
 using GDMS.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GDMS.Controllers
 {
@@ -35,7 +37,7 @@ namespace GDMS.Controllers
             public object data { get; set; }
         }
 
-        //获取设备列表
+        //获取式样列表
         [ActionName("list")]
         public HttpResponseMessage StyleList([FromBody] StyleAjax styleajax)
         {
@@ -49,7 +51,7 @@ namespace GDMS.Controllers
                 A.ID AS STYLE_ID,
                 A.NAME AS STYLE_NAME,
                 A.DETAIL,
-                A.FILE_TYPE,
+                A.IMG_URL,
                 A.FILE_URL,
                 A.USER_ID,
                 A.EDIT_DATE,
@@ -77,7 +79,7 @@ namespace GDMS.Controllers
                     { "STYLE_ID", col["STYLE_ID"].ToString() },
                     { "STYLE_NAME", col["STYLE_NAME"].ToString() },
                     { "DETAIL", col["DETAIL"].ToString() },
-                    { "FILE_TYPE", col["FILE_TYPE"].ToString() },
+                    { "IMG_URL", col["IMG_URL"].ToString() },
                     { "FILE_URL", col["FILE_URL"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
@@ -185,18 +187,25 @@ namespace GDMS.Controllers
             return resJson;
         }
 
-        //删除设备
+        //删除式样
         [ActionName("del")]
-        public HttpResponseMessage DeviceDel([FromBody] StyleAjax styleajax)
+        public HttpResponseMessage StyleDel([FromBody] String ajaxData)
         {
             Db db = new Db();
-            string sql = @"";
-
-            var ds = db.QueryT(sql);
+            JArray idArr = (JArray)JsonConvert.DeserializeObject(ajaxData);
+            string sqlin = "";
+            foreach (var siteId in idArr)
+            {
+                sqlin = sqlin + siteId + ",";
+            }
+            sqlin = sqlin.Substring(0, sqlin.Length - 1);
+            string sql = "DELETE FROM GDMS_STYLE WHERE ID IN (" + sqlin + ")";
+            //！！！！这里先要把上传过的文件删除，再删除数据库记录
+            var rows = db.ExecuteSql(sql);
             Response res = new Response();
 
             res.code = 0;
-            res.msg = "";
+            res.msg = "操作成功，删除了" + rows + "个式样";
             res.data = null;
 
             var resJsonStr = JsonConvert.SerializeObject(res);
@@ -207,6 +216,107 @@ namespace GDMS.Controllers
             return resJson;
         }
 
+        //添加式样
+        [ActionName("add")]
+        public HttpResponseMessage StyleAdd([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"SELECT STYLE_ADD(
+                '" + (String)formData["name"] + @"', 
+                '" + (String)formData["detail"] + @"',
+                '" + (String)formData["year"] + @"',
+                '" + (String)formData["type"] + @"',
+                '" + (String)formData["userid"] + @"'
+                ) AS STYLEID FROM DUAL";
+            var ds = db.QueryT(sql);    //执行设备添加ORACLE函数，返回主键：styleId
+            var styleId = "";
+            foreach (DataRow col in ds.Rows)
+            {
+                styleId = col["STYLEID"].ToString();
+            }
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "添加成功";
+            res.data = styleId;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //修改项目
+        [ActionName("edit")]
+        public HttpResponseMessage StyleEdit([FromBody] String ajaxData)
+        {
+            JObject formData = (JObject)JsonConvert.DeserializeObject(ajaxData);
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_SITE SET 
+                SYSTEM_ID = '" + (String)formData["system"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                REMARK = '" + (String)formData["remark"] + @"',
+                PARENT_ID = '" + (String)formData["parent"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["siteId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+
+            Response res = new Response();
+            res.code = 0;
+            res.msg = "更新成功" + rows;
+            res.data = null;
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
+
+        //上传式样文件
+        [ActionName("uploadFile")]
+        public HttpResponseMessage StyleUploadFile(HttpContext Request)
+        {
+            HttpPostedFile filedata = Request.Files[0];
+            Response res = new Response();
+            if (filedata == null || String.IsNullOrEmpty(filedata.FileName) || filedata.ContentLength == 0)
+            {
+                res.code = 1;
+            }
+            else {
+                res.code = 0;
+            }
+            string filename = System.IO.Path.GetFileName(filedata.FileName);
+            string virtualPath = String.Format("~/File/{0}", filename);
+            string path = HttpContext.Current.Server.MapPath(virtualPath);
+            filedata.SaveAs(path);
+            /*
+            Db db = new Db();
+            string sql = @"UPDATE GDMS_SITE SET 
+                SYSTEM_ID = '" + (String)formData["system"] + @"',
+                NAME = '" + (String)formData["name"] + @"',
+                REMARK = '" + (String)formData["remark"] + @"',
+                PARENT_ID = '" + (String)formData["parent"] + @"',
+                USER_ID = '" + (String)formData["userId"] + @"',
+                EDIT_DATE = SYSDATE
+                WHERE ID = '" + (String)formData["siteId"] + "'";
+
+            var rows = db.ExecuteSql(sql);
+            */
+
+
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
 
     }
 }

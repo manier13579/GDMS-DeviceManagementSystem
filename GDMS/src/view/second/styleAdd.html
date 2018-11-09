@@ -62,7 +62,8 @@
         <hr>
         <div class="layui-form-item">
           <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
-          <button id="fileListAction" style="display:none;">隐藏上传按钮</button>
+          <button type="button" id="fileListAction1" style="display:none;" >隐藏的文件上传按钮</button>
+          <button type="button" id="fileListAction2" style="display:none;" >隐藏的图片上传按钮</button>
           <button class="layui-btn layui-btn-primary" lay-filter="cancel">取消</button>
         </div>
       </form>
@@ -75,7 +76,9 @@
 <script>
 var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
-
+var signFile = false;   //是否已选择文件标记
+var signImg = false;   //是否已选择图片标记
+  
 layui.use(['form','laydate','upload'], function(){
   var form = layui.form;
   var upload = layui.upload;
@@ -110,20 +113,24 @@ layui.use(['form','laydate','upload'], function(){
   //初始化系统select菜单方法
   function selectInit(systemId){
     $('select[name="type"]').attr('disabled','disabled');
-    $('select[name="type"]').html('<option value="">地点</option>');
+    $('select[name="type"]').html('<option value="">类型</option>');
     //如果系统里有地点，地点select增加选项并启用
     if(selectData.type[systemId]){
       $('select[name="type"]').removeAttr('disabled');
-      $('select[name="type"]').html('<option value="">地点</option>');
+      $('select[name="type"]').html('<option value="">类型</option>');
       for(var key in selectData.type[systemId]){
         $('select[name="type"]').append('<option value="'+key+'">'+selectData.type[systemId][key]+'</option>');
       }
     }
     form.render('select');
   }
+  
   //添加按钮点击事件
   form.on('submit(add)', function(data){
+    var that = $(this);
     data.field["userId"] = userId;  //表单数据中增加用户名
+    delete data.field.file;
+    
     $.ajax({
       url: 'actionApi/Style/add',
       type:'post',
@@ -133,21 +140,30 @@ layui.use(['form','laydate','upload'], function(){
       headers:{"Authorization":"Basic "+access_token},
       success:function(res){
         if(res.code==0){
-          var id = layer.msg("添加成功", {
-            time: false,   //取消自动关闭
-            btn: ['完成', '继续添加'],
-            btn1:function(){
-              var view = sessionStorage.viewNow;
-              $('#view').load('src/view/'+view+'.html');
-              layer.close(id);
-            },
-            btn2:function(){
-              $('input[name="station"]').val('');
-              $('input[name="detail"]').val('');
-              $('input[name="remark"]').val('');
-              layer.close(id);
-            }
-          });
+          var styleId = res.data;   //返回的主键-式样id
+          if(signFile == true || signImg == true){
+            that.attr('disabled','disabled').addClass('layui-btn-disabled');
+            layer.msg("添加信息成功，正在上传文件");
+            $('#fileListAction1').click();
+            $('#fileListAction2').click();
+          }else{
+            var id = layer.msg("上传成功", {
+              time: false,   //取消自动关闭
+              btn: ['完成', '继续添加'],
+              btn1:function(){
+                var view = sessionStorage.viewNow;
+                $('#view').load('src/view/'+view+'.html');
+                layer.close(id);
+              },
+              btn2:function(){
+                $('input[name="name"]').val('');
+                $('input[name="detail"]').val('');
+                $('input[name="year"]').val('');
+                layer.close(id);
+              }
+            });
+          }
+          return false;
         }else{
           layer.msg("添加失败");
         }
@@ -166,15 +182,14 @@ layui.use(['form','laydate','upload'], function(){
   
   //上传式样文件
   var fileListView = $('#fileList');
-  var signFile = false;   //是否已选择文件标记
-  var signImg = false;   //是否已选择图片标记
   //文件上传
   var uploadListFile = upload.render({
     elem: '#uploadFile',
     url: 'actionApi/Style/uploadFile',
     accept: 'file',
     auto: false,
-    bindAction: '#fileListAction',
+    headers:{"Authorization":"Basic "+access_token},
+    bindAction: '#fileListAction1',
     choose: function(obj){
       $('.layui-upload-list').show();   //显示上传文件列表
       if(signFile == false){
@@ -195,6 +210,7 @@ layui.use(['form','laydate','upload'], function(){
           //单个重传
           tr.find('.demo-reload').on('click', function(){
             obj.upload(index, file);
+            return false;
           });
           
           //删除
@@ -203,6 +219,7 @@ layui.use(['form','laydate','upload'], function(){
             signFile = false;
             tr.remove();
             uploadListFile.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+            return false;
           });
           
           fileListView.append(tr);
@@ -220,6 +237,23 @@ layui.use(['form','laydate','upload'], function(){
         tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
         tds.eq(3).html(''); //清空操作
         return delete this.files[index]; //删除文件队列已经上传成功的文件
+        /*
+        var id = layer.msg("上传成功", {
+          time: false,   //取消自动关闭
+          btn: ['完成', '继续添加'],
+          btn1:function(){
+            var view = sessionStorage.viewNow;
+            $('#view').load('src/view/'+view+'.html');
+            layer.close(id);
+          },
+          btn2:function(){
+            $('input[name="name"]').val('');
+            $('input[name="detail"]').val('');
+            $('input[name="year"]').val('');
+            layer.close(id);
+          }
+        });
+        */
       }
       this.error(index, upload);
     },
@@ -237,7 +271,7 @@ layui.use(['form','laydate','upload'], function(){
     url: 'actionApi/Style/uploadImg',
     accept: 'images',
     auto: false,
-    bindAction: '#fileListAction',
+    bindAction: '#fileListAction2',
     choose: function(obj){
       $('.layui-upload-list').show();   //显示上传文件列表
       if(signImg == false){
