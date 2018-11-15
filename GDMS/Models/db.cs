@@ -11,7 +11,7 @@ namespace GDMS.Models
 {
     public class Db
     {
-        public static string connString = "User ID=bing;Password=906124;Data Source=(DESCRIPTION = (ADDRESS_LIST= (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))) (CONNECT_DATA = (SERVICE_NAME = XE)))";
+        public static string connString = "User ID=test;Password=906124;Data Source=(DESCRIPTION = (ADDRESS_LIST= (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))) (CONNECT_DATA = (SERVICE_NAME = XE)))";
 
         /// 执行数据库非查询操作,返回受影响的行数
         /// 参数：SQLString(SQL语句)

@@ -282,7 +282,7 @@ namespace GDMS.Controllers
         [ActionName("uploadFile")]
         public HttpResponseMessage StyleUploadFile(HttpContext Request)
         {
-            HttpPostedFile filedata = Request.Files[0];
+            HttpPostedFile filedata = Request.Request.Files[0];
             Response res = new Response();
             if (filedata == null || String.IsNullOrEmpty(filedata.FileName) || filedata.ContentLength == 0)
             {
