@@ -61,7 +61,7 @@
         </div>
         <hr>
         <div class="layui-form-item">
-          <button class="layui-btn" lay-submit="" lay-filter="add">添加</button>
+          <button class="layui-btn" lay-submit="" lay-filter="add" id="add">添加</button>
           <button type="button" id="fileListAction1" style="display:none;" >隐藏的文件上传按钮</button>
           <button type="button" id="fileListAction2" style="display:none;" >隐藏的图片上传按钮</button>
           <button class="layui-btn layui-btn-primary" lay-filter="cancel">取消</button>
@@ -78,7 +78,9 @@ var access_token = sessionStorage.access_token;
 var userId = sessionStorage.userid;
 var signFile = false;   //是否已选择文件标记
 var signImg = false;   //是否已选择图片标记
-  
+var showFinish = false;    //添加完成窗口显示标记
+var styleId = 0;
+
 layui.use(['form','laydate','upload'], function(){
   var form = layui.form;
   var upload = layui.upload;
@@ -140,7 +142,7 @@ layui.use(['form','laydate','upload'], function(){
       headers:{"Authorization":"Basic "+access_token},
       success:function(res){
         if(res.code==0){
-          var styleId = res.data;   //返回的主键-式样id
+          styleId = res.data;   //返回的主键-式样id
           if(signFile == true || signImg == true){
             that.attr('disabled','disabled').addClass('layui-btn-disabled');
             layer.msg("添加信息成功，正在上传文件");
@@ -188,6 +190,7 @@ layui.use(['form','laydate','upload'], function(){
     url: 'actionApi/Style/uploadFile',
     accept: 'file',
     auto: false,
+    data:{"styleId":styleId},
     headers:{"Authorization":"Basic "+access_token},
     bindAction: '#fileListAction1',
     choose: function(obj){
@@ -236,24 +239,31 @@ layui.use(['form','laydate','upload'], function(){
         ,tds = tr.children();
         tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
         tds.eq(3).html(''); //清空操作
-        return delete this.files[index]; //删除文件队列已经上传成功的文件
-        /*
-        var id = layer.msg("上传成功", {
-          time: false,   //取消自动关闭
-          btn: ['完成', '继续添加'],
-          btn1:function(){
-            var view = sessionStorage.viewNow;
-            $('#view').load('src/view/'+view+'.html');
-            layer.close(id);
-          },
-          btn2:function(){
-            $('input[name="name"]').val('');
-            $('input[name="detail"]').val('');
-            $('input[name="year"]').val('');
-            layer.close(id);
-          }
-        });
-        */
+        delete this.files[index]; //删除文件队列已经上传成功的文件
+        signFile = false;
+        
+        if(signFile == false && signImg == false && showFinish == false){
+          showFinish = true;
+          var id = layer.msg("上传成功", {
+            time: false,   //取消自动关闭
+            btn: ['完成', '继续添加'],
+            btn1:function(){
+              var view = sessionStorage.viewNow;
+              $('#view').load('src/view/'+view+'.html');
+              layer.close(id);
+            },
+            btn2:function(){
+              $('input[name="name"]').val('');
+              $('input[name="detail"]').val('');
+              $('input[name="year"]').val('');
+              $('.layui-upload-list').find('tr').remove();
+              $('#add').removeAttr('disabled').removeClass('layui-btn-disabled');
+              layer.close(id);
+            }
+          });
+        }
+        
+        return;
       }
       this.error(index, upload);
     },
@@ -315,7 +325,32 @@ layui.use(['form','laydate','upload'], function(){
         ,tds = tr.children();
         tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
         tds.eq(3).html(''); //清空操作
-        return delete this.files[index]; //删除文件队列已经上传成功的文件
+        delete this.files[index]; //删除文件队列已经上传成功的文件
+        signImg = false;
+        
+        if(signFile == false && signImg == false && showFinish == false){
+          showFinish = true;
+          var id = layer.msg("上传成功", {
+            time: false,   //取消自动关闭
+            btn: ['完成', '继续添加'],
+            btn1:function(){
+              var view = sessionStorage.viewNow;
+              $('#view').load('src/view/'+view+'.html');
+              layer.close(id);
+            },
+            btn2:function(){
+              $('input[name="name"]').val('');
+              $('input[name="detail"]').val('');
+              $('input[name="year"]').val('');
+              $('.layui-upload-list').find('tr').remove();
+              $('#add').removeAttr('disabled').removeClass('layui-btn-disabled');
+              layer.close(id);
+            }
+          });
+        }
+        
+        return;
+        
       }
       this.error(index, upload);
     },

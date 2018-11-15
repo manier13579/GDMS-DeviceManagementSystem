@@ -280,21 +280,27 @@ namespace GDMS.Controllers
 
         //上传式样文件
         [ActionName("uploadFile")]
-        public HttpResponseMessage StyleUploadFile(HttpContext Request)
+        public HttpResponseMessage StyleUploadFile()
         {
-            HttpPostedFile filedata = Request.Request.Files[0];
+            var file = HttpContext.Current.Request.Files.Count > 0 ?
+                HttpContext.Current.Request.Files[0] : null;
+
             Response res = new Response();
-            if (filedata == null || String.IsNullOrEmpty(filedata.FileName) || filedata.ContentLength == 0)
+
+            if (file != null && file.ContentLength > 0)
+            {
+                string fileName = System.IO.Path.GetFileName(file.FileName);
+                string virtualPath = String.Format("~/upload/files/{0}", fileName);
+                string path = HttpContext.Current.Server.MapPath(virtualPath);
+
+                file.SaveAs(path);
+                res.code = 0;
+            }
+            else
             {
                 res.code = 1;
             }
-            else {
-                res.code = 0;
-            }
-            string filename = System.IO.Path.GetFileName(filedata.FileName);
-            string virtualPath = String.Format("~/File/{0}", filename);
-            string path = HttpContext.Current.Server.MapPath(virtualPath);
-            filedata.SaveAs(path);
+
             /*
             Db db = new Db();
             string sql = @"UPDATE GDMS_SITE SET 
