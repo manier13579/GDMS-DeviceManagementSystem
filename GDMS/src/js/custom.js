@@ -2,7 +2,7 @@
 $(document).on('click', '.layui-table>tbody>tr>td', function (){
   var field = $(this).attr('data-field');
   //不能是链接行
-  if(field!='0'&&field!='STYLE_NAME'&&field!='SN'&&field!='STN_NAME'){
+  if(field!='0'&&field!='STYLE_NAME'&&field!='SN'&&field!='STN_NAME'&&field!='FILE_NAME'&&field!='IMG_URL'){
     var index = $(this).parent().attr('data-index');
     $('.layui-table-fixed tr[data-index='+index+']').find('.layui-form-checkbox').click();
   }

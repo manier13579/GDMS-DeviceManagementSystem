@@ -53,6 +53,7 @@ namespace GDMS.Controllers
                 A.DETAIL,
                 A.IMG_URL,
                 A.FILE_URL,
+                A.FILE_NAME,
                 A.USER_ID,
                 A.EDIT_DATE,
                 A.SERVICE_YEAR,
@@ -81,6 +82,7 @@ namespace GDMS.Controllers
                     { "DETAIL", col["DETAIL"].ToString() },
                     { "IMG_URL", col["IMG_URL"].ToString() },
                     { "FILE_URL", col["FILE_URL"].ToString() },
+                    { "FILE_NAME", col["FILE_NAME"].ToString() },
                     { "USER_ID", col["USER_ID"].ToString() },
                     { "EDIT_DATE", col["EDIT_DATE"].ToString() },
                     { "TYPE_NAME", col["TYPE_NAME"].ToString() },
@@ -285,36 +287,75 @@ namespace GDMS.Controllers
             var file = HttpContext.Current.Request.Files.Count > 0 ?
                 HttpContext.Current.Request.Files[0] : null;
 
+            string styleId = HttpContext.Current.Request.Form["styleId"];
             Response res = new Response();
 
             if (file != null && file.ContentLength > 0)
             {
+                string uuid = Guid.NewGuid().ToString("N");
                 string fileName = System.IO.Path.GetFileName(file.FileName);
-                string virtualPath = String.Format("~/upload/files/{0}", fileName);
+                string virtualPath = String.Format("~/upload/files/{0}", uuid);
                 string path = HttpContext.Current.Server.MapPath(virtualPath);
-
                 file.SaveAs(path);
+
+                //数据库写入文件名和对应的路径
+                Db db = new Db();
+                string sql = @"UPDATE GDMS_STYLE SET 
+                    FILE_URL = '" + uuid + @"',
+                    FILE_NAME = '" + fileName + @"'
+                    WHERE ID = '" + styleId + "'";
+
+                var rows = db.ExecuteSql(sql);
+
                 res.code = 0;
+                res.msg = "上传文件成功" + rows;
             }
             else
             {
                 res.code = 1;
             }
 
-            /*
-            Db db = new Db();
-            string sql = @"UPDATE GDMS_SITE SET 
-                SYSTEM_ID = '" + (String)formData["system"] + @"',
-                NAME = '" + (String)formData["name"] + @"',
-                REMARK = '" + (String)formData["remark"] + @"',
-                PARENT_ID = '" + (String)formData["parent"] + @"',
-                USER_ID = '" + (String)formData["userId"] + @"',
-                EDIT_DATE = SYSDATE
-                WHERE ID = '" + (String)formData["siteId"] + "'";
+            var resJsonStr = JsonConvert.SerializeObject(res);
+            HttpResponseMessage resJson = new HttpResponseMessage
+            {
+                Content = new StringContent(resJsonStr, Encoding.GetEncoding("UTF-8"), "application/json")
+            };
+            return resJson;
+        }
 
-            var rows = db.ExecuteSql(sql);
-            */
+        //上传式样图片
+        [ActionName("uploadImg")]
+        public HttpResponseMessage StyleUploadImg()
+        {
+            var file = HttpContext.Current.Request.Files.Count > 0 ?
+                HttpContext.Current.Request.Files[0] : null;
 
+            string styleId = HttpContext.Current.Request.Form["styleId"];
+            Response res = new Response();
+
+            if (file != null && file.ContentLength > 0)
+            {
+                string uuid = Guid.NewGuid().ToString("N");     //生成一个UUID
+                string exName = System.IO.Path.GetExtension(file.FileName);     //扩展名
+                string virtualPath = String.Format("~/upload/images/{0}", uuid + exName);
+                string path = HttpContext.Current.Server.MapPath(virtualPath);
+                file.SaveAs(path);
+
+                //数据库写入文件名和对应的路径
+                Db db = new Db();
+                string sql = @"UPDATE GDMS_STYLE SET 
+                    IMG_URL = '" + uuid + exName + @"'
+                    WHERE ID = '" + styleId + "'";
+
+                var rows = db.ExecuteSql(sql);
+
+                res.code = 0;
+                res.msg = "上传图片成功" + rows;
+            }
+            else
+            {
+                res.code = 1;
+            }
 
             var resJsonStr = JsonConvert.SerializeObject(res);
             HttpResponseMessage resJson = new HttpResponseMessage

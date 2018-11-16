@@ -78,8 +78,8 @@ layui.use(['table','form'], function(){
         {field: 'STYLE_NAME',title:'式样', fixed: 'left',width:160, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
         {field: 'DETAIL', title: '描述', fixed: 'left', width:200, sort: true,align:'center',style:"text-align:left;font-size:12px;"},
         {field: 'SERVICE_YEAR', title: '维保时间', width:90, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'FILE_URL', title: '文件', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
-        {field: 'IMG_URL', title: '图片', width:60, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
+        {field: 'FILE_NAME', title: '文件', width:240, sort: true,align:'center',style:"text-align:left;font-size:12px;"},
+        {field: 'IMG_URL', title: '图片', width:80, sort: true,align:'center',style:"text-align:center;font-size:12px;", templet: '#temp1',event:'showImg'},
         {field: 'TYPE_NAME', title: '类型', width:150,align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'SYSTEM_NAME', title: '系统', align:'center', sort: true,style:"text-align:center;font-size:12px;"},
         {field: 'USER_ID', title: '编辑用户', width:100, sort: true,align:'center',style:"text-align:center;font-size:12px;"},
@@ -232,6 +232,27 @@ layui.use(['table','form'], function(){
 
     }
   });
+  
+  //监听单元格事件
+  table.on('tool(table1)', function(obj){
+    var data = obj.data;
+    if(obj.event === 'showImg'){  //图片点击
+      if(data.IMG_URL!=''){
+        layer.open({
+          type: 1,
+          title: false,
+          closeBtn: 1,
+          area: 'auto',
+          maxWidth:'1000px',
+          skin: 'layui-layer-nobg', //没有背景色
+          shadeClose: true,
+          content: '<img src="upload/images/'+data.IMG_URL+'"/>'
+        });
+      }
+
+    }
+  });
+  
 });
 
 //二级按钮点击事件
@@ -241,4 +262,10 @@ $('.viewBtn2').click(function(){
 });
 
 
+</script>
+
+<script type="text/html" id="temp1">
+  {{#  if(d.IMG_URL != ''){ }}
+    <img src="upload/images/{{d.IMG_URL}}"  height="100%"/>
+  {{#  } }}
 </script>

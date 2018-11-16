@@ -146,6 +146,8 @@ layui.use(['form','laydate','upload'], function(){
           if(signFile == true || signImg == true){
             that.attr('disabled','disabled').addClass('layui-btn-disabled');
             layer.msg("添加信息成功，正在上传文件");
+            uploadListFile.config.data.styleId = styleId;
+            uploadListImg.config.data.styleId = styleId;
             $('#fileListAction1').click();
             $('#fileListAction2').click();
           }else{
@@ -280,6 +282,8 @@ layui.use(['form','laydate','upload'], function(){
     elem: '#uploadImg',
     url: 'actionApi/Style/uploadImg',
     accept: 'images',
+    data:{"styleId":styleId},
+    headers:{"Authorization":"Basic "+access_token},
     auto: false,
     bindAction: '#fileListAction2',
     choose: function(obj){
